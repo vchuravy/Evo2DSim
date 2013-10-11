@@ -6,7 +6,7 @@ import org.jbox2d.dynamics
 import org.jbox2d.collision.shapes._
 
 
-class World(timeStep: Float) {
+class World {
   val velocityIteration = 6
   val positionIteration = 3 // recommend iteration values
   val b2world = new dynamics.World(new Vec2(0,0))
@@ -39,7 +39,7 @@ class World(timeStep: Float) {
     addStaticWorldObject(new Vec2(0,0), shape)
   }
 
-  def step() = b2world.step(timeStep, velocityIteration, positionIteration)
+  def step(timeStep: Float) = b2world.step(timeStep, velocityIteration, positionIteration)
 
 }
 
