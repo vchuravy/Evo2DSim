@@ -12,4 +12,8 @@ public class GUI {
     public JPanel getPanel() {
         return panel;
     }
+
+    public JComponent getWorldView() {
+        return worldView;
+    }
 }

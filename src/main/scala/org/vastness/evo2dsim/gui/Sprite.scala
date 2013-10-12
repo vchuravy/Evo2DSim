@@ -1,7 +1,7 @@
 package org.vastness.evo2dsim.gui
 
 import org.jbox2d.common.Vec2
-import java.awt.Graphics2D
+import java.awt.{BasicStroke, Graphics2D}
 
 
 abstract class Sprite(p: () => Vec2) {
@@ -15,12 +15,12 @@ abstract class Sprite(p: () => Vec2) {
 class BoxSprite(p: () => Vec2, width: Float, height: Float) extends Sprite(p) {
   val w = conversionToPixel(width).toInt
   val h = conversionToPixel(height).toInt
-  def draw(g2: Graphics2D) = g2.drawRect(position.x.toInt, position.y.toInt, w, h)
+  def draw(g2: Graphics2D) = g2.fillRect(position.x.toInt, position.y.toInt, w, h)
 }
 
 class CircleSprite(p: () => Vec2, radius: Float)  extends Sprite(p) {
   val r = conversionToPixel(radius).toInt
-  def draw(g2: Graphics2D) = g2.drawOval(position.x.toInt, position.y.toInt, r, r)
+  def draw(g2: Graphics2D) = g2.fillOval(position.x.toInt, position.y.toInt, r, r)
 }
 
 class WorldBoundarySprite(p: () => Vec2, edges: Array[Vec2]) extends Sprite(p) {
@@ -32,5 +32,8 @@ class WorldBoundarySprite(p: () => Vec2, edges: Array[Vec2]) extends Sprite(p) {
   }
   val e = vectorsToPoints(edges)
 
-  def draw(g2: Graphics2D) = g2.drawPolyline(e._1.toArray, e._2.toArray, edges.length)
+  def draw(g2: Graphics2D){
+    g2.setStroke(new BasicStroke(3))
+    g2.drawPolygon(e._1.toArray, e._2.toArray, edges.length)
+  }
 }

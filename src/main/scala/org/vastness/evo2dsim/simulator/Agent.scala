@@ -22,7 +22,6 @@ class Agent(id: Int, pos: Vec2, world: org.jbox2d.dynamics.World) extends Entity
   def sprite = new CircleSprite(body.getPosition, radius)
 
   def step() = Nil
-
   def applyTorque(torque: Float) = body.applyTorque(torque)
   def applyForce(force: Vec2) = body.applyForceToCenter(force)
 }

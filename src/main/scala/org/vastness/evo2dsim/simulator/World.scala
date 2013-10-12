@@ -10,8 +10,7 @@ import org.vastness.evo2dsim.gui.{WorldBoundarySprite, CircleSprite, BoxSprite}
 class World {
   val velocityIteration = 6
   val positionIteration = 3 // recommend iteration values
-  val o = new Vec2(0,0)
-  def origin = o
+  val origin = new Vec2(0,0)
   val b2world = new dynamics.World(origin)
 
   var entityList = List[Entity]()
@@ -52,14 +51,15 @@ class World {
   }
 
   def addEntityToManger(e: Entity) = entityList = e :: entityList // constant time prepend
-  def addAgent(pos: Vec2) ={
+  def addAgent(pos: Vec2) : Agent = {
     val a = new Agent(agentCounter, pos, this.b2world)
     agentCounter += 1
     addEntityToManger(a)
     agentList = a :: agentList
+    return a
   }
 
-  def step(timeStep: Float) = { //TODO Optimize for concurrency
+  def step(timeStep: Float) { //TODO Optimize for concurrency
     for(a: Agent <- agentList){
       a.step()
     }
