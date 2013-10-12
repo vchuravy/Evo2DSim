@@ -30,7 +30,6 @@ class WorldBoundarySprite(p: () => Vec2, edges: Array[Vec2]) extends Sprite(p) {
     if (v.isEmpty) (x,y)
     else _vectorsToPoints(v.tail, conversionToPixel(v.head.x).toInt :: x, conversionToPixel(v.head.y).toInt :: y )
   }
-
   val e = vectorsToPoints(edges)
 
   def draw(g2: Graphics2D) = g2.drawPolyline(e._1.toArray, e._2.toArray, edges.length)
