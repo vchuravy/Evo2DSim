@@ -10,10 +10,10 @@ class NeuronalNetwork {
     neurons += n
   }
 
-  def addSynapse(id1: Int, id2: Int) {
+  def addSynapse(id1: Int, id2: Int, weight:Double) {
     val n1 = neurons(id1)
     val n2 = neurons(id2)
-    val s = new Synapse(n1, n2)
+    val s = new Synapse(n1, n2, weight)
     n1.addOutput(s)
     n2.addInput(s)
     synapses += s
