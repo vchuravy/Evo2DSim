@@ -26,7 +26,9 @@ class NeuronalNetwork {
     synapses --= n.inputSynapses ++ n.outputSynapses
   }
 
-  def removeNeuron(n: Neuron) = removeNeuron(neurons.indexOf(n))
+  def removeNeuron(n: Neuron) {
+    removeNeuron(neurons.indexOf(n))
+  }
 
   def removeSynapse(id: Int) {
     val s = synapses.remove(id)
@@ -34,7 +36,9 @@ class NeuronalNetwork {
     s.output.removeInput(s)
   }
 
-  def removeSynapse(s: Synapse) = removeSynapse(synapses.indexOf(s))
+  def removeSynapse(s: Synapse) {
+    removeSynapse(synapses.indexOf(s))
+  }
 
   def step() { //Order matters
     neurons.par.foreach(_.step())
