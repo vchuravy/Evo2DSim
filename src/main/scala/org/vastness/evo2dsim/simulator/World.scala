@@ -18,6 +18,8 @@ class World {
   var agentList = List[Agent]()
   var agentCounter = 0
 
+  def getEntities = entityList
+
   //Adds a static box object. Remember width and height are half-units
   def addStaticWorldObject(pos: Vec2, shape: Shape) = {
     val bodyDef = new BodyDef
@@ -58,10 +60,6 @@ class World {
   }
 
   def step(timeStep: Float) = { //TODO Optimize for concurrency
-    //First update all drawings
-    for(e: Entity <- entityList){
-      e.sprite.draw()
-    }
     for(a: Agent <- agentList){
       a.step()
     }
