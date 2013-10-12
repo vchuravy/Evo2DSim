@@ -65,7 +65,6 @@ object App {
     val edges = Array(new Vec2(0.03f,0.03f), new Vec2(0.03f,4f), new Vec2(5f,4f), new Vec2(5f,0.03f))
     world.createWorldBoundary(edges)
     val a = world.addAgent(new Vec2(2,2))
-    a.applyForce(new Vec2(3,3))
     loop()
   }
 

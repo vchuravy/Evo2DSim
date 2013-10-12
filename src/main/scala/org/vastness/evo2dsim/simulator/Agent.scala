@@ -12,6 +12,8 @@ class Agent(id: Int, pos: Vec2, world: org.jbox2d.dynamics.World) extends Entity
   bodyDef.position.set(pos)
   bodyDef.`type` = BodyType.DYNAMIC
   bodyDef.userData = this
+  bodyDef.angularDamping = 0.01f
+  bodyDef.linearDamping = 0.01f
 
   val shape = new CircleShape
   shape.setRadius(radius) //Agents are a 20cm big
@@ -21,7 +23,12 @@ class Agent(id: Int, pos: Vec2, world: org.jbox2d.dynamics.World) extends Entity
 
   def sprite = new CircleSprite(body.getPosition, radius)
 
-  def step() = Nil
+  val controller = new Controller(this)
+
+  def step() {
+    controller.step()
+  }
   def applyTorque(torque: Float) = body.applyTorque(torque)
   def applyForce(force: Vec2) = body.applyForceToCenter(force)
+  def applyForceAtLocalPoint(force: Vec2, point: Vec2) = body.applyForce(force, body.getWorldPoint(point))
 }

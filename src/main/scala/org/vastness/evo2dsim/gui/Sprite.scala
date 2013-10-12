@@ -2,6 +2,7 @@ package org.vastness.evo2dsim.gui
 
 import org.jbox2d.common.Vec2
 import java.awt.{BasicStroke, Graphics2D}
+import scala.annotation.tailrec
 
 
 abstract class Sprite(p: () => Vec2) {
@@ -26,6 +27,7 @@ class CircleSprite(p: () => Vec2, radius: Float)  extends Sprite(p) {
 class WorldBoundarySprite(p: () => Vec2, edges: Array[Vec2]) extends Sprite(p) {
   def vectorsToPoints(v: Array[Vec2])  =  _vectorsToPoints(v.reverse, List[Int](), List[Int]())
 
+  @tailrec
   private def _vectorsToPoints(v: Array[Vec2], x: List[Int], y: List[Int]) : (List[Int],List[Int]) = {
     if (v.isEmpty) (x,y)
     else _vectorsToPoints(v.tail, conversionToPixel(v.head.x).toInt :: x, conversionToPixel(v.head.y).toInt :: y )

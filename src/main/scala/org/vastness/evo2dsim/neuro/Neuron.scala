@@ -1,10 +1,9 @@
 package org.vastness.evo2dsim.neuro
 
-import org.vastness.evo2dsim.neuro.TransferFunction.TransferFunction
 import scala.collection.mutable.ArrayBuffer
 
 
-class Neuron(v_bias: Double, t_func: TransferFunction ){
+class Neuron(v_bias: Double, t_func: (Double) => Double ){
   var bias = v_bias
 
   var inputSynapses =  ArrayBuffer[Synapse]()
