@@ -5,8 +5,7 @@ import org.jbox2d.dynamics.{BodyType, BodyDef}
 import org.jbox2d.collision.shapes.CircleShape
 import org.vastness.evo2dsim.gui.CircleSprite
 
-class Agent(id: Int, pos: Vec2, world: org.jbox2d.dynamics.World) extends Entity{
-  val radius = 0.2f
+class Agent(id: Int, pos: Vec2, world: org.jbox2d.dynamics.World, val radius: Float, mass: Float) extends Entity{
   //Defines BodyDef
   val bodyDef = new BodyDef
   bodyDef.position.set(pos)
@@ -16,17 +15,21 @@ class Agent(id: Int, pos: Vec2, world: org.jbox2d.dynamics.World) extends Entity
   bodyDef.linearDamping = 0.01f
 
   val shape = new CircleShape
-  shape.setRadius(radius) //Agents are a 20cm big
+  shape.setRadius(radius)
 
   val body = world.createBody(bodyDef)
-  body.createFixture(shape,1.0f) // Density is 1
+  val density = (mass / (Math.PI * radius * radius)).toFloat // Density is influenced by the volume and the mass
+  body.createFixture(shape, density)
+
+  var controller:Option[Controller] = None
 
   def sprite = new CircleSprite(body.getPosition, radius)
 
-  val controller = new Controller(this)
-
   def step() {
-    controller.step()
+    controller match{
+      case None => {}
+      case Some(c) => c.step()
+    }
   }
   def applyTorque(torque: Float) = body.applyTorque(torque)
   def applyForce(force: Vec2) = body.applyForceToCenter(force)

@@ -10,6 +10,10 @@ class NeuronalNetwork {
     neurons += n
   }
 
+  def addNeurons(ns: Traversable[Neuron]){
+    neurons ++= ns
+  }
+
   def addSynapse(id1: Int, id2: Int, weight:Double) {
     val n1 = neurons(id1)
     val n2 = neurons(id2)
@@ -43,5 +47,30 @@ class NeuronalNetwork {
   def step() { //Order matters
     neurons.par.foreach(_.step())
     synapses.par.foreach(_.step())
+  }
+
+  /**
+   * Use this function to generate a linear network between inputs and outputs
+   * We iterate over the inputs and then over the outputs.
+   * @param inputs
+   * @param outputs
+   * @param weights must have size == inputs.size * outputs.size
+   */
+  def generateLinearNetwork(inputs: Seq[Neuron], outputs: Seq[Neuron], weights: Seq[Double]){
+    assert((inputs ++ outputs).diff(neurons).isEmpty, "There are some neurons which are not part of this network")
+    assert(weights.size == inputs.size*outputs.size, "The number of weights is off")
+
+    val tempSynapses = new Array[Synapse](inputs.size*outputs.size)
+    var c = 0
+    for(input: Neuron <- inputs){
+      for(output: Neuron <- outputs){
+        val s = new Synapse(input, output, weights(c))
+        input.addOutput(s)
+        output.addInput(s)
+        tempSynapses(c) = s
+        c += 1
+      }
+    }
+    synapses ++= tempSynapses
   }
 }

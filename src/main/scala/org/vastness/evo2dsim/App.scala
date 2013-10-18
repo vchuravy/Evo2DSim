@@ -1,6 +1,6 @@
 package org.vastness.evo2dsim
 
-import org.vastness.evo2dsim.simulator.World
+import org.vastness.evo2dsim.simulator.Simulator
 import org.vastness.evo2dsim.gui.GUI
 import javax.swing.{SwingUtilities, JFrame}
 import java.util.Timer
@@ -10,19 +10,21 @@ import org.jbox2d.common.Vec2
  * @author Valentin Churavy
  */
 object App {
-  val world = new World
-  def getWorld = world
+  val sim = new Simulator
+  def getWorld = sim
 
   var timer = new Timer()
   var running = true
 
-  val HERTZ = 60
+  val HERTZ = 120
   val timeStep = 1.0f / HERTZ // 60fps
 
   val gui = new GUI
 
+  val random = new scala.util.Random()
+
   private def updateSimulation() {
-    world.step(timeStep)
+    sim.step(timeStep)
   }
 
   private def render() {
@@ -62,9 +64,12 @@ object App {
     })
 
     // Construct a basic level
-    val edges = Array(new Vec2(0.03f,0.03f), new Vec2(0.03f,4f), new Vec2(5f,4f), new Vec2(5f,0.03f))
-    world.createWorldBoundary(edges)
-    val a = world.addAgent(new Vec2(2,2))
+    val origin = new Vec2(0.515f,0.515f)
+    val halfSize = 0.5f
+    val sizes = Array[Vec2](new Vec2(-halfSize,-halfSize), new Vec2(-halfSize,halfSize), new Vec2(halfSize,halfSize), new Vec2(halfSize,-halfSize))
+    val edges = for(i <- 0 until sizes.length) yield origin add sizes(i)
+    sim.createWorldBoundary(edges.toArray)
+    val a = sim.addAgent(origin, sim.Agents.SBotControllerLinear)
     loop()
   }
 

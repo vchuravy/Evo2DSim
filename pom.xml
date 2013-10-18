@@ -15,8 +15,8 @@
   </licenses>
 
   <properties>
-    <maven.compiler.source>1.5</maven.compiler.source>
-    <maven.compiler.target>1.5</maven.compiler.target>
+    <maven.compiler.source>1.7</maven.compiler.source>
+    <maven.compiler.target>1.7</maven.compiler.target>
     <encoding>UTF-8</encoding>
     <scala.version>2.10.2</scala.version>
   </properties>
@@ -97,6 +97,7 @@
               <args>
                 <arg>-make:transitive</arg>
                 <arg>-dependencyfile</arg>
+                <arg>-deprecation</arg>
                 <arg>${project.build.directory}/.scala_dependencies</arg>
               </args>
             </configuration>

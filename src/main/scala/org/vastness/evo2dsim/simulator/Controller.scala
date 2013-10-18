@@ -1,20 +1,22 @@
 package org.vastness.evo2dsim.simulator
 
-import org.vastness.evo2dsim.neuro.{TransferFunction, MotorNeuron, NeuronalNetwork}
+import org.vastness.evo2dsim.neuro.NeuronalNetwork
+import org.vastness.evo2dsim.evolution.Genome
 
-class Controller(agent: Agent) {
+abstract class Controller(agent: Agent) {
   val nn = new NeuronalNetwork()
-  val motor = new Motor(agent)
 
-  val leftMotorNeuron = new MotorNeuron(-0.05,TransferFunction.thanh, motor.setLeftMotorSpeed)
-  val rightMotorNeuron = new MotorNeuron(-0.05,TransferFunction.thanh, motor.setLeftMotorSpeed)
+  def toGenome: Genome
 
-  nn.addNeuron(leftMotorNeuron)
-  nn.addNeuron(rightMotorNeuron)
+  def fromGenome(genome: Genome): Unit
+
+  def initialize(weights: Array[Double])
+  def initializeRandom()
+  def initializeZeros()
+
 
   def step(){
     nn.step()
-    motor.step()
   }
 
 }

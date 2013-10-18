@@ -5,9 +5,9 @@ import org.jbox2d.dynamics.{BodyType, BodyDef}
 import org.jbox2d.dynamics
 import org.jbox2d.collision.shapes._
 import org.vastness.evo2dsim.gui.{WorldBoundarySprite, CircleSprite, BoxSprite}
+import org.vastness.evo2dsim.teem.enki.sbot.{SBotControllerLinear, SBot}
 
-
-class World {
+class Simulator {
   val velocityIteration = 6
   val positionIteration = 3 // recommend iteration values
   val origin = new Vec2(0,0)
@@ -50,13 +50,21 @@ class World {
     addStaticWorldObject(new Vec2(0,0), shape)
   }
 
-  def addEntityToManger(e: Entity) = entityList = e :: entityList // constant time prepend
-  def addAgent(pos: Vec2) : Agent = {
-    val a = new Agent(agentCounter, pos, this.b2world)
+  def addEntityToManger(e: Entity) {entityList = e :: entityList} // constant time prepend
+  def addAgent(pos: Vec2, agentType: Agents.Value) : Agent = agentType match {
+      case Agents.SBotControllerLinear => {
+        val a = new SBot(agentCounter, pos, this.b2world)
+        a.controller = Option(new SBotControllerLinear(a))
+        a.controller.get.initializeRandom()
+        addAgent(a)
+      }
+    }
+
+  private def addAgent(agent: Agent) : Agent = {
     agentCounter += 1
-    addEntityToManger(a)
-    agentList = a :: agentList
-    return a
+    addEntityToManger(agent)
+    agentList = agent :: agentList
+    return agent
   }
 
   def step(timeStep: Float) { //TODO Optimize for concurrency
@@ -66,7 +74,10 @@ class World {
     b2world.step(timeStep, velocityIteration, positionIteration)
   }
 
-
+  object Agents extends Enumeration {
+    type Agents = Value
+    val SBotControllerLinear = Value
+  }
 }
 
 

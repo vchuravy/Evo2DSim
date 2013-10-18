@@ -1,10 +1,7 @@
 package org.vastness.evo2dsim.neuro
 
 
-class Synapse(i: Neuron, o:Neuron, w: Double){
-  val input = i
-  val output = o
-  var weight = w
+class Synapse(val input: Neuron, val output:Neuron, var weight: Double){
   var value = input.calcOutput * weight
   def step() {
     value = input.calcOutput * weight
