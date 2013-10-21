@@ -5,7 +5,7 @@ import org.jbox2d.dynamics.{BodyType, BodyDef}
 import org.jbox2d.collision.shapes.CircleShape
 import org.vastness.evo2dsim.gui.CircleSprite
 
-class Agent(id: Int, pos: Vec2, world: org.jbox2d.dynamics.World, val radius: Float, mass: Float) extends Entity{
+class Agent(id: Int, pos: Vec2, sim: Simulator, val radius: Float, mass: Float) extends Entity{
   //Defines BodyDef
   val bodyDef = new BodyDef
   bodyDef.position.set(pos)
@@ -17,7 +17,7 @@ class Agent(id: Int, pos: Vec2, world: org.jbox2d.dynamics.World, val radius: Fl
   val shape = new CircleShape
   shape.setRadius(radius)
 
-  val body = world.createBody(bodyDef)
+  val body = sim.world.createBody(bodyDef)
   val density = (mass / (Math.PI * radius * radius)).toFloat // Density is influenced by the volume and the mass
   body.createFixture(shape, density)
 

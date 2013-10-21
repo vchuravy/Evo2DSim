@@ -11,7 +11,7 @@ class Simulator {
   val velocityIteration = 6
   val positionIteration = 3 // recommend iteration values
   val origin = new Vec2(0,0)
-  val b2world = new dynamics.World(origin)
+  val world = new dynamics.World(origin)
 
   var entityList = List[Entity]()
   var agentList = List[Agent]()
@@ -25,7 +25,7 @@ class Simulator {
     bodyDef.position.set(pos)
     bodyDef.`type` = BodyType.STATIC
 
-    val body = b2world.createBody(bodyDef)
+    val body = world.createBody(bodyDef)
     body.createFixture(shape, 1.0f)
   }
 
@@ -53,7 +53,7 @@ class Simulator {
   def addEntityToManger(e: Entity) {entityList = e :: entityList} // constant time prepend
   def addAgent(pos: Vec2, agentType: Agents.Value) : Agent = agentType match {
       case Agents.SBotControllerLinear => {
-        val a = new SBot(agentCounter, pos, this.b2world)
+        val a = new SBot(agentCounter, pos, this)
         a.controller = Option(new SBotControllerLinear(a))
         a.controller.get.initializeRandom()
         addAgent(a)
@@ -71,7 +71,7 @@ class Simulator {
     for(a: Agent <- agentList){
       a.step()
     }
-    b2world.step(timeStep, velocityIteration, positionIteration)
+    world.step(timeStep, velocityIteration, positionIteration)
   }
 
   object Agents extends Enumeration {
