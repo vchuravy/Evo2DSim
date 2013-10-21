@@ -6,12 +6,14 @@ import org.jbox2d.dynamics
 import org.jbox2d.collision.shapes._
 import org.vastness.evo2dsim.gui.{WorldBoundarySprite, CircleSprite, BoxSprite}
 import org.vastness.evo2dsim.teem.enki.sbot.{SBotControllerLinear, SBot}
+import org.vastness.evo2dsim.simulator.light.LightManager
 
 class Simulator {
   val velocityIteration = 6
   val positionIteration = 3 // recommend iteration values
   val origin = new Vec2(0,0)
   val world = new dynamics.World(origin)
+  val lightManager = new LightManager
 
   var entityList = List[Entity]()
   var agentList = List[Agent]()

@@ -23,7 +23,8 @@ class Agent(id: Int, pos: Vec2, val sim: Simulator, val radius: Float, mass: Flo
 
   var controller:Option[Controller] = None
 
-  def sprite = new CircleSprite(body.getPosition, radius)
+  override def sprite = new CircleSprite(body.getPosition, radius)
+  override def position = body.getPosition
 
   def step() {
     controller match{
@@ -34,7 +35,7 @@ class Agent(id: Int, pos: Vec2, val sim: Simulator, val radius: Float, mass: Flo
 
   def setLinearVelocity(v: Vec2) = body.setLinearVelocity(v)
   def setAngularVelocity(w: Float) = body.setAngularVelocity(w)
-  def applyTorque(torque: Float) = body.applyTorque(torque)
-  def applyForce(force: Vec2) = body.applyForceToCenter(force)
-  def applyForceAtLocalPoint(force: Vec2, point: Vec2) = body.applyForce(force, body.getWorldPoint(point))
+  // def applyTorque(torque: Float) = body.applyTorque(torque)
+  // def applyForce(force: Vec2) = body.applyForceToCenter(force)
+  // def applyForceAtLocalPoint(force: Vec2, point: Vec2) = body.applyForce(force, body.getWorldPoint(point))
 }

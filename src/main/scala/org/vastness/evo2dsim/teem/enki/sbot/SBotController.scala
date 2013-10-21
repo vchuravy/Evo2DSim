@@ -7,13 +7,20 @@ import org.vastness.evo2dsim.neuro.{SensorNeuron, MotorNeuron, TransferFunction}
 abstract class SBotController(sbot: SBot) extends Controller(sbot) {
   val motor = new Motor(sbot)
 
-  val leftMotorNeuron = new MotorNeuron(0.05,TransferFunction.thanh, motor.setLeftMotorForce)
-  val rightMotorNeuron = new MotorNeuron(-0.05,TransferFunction.thanh, motor.setLeftMotorForce)
-  val lightSwitch = new MotorNeuron(0, TransferFunction.thanh,(_) => {} ) // TODO: Implement LightSource and LightSensor
+  val leftMotorNeuron = new MotorNeuron(0.05,TransferFunction.thanh, motor.setLeftMotorVelocity)
+  val rightMotorNeuron = new MotorNeuron(-0.05,TransferFunction.thanh, motor.setLeftMotorVelocity)
+
+  def lightSwitchFunc( x: Double){
+    x match {
+      case n if n <= 0 => sbot.light.active = false
+      case n if n > 0 => sbot.light.active = true
+    }
+  }
+  val lightSwitch = new MotorNeuron(0, TransferFunction.thanh, lightSwitchFunc)
 
   val foodSensorNeuron = new SensorNeuron(0,TransferFunction.thanh, () => 0 ) //TODO: Implement Food and FoodSensor
 
-  val lightSensor = new SBotLightSensor(sbot, 4)
+  val lightSensor = new SBotLightSensor(sbot, 4, 0)
   val lightNeurons = lightSensor.getNeurons
 
   val motorNeurons = List(leftMotorNeuron, rightMotorNeuron, lightSwitch)
@@ -26,6 +33,7 @@ abstract class SBotController(sbot: SBot) extends Controller(sbot) {
   }
 
   override def step(){
+    lightSensor.step()
     super.step() // Executes nn
     motor.step()
   }
