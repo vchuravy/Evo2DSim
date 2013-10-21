@@ -14,28 +14,26 @@ class Motor(agent: Agent) {
 
   def transform(x: Double) = a*x+b //Linear transformation
 
-  private var leftMotorForce = 0.0
-  private var rightMotorForce = 0.0
+  private var leftMotorVelocity = 0.0
+  private var rightMotorVelocity = 0.0
 
-  def setLeftMotorForce(x: Double) {
-    leftMotorForce = transform(x)
+  def setLeftMotorVelocity(x: Double) {
+    leftMotorVelocity = transform(x)
   }
 
-  def setRightMotorForce(x: Double) {
-    rightMotorForce = transform(x)
+  def setRightMotorVelocity(x: Double) {
+    rightMotorVelocity = transform(x)
   }
 
   //taken from enki speed control
-  def forwardForce = (rightMotorForce + leftMotorForce) / 2
-  def force = new Vec2((forwardForce * math.cos(agent.body.getAngle)).toFloat, (forwardForce * math.sin(agent.body.getAngle)).toFloat)
-  def torque = (rightMotorForce-leftMotorForce)/(4*agent.radius) // 2* wheel distants
+  def forwardVelocity = (rightMotorVelocity + leftMotorVelocity) / 2
+  def velocity = new Vec2((forwardVelocity * math.cos(agent.body.getAngle)).toFloat, (forwardVelocity * math.sin(agent.body.getAngle)).toFloat)
+  def angularVelocity = (rightMotorVelocity-leftMotorVelocity)/(4*agent.radius) // 2* wheel distants
 
 
-  //TODO: This is a very quick implementation, that might just work.
+  //TODO: Check if velocities or forces are better..
   def step() {
-    agent.applyForce(force)
-    agent.applyTorque(torque.toFloat)
-    //agent.applyForceAtLocalPoint(new Vec2(0,leftMotorForce.toFloat), new Vec2(-agent.radius,0))
-    //agent.applyForceAtLocalPoint(new Vec2(0,rightMotorForce.toFloat), new Vec2(agent.radius,0))
+    agent.setLinearVelocity(velocity)
+    agent.setAngularVelocity(angularVelocity.toFloat)
   }
 }

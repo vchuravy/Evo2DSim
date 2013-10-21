@@ -5,7 +5,7 @@ import org.jbox2d.dynamics.{BodyType, BodyDef}
 import org.jbox2d.collision.shapes.CircleShape
 import org.vastness.evo2dsim.gui.CircleSprite
 
-class Agent(id: Int, pos: Vec2, sim: Simulator, val radius: Float, mass: Float) extends Entity{
+class Agent(id: Int, pos: Vec2, val sim: Simulator, val radius: Float, mass: Float) extends Entity{
   //Defines BodyDef
   val bodyDef = new BodyDef
   bodyDef.position.set(pos)
@@ -31,6 +31,9 @@ class Agent(id: Int, pos: Vec2, sim: Simulator, val radius: Float, mass: Float) 
       case Some(c) => c.step()
     }
   }
+
+  def setLinearVelocity(v: Vec2) = body.setLinearVelocity(v)
+  def setAngularVelocity(w: Float) = body.setAngularVelocity(w)
   def applyTorque(torque: Float) = body.applyTorque(torque)
   def applyForce(force: Vec2) = body.applyForceToCenter(force)
   def applyForceAtLocalPoint(force: Vec2, point: Vec2) = body.applyForce(force, body.getWorldPoint(point))

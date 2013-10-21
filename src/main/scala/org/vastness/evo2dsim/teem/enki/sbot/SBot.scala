@@ -5,7 +5,6 @@ import org.vastness.evo2dsim.simulator.{Simulator, Agent}
 
 /**
  * Implements an S-Bot agent similar to the enki simulator.
- * Only important Difference that it uses a force driven motor instead of a speed controller.
  *   val radius = 0.06f  S-Bot size 6cm
  *   val mass = 0.66f S-Bot weight 660g
  */
