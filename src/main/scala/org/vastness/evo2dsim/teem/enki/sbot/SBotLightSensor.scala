@@ -23,28 +23,48 @@ class SBotLightSensor(sBot: SBot, segments: Int, bias: Double) {
     visionStrip = Array[Array[Float]](new Array[Float](360), new Array[Float](360)) // clean the last image
 
     val radius = sBot.radius
-    for(l: LightSource <- lm.lightSources){
-      if (l.active && sBot.light != l){
-        val lightPosition = sBot.body.getLocalPoint(l.position)
+    for(light: LightSource <- lm.lightSources){
+      if (light.active && sBot.light != light){
+        val lightPosition = sBot.body.getLocalPoint(light.position)
         val distance = lightPosition.length()
 
-
-        val f = (distance - radius) / 2 * distance // http://www.neoprogrammics.com/spheres/visible_fraction_of_surface.php
+        val f = clamp((distance - radius) / 2 * distance,0.5f) // http://www.neoprogrammics.com/spheres/visible_fraction_of_surface.php
 
         lightPosition.normalize()
         val centerPoint = lightPosition.mul(radius) // center point of the light cone
 
         val halfRange = (f*360)/2
-        val centerPointDegree = math.toDegrees(math.atan2(centerPoint.x-360.0, 360.0 - centerPoint.y) + 360.0) % 360.0 //positive angle
-        val start = ((centerPointDegree-halfRange) % 360.0).toInt
-        val end = ((centerPointDegree+halfRange) % 360.0).toInt
+        val bearingRad = math.atan2(centerPoint.x, centerPoint.y) // clockwise angle
+        val bearingDeg = (math.toDegrees(bearingRad)+360) %360
 
-        for(i <-  start to end){
-          visionStrip(l.color)(i) = 1 //TODO: fog, noise, objects standing in sight?
+        val start = ((bearingDeg-halfRange) + 360).round % 360
+        val end = ((bearingDeg+halfRange) + 360).round % 360
+
+        var s: Int = 0
+        var e: Int = 0
+
+        if (start <= end){
+          s = start.toInt
+          e = end.toInt
+        } else {
+          s = end.toInt
+          e = start.toInt
         }
-    }
+
+        assert(e < 360, "s: " + s + " e: " + e)
+        assert(s >= 0,  "s: " + s + " e: " + e)
+        assert(s <= e,  "s: " + s + " e: " + e)
+
+        for(i:Int <-  s to e){
+            visionStrip(light.color)(i) = 1 //TODO: fog, noise, objects standing in sight?
+        }
+
+      }
     }
   }
+
+  private def clamp(x: Float, max: Float) =
+    if(x > max) max else x
 
   private def createNeurons(){
     assert(360%segments == 0)
