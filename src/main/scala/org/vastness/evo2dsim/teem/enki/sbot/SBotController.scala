@@ -7,16 +7,10 @@ import org.vastness.evo2dsim.neuro.{SensorNeuron, MotorNeuron, TransferFunction}
 abstract class SBotController(sbot: SBot) extends Controller(sbot) {
   val motor = new Motor(sbot)
 
-  val leftMotorNeuron = new MotorNeuron(0.05,TransferFunction.thanh, motor.setLeftMotorVelocity)
-  val rightMotorNeuron = new MotorNeuron(-0.05,TransferFunction.thanh, motor.setLeftMotorVelocity)
+  val leftMotorNeuron = new MotorNeuron(0,TransferFunction.thanh, motor.setLeftMotorVelocity)
+  val rightMotorNeuron = new MotorNeuron(0,TransferFunction.thanh, motor.setRightMotorVelocity)
 
-  def lightSwitchFunc( x: Double){
-    x match {
-      case n if n <= 0 => sbot.light.active = false
-      case n if n > 0 => sbot.light.active = true
-    }
-  }
-  val lightSwitch = new MotorNeuron(0, TransferFunction.thanh, lightSwitchFunc)
+  val lightSwitch = new MotorNeuron(0, TransferFunction.binary, (x: Double) => sbot.light.active = x == 1 )
 
   val foodSensorNeuron = new SensorNeuron(0,TransferFunction.thanh, () => 0 ) //TODO: Implement Food and FoodSensor
 
