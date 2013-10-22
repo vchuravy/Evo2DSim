@@ -16,8 +16,9 @@ object App {
   var timer = new Timer()
   var running = true
 
-  val HERTZ = 120
-  val timeStep = 1.0f / HERTZ // 60fps
+  val HERTZ = 30
+  val SIM_HERTZ = 120
+  val timeStep = 1.0f / (SIM_HERTZ/2) // 120fps simulation speed twice as fast timestep = 1/60 -> two times reality
 
   val gui = new GUI
 
@@ -33,14 +34,14 @@ object App {
 
   def loop() {
     timer = new Timer()
-    timer.schedule(new Loop, 0, 1000 / HERTZ) //new timer at 60 fps, the timing mechanism
+    timer.schedule(new RenderLoop, 0, 1000 / HERTZ)//new timer at 30 fps, the timing mechanism
+    timer.schedule(new SimulationLoop, 0, 1000/SIM_HERTZ) // new timer at 120 fps
   }
 
-  private class Loop extends java.util.TimerTask
+  private class RenderLoop extends java.util.TimerTask
   {
     override def run()
     {
-      updateSimulation()
       render()
 
       if (!running)
@@ -49,6 +50,20 @@ object App {
       }
     }
   }
+
+  private class SimulationLoop extends java.util.TimerTask
+  {
+    override def run()
+    {
+      updateSimulation()
+
+      if (!running)
+      {
+        timer.cancel()
+      }
+    }
+  }
+
 
   def main(args : Array[String]) {
     println( "Evo2DSim is a simple simulator for evolutionary experiments." )
@@ -69,7 +84,9 @@ object App {
     val sizes = Array[Vec2](new Vec2(-halfSize,-halfSize), new Vec2(-halfSize,halfSize), new Vec2(halfSize,halfSize), new Vec2(halfSize,-halfSize))
     val edges = for(i <- 0 until sizes.length) yield origin add sizes(i)
     sim.createWorldBoundary(edges.toArray)
-    val a = sim.addAgent(origin, sim.Agents.SBotControllerLinear)
+    for( i <- 0 until 100){
+      sim.addAgent(origin.add(new Vec2(random.nextFloat(),random.nextFloat())), sim.Agents.SBotControllerLinear)
+    }
     loop()
   }
 
