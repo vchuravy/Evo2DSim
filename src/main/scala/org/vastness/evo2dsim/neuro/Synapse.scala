@@ -6,4 +6,6 @@ class Synapse(val input: Neuron, val output:Neuron, var weight: Double){
   def step() {
     value = input.calcOutput * weight
   }
+
+  override def toString = "Synapse from " + input + " to " + output + " weight: " + weight
 }

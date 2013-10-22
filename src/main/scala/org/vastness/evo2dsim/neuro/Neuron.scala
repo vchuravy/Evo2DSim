@@ -3,8 +3,8 @@ package org.vastness.evo2dsim.neuro
 import scala.collection.mutable.ArrayBuffer
 
 
-class Neuron(v_bias: Double, t_func: (Double) => Double ){
-  var bias = v_bias
+class Neuron(var bias: Double, t_func: (Double) => Double ){
+  var id = -1
 
   var inputSynapses =  ArrayBuffer[Synapse]()
   var outputSynapses = ArrayBuffer[Synapse]()
@@ -33,6 +33,8 @@ class Neuron(v_bias: Double, t_func: (Double) => Double ){
   def removeOutput(s: Synapse){
     inputSynapses = inputSynapses.filterNot(_ == s)
   }
+
+  override def toString = id.toString
 
 }
 

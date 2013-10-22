@@ -4,13 +4,21 @@ import scala.collection.mutable.ArrayBuffer
 
 class NeuronalNetwork {
   var synapses = ArrayBuffer[Synapse]()
-  var neurons = ArrayBuffer[Neuron]()
+  var neurons = ArrayBuffer[Neuron]() //TODO change to map and use ids as access
+
+  private var currentID = -1
+  def nextID:Int = {
+    currentID += 1
+    currentID
+  }
 
   def addNeuron(n: Neuron){
+    n.id = nextID
     neurons += n
   }
 
   def addNeurons(ns: Traversable[Neuron]){
+    for(n <- ns) n.id = nextID
     neurons ++= ns
   }
 
