@@ -8,7 +8,7 @@ import org.vastness.evo2dsim.simulator.Entity
  */
 
 class LightSource(val color: Int, entity: Entity) {
-  assert(color == 0 || color == 1, "Color is neither one nor zero. Shape on you!")
+  assert(color == 0 || color == 1, "Color is neither one nor zero. Shame on you!")
 
   def position = entity.position
   var active = false

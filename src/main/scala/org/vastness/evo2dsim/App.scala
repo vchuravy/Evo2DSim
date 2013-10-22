@@ -3,29 +3,28 @@ package org.vastness.evo2dsim
 import org.vastness.evo2dsim.simulator.Simulator
 import org.vastness.evo2dsim.gui.GUI
 import javax.swing.{SwingUtilities, JFrame}
-import java.util.Timer
 import org.jbox2d.common.Vec2
+import java.util.Timer
 
 /**
  * @author Valentin Churavy
  */
 object App {
   val sim = new Simulator
-  def getWorld = sim
 
-  var timer = new Timer()
+  var timer = new Timer
   var running = true
 
   val HERTZ = 30
-  val SIM_HERTZ = 120
-  val timeStep = 1.0f / (SIM_HERTZ/2) // 120fps simulation speed twice as fast timestep = 1/60 -> two times reality
+  var timeStep = 50 // timeStep = 50ms
+  var simSpeed = 1 // 1 = Realtime, 2 = Double and so on
 
   val gui = new GUI
 
   val random = new scala.util.Random()
 
   private def updateSimulation() {
-    sim.step(timeStep)
+    sim.step(timeStep/1000.0f)
   }
 
   private def render() {
@@ -35,7 +34,7 @@ object App {
   def loop() {
     timer = new Timer()
     timer.schedule(new RenderLoop, 0, 1000 / HERTZ)//new timer at 30 fps, the timing mechanism
-    timer.schedule(new SimulationLoop, 0, 1000/SIM_HERTZ) // new timer at 120 fps
+    timer.schedule(new SimulationLoop, 0, timeStep / simSpeed)
   }
 
   private class RenderLoop extends java.util.TimerTask
@@ -79,12 +78,12 @@ object App {
     })
 
     // Construct a basic level
-    val origin = new Vec2(0.515f,0.515f)
-    val halfSize = 0.5f
+    val origin = new Vec2(1.015f,1.015f)
+    val halfSize = 1f
     val sizes = Array[Vec2](new Vec2(-halfSize,-halfSize), new Vec2(-halfSize,halfSize), new Vec2(halfSize,halfSize), new Vec2(halfSize,-halfSize))
     val edges = for(i <- 0 until sizes.length) yield origin add sizes(i)
     sim.createWorldBoundary(edges.toArray)
-    for( i <- 0 until 100){
+    for( i <- 0 until 10){
       sim.addAgent(origin.add(new Vec2(random.nextFloat(),random.nextFloat())), sim.Agents.SBotControllerLinear)
     }
     loop()
