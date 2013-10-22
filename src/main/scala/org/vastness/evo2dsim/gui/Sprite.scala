@@ -4,7 +4,11 @@ import org.jbox2d.common.Vec2
 import java.awt.{BasicStroke, Graphics2D}
 import scala.annotation.tailrec
 
-
+/**
+ * Implements all possible Sprites
+ * Note: AWT is used to upper-left hand corner for coordinates
+ * @param p returns the center position of the sprite
+ */
 abstract class Sprite(p: () => Vec2) {
     val conversionFactor = 200 // From Meters to Pixel 0.1m in the physical World are 20 pixel
     def position = conversionToPixel(p())
@@ -16,12 +20,12 @@ abstract class Sprite(p: () => Vec2) {
 class BoxSprite(p: () => Vec2, width: Float, height: Float) extends Sprite(p) {
   val w = conversionToPixel(width).toInt
   val h = conversionToPixel(height).toInt
-  def draw(g2: Graphics2D) = g2.fillRect(position.x.toInt, position.y.toInt, w, h)
+  def draw(g2: Graphics2D) = g2.fillRect((position.x - w/2).toInt, (position.y - h/2).toInt , w, h)
 }
 
 class CircleSprite(p: () => Vec2, radius: Float)  extends Sprite(p) {
-  val r = conversionToPixel(radius).toInt
-  def draw(g2: Graphics2D) = g2.fillOval(position.x.toInt, position.y.toInt, r, r)
+  val d = 2 * conversionToPixel(radius).toInt
+  def draw(g2: Graphics2D) = g2.fillOval(position.x.toInt - d/2, position.y.toInt - d/2, d, d)
 }
 
 class WorldBoundarySprite(p: () => Vec2, edges: Array[Vec2]) extends Sprite(p) {
