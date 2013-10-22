@@ -74,6 +74,9 @@ object App {
     }
 
     parser.parse(args, Config()) map { config =>
+      simSpeed = config.simSpeed
+      timeStep = config.timeStep
+
       SwingUtilities.invokeLater(new Runnable() {
         override def run() {
           val frame: JFrame = new JFrame("GUI")
@@ -96,6 +99,7 @@ object App {
 
       loop()
     } getOrElse {
+      exit(1)
       // arguments are bad, usage message will have been displayed
     }
   }
