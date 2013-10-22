@@ -65,28 +65,41 @@ object App {
 
 
   def main(args : Array[String]) {
-    println( "Evo2DSim is a simple simulator for evolutionary experiments." )
-
-    SwingUtilities.invokeLater(new Runnable() {
-      override def run() {
-        val frame: JFrame = new JFrame("GUI")
-        frame.setContentPane(gui.getPanel)
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE)
-        frame.pack()
-        frame.setVisible(true)
-      }
-    })
-
-    // Construct a basic level
-    val origin = new Vec2(1.015f,1.015f)
-    val halfSize = 1f
-    val sizes = Array[Vec2](new Vec2(-halfSize,-halfSize), new Vec2(-halfSize,halfSize), new Vec2(halfSize,halfSize), new Vec2(halfSize,-halfSize))
-    val edges = for(i <- 0 until sizes.length) yield origin add sizes(i)
-    sim.createWorldBoundary(edges.toArray)
-    for( i <- 0 until 10){
-      sim.addAgent(origin.add(new Vec2(random.nextFloat(),random.nextFloat())), sim.Agents.SBotControllerLinear)
+    val parser = new scopt.OptionParser[Config]("scopt") {
+      head("Evo2DSim is a simple simulator for evolutionary experiments.")
+      opt[Int]('t', "timeStep") action { (x, c) =>
+        c.copy(timeStep = x) } text "Time step in ms"
+      opt[Int]('s', "simSpeed") action { (x, c) =>
+        c.copy(simSpeed = x) } text "Simulation speed"
     }
-    loop()
+
+    parser.parse(args, Config()) map { config =>
+      SwingUtilities.invokeLater(new Runnable() {
+        override def run() {
+          val frame: JFrame = new JFrame("GUI")
+          frame.setContentPane(gui.getPanel)
+          frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE)
+          frame.pack()
+          frame.setVisible(true)
+        }
+      })
+
+      // Construct a basic level
+      val origin = new Vec2(1.015f,1.015f)
+      val halfSize = 1f
+      val sizes = Array[Vec2](new Vec2(-halfSize,-halfSize), new Vec2(-halfSize,halfSize), new Vec2(halfSize,halfSize), new Vec2(halfSize,-halfSize))
+      val edges = for(i <- 0 until sizes.length) yield origin add sizes(i)
+      sim.createWorldBoundary(edges.toArray)
+      for( i <- 0 until 10){
+        sim.addAgent(origin.add(new Vec2(random.nextFloat(),random.nextFloat())), sim.Agents.SBotControllerLinear)
+      }
+
+      loop()
+    } getOrElse {
+      // arguments are bad, usage message will have been displayed
+    }
   }
+
+  case class Config(timeStep: Int = 50, simSpeed: Int = 1)
 
 }
