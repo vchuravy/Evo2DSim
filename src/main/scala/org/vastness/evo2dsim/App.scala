@@ -5,6 +5,7 @@ import org.vastness.evo2dsim.gui.GUI
 import javax.swing.{SwingUtilities, JFrame}
 import org.jbox2d.common.Vec2
 import java.util.Timer
+import org.vastness.evo2dsim.simulator.food.StaticFoodSource
 
 /**
  * @author Valentin Churavy
@@ -92,6 +93,13 @@ object App {
       val halfSize = 1f
       val sizes = Array[Vec2](new Vec2(-halfSize,-halfSize), new Vec2(-halfSize,halfSize), new Vec2(halfSize,halfSize), new Vec2(halfSize,-halfSize))
       val edges = for(i <- 0 until sizes.length) yield origin add sizes(i)
+
+      val f1 = new StaticFoodSource(color = 1, max = 8, reward = 1)
+      val f2 = new StaticFoodSource(color = 1, max = 8, reward = -1)
+
+      sim.addFoodSource(edges(0) add new Vec2(0.1f, 0.1f), radius = 0.1f, activationRange = 0.15f, f1)
+      sim.addFoodSource(edges(2) add new Vec2(-0.1f, -0.1f), radius = 0.1f, activationRange = 0.5f, f2)
+
       sim.createWorldBoundary(edges.toArray)
       for( i <- 0 until 10){
         sim.addAgent(origin.add(new Vec2(random.nextFloat(),random.nextFloat())), sim.Agents.SBotControllerLinear)

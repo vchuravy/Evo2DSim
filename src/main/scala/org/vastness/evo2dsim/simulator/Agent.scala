@@ -26,6 +26,8 @@ class Agent(id: Int, pos: Vec2, val sim: Simulator, val radius: Float, mass: Flo
   override def sprite = new CircleSprite(body.getPosition, radius)
   override def position = body.getPosition
 
+  var fitness = 0.0
+
   def step() {
     controller match{
       case None => {}
