@@ -27,6 +27,7 @@ class Agent(id: Int, pos: Vec2, val sim: Simulator, val radius: Float, mass: Flo
   override def position = body.getPosition
 
   var fitness = 0.0
+  var currentReward = 0.0
 
   def step() {
     controller match{

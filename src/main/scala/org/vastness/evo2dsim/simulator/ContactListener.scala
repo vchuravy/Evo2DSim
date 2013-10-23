@@ -16,7 +16,6 @@ class ContactListener extends callbacks.ContactListener {
         if (food.feeders.size >= food.max + 1) {} else{
           contact.getFixtureB.getBody.getUserData match {
             case agent: Agent => {
-              print("Add agent")
               food.feeders += agent
             }
             case _ => {}
@@ -30,7 +29,6 @@ class ContactListener extends callbacks.ContactListener {
         if (food.feeders.size >= food.max + 1) {} else{
           contact.getFixtureA.getBody.getUserData match {
             case agent: Agent => {
-              print("Add agent")
               food.feeders += agent
             }
             case _ => {}
@@ -47,6 +45,7 @@ class ContactListener extends callbacks.ContactListener {
         contact.getFixtureB.getBody.getUserData match {
           case agent: Agent => {
             food.feeders -= agent
+            agent.currentReward = 0
           }
           case _ => {}
         }
@@ -58,6 +57,7 @@ class ContactListener extends callbacks.ContactListener {
         contact.getFixtureA.getBody.getUserData match {
           case agent: Agent => {
             food.feeders -= agent
+            agent.currentReward = 0
           }
           case _ => {}
         }

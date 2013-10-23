@@ -12,7 +12,7 @@ abstract class SBotController(sbot: SBot) extends Controller(sbot) {
 
   val lightSwitch = new MotorNeuron(0, TransferFunction.binary, (x: Double) => sbot.light.active = x == 1 )
 
-  val foodSensorNeuron = new SensorNeuron(0,TransferFunction.thanh, () => 0 ) //TODO: Implement Food and FoodSensor
+  val foodSensorNeuron = new SensorNeuron(0,TransferFunction.thanh, () => sbot.currentReward)
 
   val lightSensor = new SBotLightSensor(sbot, 4, 0)
   val lightNeurons = lightSensor.getNeurons

@@ -23,8 +23,10 @@ abstract class FoodSource(color: Int, var max: Int) {
   def reward(): Double
 
   def step(){
+    val r = reward()
     for(a <- feeders.par){
-       a.fitness += reward()
+       a.fitness += r
+      a.currentReward = r
     }
   }
 }
