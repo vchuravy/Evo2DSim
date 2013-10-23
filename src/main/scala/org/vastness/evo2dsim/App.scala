@@ -107,7 +107,7 @@ object App {
 
       loop()
     } getOrElse {
-      exit(1)
+      sys.exit(1)
       // arguments are bad, usage message will have been displayed
     }
   }

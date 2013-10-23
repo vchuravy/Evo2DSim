@@ -6,6 +6,7 @@ public class GUI {
 
     private Surface worldView;
     private JPanel panel;
+    private JScrollPane worldViewContainer;
 
     public JPanel getPanel() {
         return panel;
