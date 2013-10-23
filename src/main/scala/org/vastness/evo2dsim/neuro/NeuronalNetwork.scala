@@ -1,10 +1,11 @@
 package org.vastness.evo2dsim.neuro
 
 import scala.collection.mutable.ArrayBuffer
+import scala.collection.mutable
 
 class NeuronalNetwork {
   var synapses = ArrayBuffer[Synapse]()
-  var neurons = ArrayBuffer[Neuron]() //TODO change to map and use ids as access
+  var neurons = mutable.HashMap[Int, Neuron]()
 
   private var currentID = -1
   def nextID:Int = {
@@ -13,13 +14,15 @@ class NeuronalNetwork {
   }
 
   def addNeuron(n: Neuron){
-    n.id = nextID
-    neurons += n
+    val id = nextID
+    n.id = id
+    neurons += ((id,n))
   }
 
   def addNeurons(ns: Traversable[Neuron]){
-    for(n <- ns) n.id = nextID
-    neurons ++= ns
+    val nsHash =
+      for(n <- ns ;val id = nextID) yield (id,n)
+    neurons ++= nsHash
   }
 
   def addSynapse(id1: Int, id2: Int, weight:Double) {
@@ -32,14 +35,13 @@ class NeuronalNetwork {
   }
 
   def removeNeuron(id: Int) {
-    val n = neurons.remove(id)
-    n.inputSynapses.par.foreach((s: Synapse) => s.input.removeOutput(s))
-    n.outputSynapses.par.foreach((s: Synapse) => s.output.removeInput(s))
-    synapses --= n.inputSynapses ++ n.outputSynapses
-  }
-
-  def removeNeuron(n: Neuron) {
-    removeNeuron(neurons.indexOf(n))
+    neurons.remove(id).get match {
+      case n: Neuron => {
+        n.inputSynapses.par.foreach((s: Synapse) => s.input.removeOutput(s))
+        n.outputSynapses.par.foreach((s: Synapse) => s.output.removeInput(s))
+        synapses --= n.inputSynapses ++ n.outputSynapses
+      }
+    }
   }
 
   def removeSynapse(id: Int) {
@@ -53,8 +55,8 @@ class NeuronalNetwork {
   }
 
   def step() { //Order matters
-    neurons.par.foreach(_.step())
-    synapses.par.foreach(_.step())
+    neurons.par.foreach {case (_, n) => n.step()}
+    synapses.par.foreach {_.step()}
   }
 
   /**
@@ -65,7 +67,7 @@ class NeuronalNetwork {
    * @param weights must have size == inputs.size * outputs.size
    */
   def generateLinearNetwork(inputs: Seq[Neuron], outputs: Seq[Neuron], weights: Seq[Double]){
-    assert((inputs ++ outputs).diff(neurons).isEmpty, "There are some neurons which are not part of this network")
+    assert((inputs ++ outputs).diff(neurons.values.toSeq).isEmpty, "There are some neurons which are not part of this network")
     assert(weights.size == inputs.size*outputs.size, "The number of weights is off")
 
     val tempSynapses = new Array[Synapse](inputs.size*outputs.size)
