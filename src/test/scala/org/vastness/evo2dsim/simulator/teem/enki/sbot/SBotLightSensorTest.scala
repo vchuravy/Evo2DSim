@@ -8,7 +8,7 @@ import org.vastness.evo2dsim.teem.enki.sbot._
 
 class SBotLightSensorTest extends FlatSpec with Matchers {
   trait Sim {
-    val sim = new Simulator()
+    val sim = new Simulator(0)
     val agent1 = sim.addAgent(new Vec2(0,0), sim.Agents.SBotControllerLinearZero).asInstanceOf[SBot]
     val agent2 = sim.addAgent(new Vec2(0,1), sim.Agents.SBotControllerLinearZero).asInstanceOf[SBot]
     sim.step(50.0f/1000.0f)

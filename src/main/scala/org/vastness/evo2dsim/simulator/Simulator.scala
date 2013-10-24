@@ -11,7 +11,9 @@ import org.vastness.evo2dsim.simulator.food.FoodSource
 import scala.collection.mutable.ArrayBuffer
 import sun.awt.SunHints.Value
 
-class Simulator {
+class Simulator(seed: Long) {
+  val random = new scala.util.Random(seed)
+
   val velocityIteration = 6
   val positionIteration = 3 // recommend iteration values
   val origin = new Vec2(0,0)

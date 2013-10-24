@@ -11,7 +11,7 @@ import org.vastness.evo2dsim.simulator.food.StaticFoodSource
  * @author Valentin Churavy
  */
 object App {
-  val sim = new Simulator
+  val sim = new Simulator(new scala.util.Random().nextLong())
 
   var timer = new Timer
   var running = true
@@ -22,7 +22,7 @@ object App {
 
   val gui = new GUI
 
-  val random = new scala.util.Random()
+
 
   private def updateSimulation() {
     sim.step(timeStep/1000.0f)
@@ -102,7 +102,7 @@ object App {
 
       sim.createWorldBoundary(edges.toArray)
       for( i <- 0 until 10){
-        sim.addAgent(origin.add(new Vec2(random.nextFloat()-0.5f,random.nextFloat()-0.5f)), sim.Agents.SBotControllerLinear)
+        sim.addAgent(origin.add(new Vec2(sim.random.nextFloat()-0.5f, sim.random.nextFloat()-0.5f)), sim.Agents.SBotControllerLinear)
       }
 
       loop()
