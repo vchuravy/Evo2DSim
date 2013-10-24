@@ -15,6 +15,10 @@ class NeuronalNetwork {
 
   def addNeuron(n: Neuron){
     val id = nextID
+    addNeuron(id,n)
+  }
+
+  private def addNeuron(id: Int, n:Neuron){
     n.id = id
     neurons += ((id,n))
   }
@@ -57,6 +61,59 @@ class NeuronalNetwork {
   def step() { //Order matters
     neurons.par.foreach {case (_, n) => n.step()}
     synapses.par.foreach {_.step()}
+  }
+
+  /**
+   * Serializes synapses
+   * @return (From.ID,To.ID,Weight)
+   */
+  private def serializeSynapses: mutable.Traversable[(Int,Int,Double)] =
+    for (s <- synapses) yield (s.input.id,s.output.id,s.weight)
+
+  /**
+   * Serializes neurons
+   * @return (ID, bias)
+   */
+  private def serializeNeurons: mutable.Traversable[(Int, Double, (Double) => Double)] =
+    for ((nID, n) <- neurons) yield (nID, n.bias, n.t_func)
+
+  def serializeNetwork(){
+    (currentID, serializeNeurons, serializeSynapses)
+  }
+
+  private def initializeSynapses(synapses: mutable.Traversable[(Int,Int,Double)]){
+    for((id1,id2,weight) <- synapses.par) addSynapse(id1,id2,weight)
+  }
+
+  /**
+   * Initialize neurons
+   * WARNING: Sensors and motors have to be initialized
+   */
+  private def initializeNeurons(neurons: mutable.Traversable[(Int, Double, (Double) => Double)] ){
+    if(currentID == -1) println("Warning: It might be that you forgot to initialize motors and sensors.")
+    for((id, bias, t_func) <- neurons){
+      if(this.neurons.contains(id)) {
+        val n =  this.neurons(id)
+        n.bias = bias
+        n.t_func = t_func
+      } else {
+       addNeuron(id, new Neuron(bias, t_func))
+      }
+    }
+  }
+
+  /**
+   * Initializes neurons and synapses. Warning: Motors and sensors have to be initialized first.
+   * @param currentID
+   * @param neurons
+   * @param synapses
+   */
+  def initializeNetwork(currentID: Int,
+                        neurons: mutable.Traversable[(Int, Double, (Double) => Double)],
+                        synapses: mutable.Traversable[(Int,Int,Double)]) {
+    initializeNeurons(neurons)
+    initializeSynapses(synapses)
+    this.currentID = currentID
   }
 
   /**

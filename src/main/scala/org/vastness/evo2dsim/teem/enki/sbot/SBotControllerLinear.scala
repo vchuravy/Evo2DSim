@@ -5,7 +5,7 @@ import org.vastness.evo2dsim.App
 
 class SBotControllerLinear(sBot: SBot ) extends SBotController(sBot) {
 
-  override def toGenome:Genome = new BinaryGenome(nn,size)
+  override def toGenome:Genome = new BinaryGenome(nn)
 
   override def fromGenome(genome: Genome) = genome match {
     case g: BinaryGenome => {initialize(g.toArray)}

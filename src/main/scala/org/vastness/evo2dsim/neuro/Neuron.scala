@@ -3,7 +3,7 @@ package org.vastness.evo2dsim.neuro
 import scala.collection.mutable.ArrayBuffer
 
 
-class Neuron(var bias: Double, t_func: (Double) => Double ){
+class Neuron(var bias: Double, var t_func: (Double) => Double ){
   var id = -1
 
   var inputSynapses =  ArrayBuffer[Synapse]()
