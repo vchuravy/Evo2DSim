@@ -102,7 +102,7 @@ object App {
 
       sim.createWorldBoundary(edges.toArray)
       for( i <- 0 until 10){
-        sim.addAgent(origin.add(new Vec2(random.nextFloat(),random.nextFloat())), sim.Agents.SBotControllerLinear)
+        sim.addAgent(origin.add(new Vec2(random.nextFloat()-0.5f,random.nextFloat()-0.5f)), sim.Agents.SBotControllerLinear)
       }
 
       loop()

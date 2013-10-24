@@ -9,6 +9,7 @@ import org.vastness.evo2dsim.teem.enki.sbot.{SBotControllerLinear, SBot}
 import org.vastness.evo2dsim.simulator.light.LightManager
 import org.vastness.evo2dsim.simulator.food.FoodSource
 import scala.collection.mutable.ArrayBuffer
+import sun.awt.SunHints.Value
 
 class Simulator {
   val velocityIteration = 6
@@ -63,6 +64,12 @@ class Simulator {
         val a = new SBot(agentCounter, pos, this)
         a.controller = Option(new SBotControllerLinear(a))
         a.controller.get.initializeRandom()
+        addAgent(a)
+      }
+      case Agents.SBotControllerLinearZero => {
+        val a = new SBot(agentCounter, pos, this)
+        a.controller = Option(new SBotControllerLinear(a))
+        a.controller.get.initializeZeros()
         addAgent(a)
       }
     }
@@ -120,7 +127,7 @@ class Simulator {
 
   object Agents extends Enumeration {
     type Agents = Value
-    val SBotControllerLinear = Value
+    val SBotControllerLinear, SBotControllerLinearZero = Value
   }
 }
 
