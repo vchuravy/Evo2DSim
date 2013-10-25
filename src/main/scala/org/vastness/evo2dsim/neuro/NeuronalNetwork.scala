@@ -1,11 +1,11 @@
 package org.vastness.evo2dsim.neuro
 
-import scala.collection.mutable.ArrayBuffer
-import scala.collection.mutable
+import scala.collection.mutable.{HashMap,ArrayBuffer}
+import scala.collection.immutable
 
 class NeuronalNetwork {
   var synapses = ArrayBuffer[Synapse]()
-  var neurons = mutable.HashMap[Int, Neuron]()
+  var neurons = HashMap[Int, Neuron]()
 
   private var currentID = -1
   def nextID:Int = {
@@ -67,20 +67,20 @@ class NeuronalNetwork {
    * Serializes synapses
    * @return (From.ID,To.ID,Weight)
    */
-  private def serializeSynapses: mutable.Traversable[(Int,Int,Double)] =
-    for (s <- synapses) yield (s.input.id,s.output.id,s.weight)
+  private def serializeSynapses: immutable.Iterable[(Int,Int,Double)] =
+    ( for (s <- synapses) yield (s.input.id,s.output.id,s.weight) ).to[immutable.Iterable]
 
   /**
    * Serializes neurons
    * @return (ID, bias)
    */
-  private def serializeNeurons: mutable.Traversable[(Int, Double, (Double) => Double)] =
-    for ((nID, n) <- neurons) yield (nID, n.bias, n.t_func)
+  private def serializeNeurons: immutable.Iterable[(Int, Double, (Double) => Double)] =
+    ( for ((nID, n) <- neurons) yield (nID, n.bias, n.t_func) ).to[immutable.Iterable]
 
   def serializeNetwork() =
     (currentID, serializeNeurons, serializeSynapses)
 
-  private def initializeSynapses(synapses: mutable.Traversable[(Int,Int,Double)]){
+  private def initializeSynapses(synapses: immutable.Iterable[(Int,Int,Double)]){
     for((id1,id2,weight) <- synapses.par) addSynapse(id1,id2,weight)
   }
 
@@ -88,7 +88,7 @@ class NeuronalNetwork {
    * Initialize neurons
    * WARNING: Sensors and motors have to be initialized
    */
-  private def initializeNeurons(neurons: mutable.Traversable[(Int, Double, (Double) => Double)] ){
+  private def initializeNeurons(neurons: immutable.Iterable[(Int, Double, (Double) => Double)] ){
     if(currentID == -1) println("Warning: It might be that you forgot to initialize motors and sensors.")
     for((id, bias, t_func) <- neurons){
       if(this.neurons.contains(id)) {
@@ -108,8 +108,8 @@ class NeuronalNetwork {
    * @param synapses
    */
   def initializeNetwork(currentID: Int,
-                        neurons: mutable.Traversable[(Int, Double, (Double) => Double)],
-                        synapses: mutable.Traversable[(Int,Int,Double)]) {
+                        neurons: immutable.Iterable[(Int, Double, (Double) => Double)],
+                        synapses: immutable.Iterable[(Int,Int,Double)]) {
     initializeNeurons(neurons)
     initializeSynapses(synapses)
     this.currentID = currentID

@@ -1,14 +1,14 @@
 package org.vastness.evo2dsim.evolution
 
 import org.vastness.evo2dsim.neuro.NeuronalNetwork
-import scala.collection.mutable
+import scala.collection.immutable
 
 
 abstract class Genome(nn: NeuronalNetwork) {
   def toSerializedNN:
   (Int,
-    mutable.Traversable[(Int, Double, (Double) => Double)],
-    mutable.Traversable[(Int,Int,Double)])
+    immutable.Iterable[(Int, Double, (Double) => Double)],
+    immutable.Iterable[(Int,Int,Double)])
 
   def mutate()
   def crossover(g: Genome)
