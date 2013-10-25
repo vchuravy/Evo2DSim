@@ -7,10 +7,6 @@ class SBotControllerLinear(sBot: SBot ) extends SBotController(sBot) {
 
   override def toGenome:Genome = new BinaryGenome(nn)
 
-  override def fromGenome(genome: Genome) = genome match {
-    case g: BinaryGenome => {initialize(g.toArray)}
-  }
-
   override def initialize(weights: Array[Double]) {
     nn.generateLinearNetwork(sensorNeurons, motorNeurons, weights)
   }

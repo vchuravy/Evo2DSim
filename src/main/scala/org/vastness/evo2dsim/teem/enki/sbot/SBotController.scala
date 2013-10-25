@@ -2,6 +2,7 @@ package org.vastness.evo2dsim.teem.enki.sbot
 
 import org.vastness.evo2dsim.simulator.{Motor, Controller}
 import org.vastness.evo2dsim.neuro.{SensorNeuron, MotorNeuron, TransferFunction}
+import org.vastness.evo2dsim.evolution.Genome
 
 
 abstract class SBotController(sbot: SBot) extends Controller(sbot) {
@@ -24,6 +25,11 @@ abstract class SBotController(sbot: SBot) extends Controller(sbot) {
 
   protected def size: Int = {
     sensorNeurons.size * motorNeurons.size
+  }
+
+  override def fromGenome(genome: Genome) {
+    val (currentID, neurons, synapses) = genome.toSerializedNN
+    nn.initializeNetwork(currentID, neurons, synapses) // Note safe to call because Motors and Sensors are initialized
   }
 
   override def step(){

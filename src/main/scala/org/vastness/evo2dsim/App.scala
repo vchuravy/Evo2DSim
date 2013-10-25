@@ -101,9 +101,8 @@ object App {
       sim.addFoodSource(edges(2) add new Vec2(-0.1f, -0.1f), radius = 0.1f, activationRange = 0.5f, f2)
 
       sim.createWorldBoundary(edges.toArray)
-      for( i <- 0 until 10){
-        sim.addAgent(origin.add(new Vec2(sim.random.nextFloat()-0.5f, sim.random.nextFloat()-0.5f)), sim.Agents.SBotControllerLinear)
-      }
+      val agents = for( i <- 0 until 10) yield
+        sim.addAgent(origin.add(new Vec2(sim.random.nextFloat()-0.5f, sim.random.nextFloat()-0.5f)), sim.Agents.SBotControllerLinearRandom)
 
       loop()
     } getOrElse {

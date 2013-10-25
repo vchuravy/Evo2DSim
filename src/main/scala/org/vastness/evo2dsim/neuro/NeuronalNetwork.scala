@@ -77,9 +77,8 @@ class NeuronalNetwork {
   private def serializeNeurons: mutable.Traversable[(Int, Double, (Double) => Double)] =
     for ((nID, n) <- neurons) yield (nID, n.bias, n.t_func)
 
-  def serializeNetwork(){
+  def serializeNetwork() =
     (currentID, serializeNeurons, serializeSynapses)
-  }
 
   private def initializeSynapses(synapses: mutable.Traversable[(Int,Int,Double)]){
     for((id1,id2,weight) <- synapses.par) addSynapse(id1,id2,weight)

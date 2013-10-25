@@ -61,8 +61,25 @@ class Simulator(seed: Long) {
   }
 
   def addEntityToManger(e: Entity) {entityList = e :: entityList} // constant time prepend
+
+  /**
+   * Adds a agent of a certain type to the sim
+   * TODO: To much boilerplate, refactor into something more flexible
+   * @param pos position of the agent
+   * @param agentType  agent type
+   * @return the created agent
+   */
   def addAgent(pos: Vec2, agentType: Agents.Value) : Agent = agentType match {
+      case Agents.SBot => {
+        val a = new SBot(agentCounter, pos, this)
+        addAgent(a)
+      }
       case Agents.SBotControllerLinear => {
+        val a = new SBot(agentCounter, pos, this)
+        a.controller = Option(new SBotControllerLinear(a))
+        addAgent(a)
+      }
+      case Agents.SBotControllerLinearRandom => {
         val a = new SBot(agentCounter, pos, this)
         a.controller = Option(new SBotControllerLinear(a))
         a.controller.get.initializeRandom()
@@ -129,7 +146,7 @@ class Simulator(seed: Long) {
 
   object Agents extends Enumeration {
     type Agents = Value
-    val SBotControllerLinear, SBotControllerLinearZero = Value
+    val SBot, SBotControllerLinear, SBotControllerLinearRandom, SBotControllerLinearZero = Value
   }
 }
 
