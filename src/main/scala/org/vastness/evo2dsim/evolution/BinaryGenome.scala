@@ -4,13 +4,12 @@ import org.vastness.evo2dsim.neuro.NeuronalNetwork
 import scala.collection.immutable
 import scala.collection.immutable.TreeMap
 import scala.util.Random
-import scala.collection.JavaConverters._
 
 /**
  * Implements a binary genome in the following format.
  * Every value is stored as 8 bit representing values from -1 to 1
  * Mutation happens via bitflip
- * @param nn
+ * @param nn The NeuronalNetwork to operate from
  */
 class BinaryGenome(nn: NeuronalNetwork, mutateBiases: Boolean = true, mutateWeights: Boolean = true,
                    mutateProbability: Double = 0.01, crossoverProbability: Double = 0.05 ) extends Genome(nn) {
@@ -34,6 +33,9 @@ class BinaryGenome(nn: NeuronalNetwork, mutateBiases: Boolean = true, mutateWeig
       (currentID, neurons, synapses)
   }
 
+  /**
+   * Implements a simple bitwise mutation via a xor map
+   */
   override def mutate() {
     if(mutateWeights){
       weightBytes = for((id,b) <- weightBytes) yield (id, (b ^ xor()).toByte)
@@ -44,6 +46,12 @@ class BinaryGenome(nn: NeuronalNetwork, mutateBiases: Boolean = true, mutateWeig
     }
 
   }
+
+  /**
+   * implements a crossover at a randomly chosen point with the crossoverProbability.
+   * Currently only working for other BinaryGenomes
+   * @param other The other genome from which we draw the second half.
+   */
   override def crossover(other: Genome) {
     other match {
       case b: BinaryGenome =>
