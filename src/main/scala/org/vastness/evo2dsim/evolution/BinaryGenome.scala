@@ -53,8 +53,14 @@ class BinaryGenome(nn: NeuronalNetwork, mutateBiases: Boolean = true, mutateWeig
           val crossoverPoint = Random.nextInt(otherG.size)
           val newBytes = (bytes.slice(0,crossoverPoint) ++ otherG.slice(crossoverPoint,otherG.size)).toSeq
           var i = 0
-          weightBytes = for((id,b) <- weightBytes; i+=1) yield (id,newBytes(i))
-          biasBytes = for((id,b) <- biasBytes; i+=1) yield (id,newBytes(i))
+          weightBytes = for((id,b) <- weightBytes) yield {
+            i+=1
+            (id,newBytes(i))
+          }
+          biasBytes = for((id,b) <- biasBytes) yield {
+            i+=1
+            (id,newBytes(i))
+          }
         }
       }
     }
