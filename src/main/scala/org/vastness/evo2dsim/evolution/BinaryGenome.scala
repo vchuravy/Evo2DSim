@@ -4,6 +4,7 @@ import org.vastness.evo2dsim.neuro.NeuronalNetwork
 import scala.collection.immutable
 import scala.collection.immutable.TreeMap
 import scala.util.Random
+import scala.collection.JavaConverters._
 
 /**
  * Implements a binary genome in the following format.
@@ -11,7 +12,8 @@ import scala.util.Random
  * Mutation happens via bitflip
  * @param nn
  */
-class BinaryGenome(nn: NeuronalNetwork, mutateBiases: Boolean = true, mutateWeights: Boolean = true, mutateProbability: Double = 0.01 ) extends Genome(nn) {
+class BinaryGenome(nn: NeuronalNetwork, mutateBiases: Boolean = true, mutateWeights: Boolean = true,
+                   mutateProbability: Double = 0.01, crossoverProbability: Double = 0.05 ) extends Genome(nn) {
   private var (currentID, neurons, synapses) = nn.serializeNetwork()
 
   //using TreeMap because it is automatically sorted by key
@@ -21,6 +23,8 @@ class BinaryGenome(nn: NeuronalNetwork, mutateBiases: Boolean = true, mutateWeig
 
   private var weightBytes = weights.mapValues(mapToByte)
   private var biasBytes = biases.mapValues(mapToByte)
+
+  protected def bytes = weightBytes.values ++ biasBytes.values
 
   override def toSerializedNN:(Int,
     immutable.Iterable[(Int, Double, (Double) => Double)],
@@ -32,23 +36,37 @@ class BinaryGenome(nn: NeuronalNetwork, mutateBiases: Boolean = true, mutateWeig
 
   override def mutate() {
     if(mutateWeights){
-      weightBytes = for((id,b) <- weightBytes) yield (id, (b ^ xor).toByte)
+      weightBytes = for((id,b) <- weightBytes) yield (id, (b ^ xor()).toByte)
     }
 
     if(mutateBiases){
-      biasBytes = for((id,b) <- biasBytes) yield (id, (b ^ xor).toByte)
+      biasBytes = for((id,b) <- biasBytes) yield (id, (b ^ xor()).toByte)
     }
 
   }
-  override def crossover(other: Genome) {}
+  override def crossover(other: Genome) {
+    other match {
+      case b: BinaryGenome =>
+      {
+        val otherG = b.bytes
+        if(Random.nextDouble <= crossoverProbability && otherG.size == bytes.size){
+          val crossoverPoint = Random.nextInt(otherG.size)
+          val newBytes = (bytes.slice(0,crossoverPoint) ++ otherG.slice(crossoverPoint,otherG.size)).toSeq
+          var i = 0
+          weightBytes = for((id,b) <- weightBytes; i+=1) yield (id,newBytes(i))
+          biasBytes = for((id,b) <- biasBytes; i+=1) yield (id,newBytes(i))
+        }
+      }
+    }
+  }
 
   /**
    * Creates a byte that indicates on which point on should flip a byte
    * @return Byte
    */
-  private def xor: Byte = Integer.parseInt(
-    Range(0,8).foldLeft[String]("")(
-      (acc, _) =>  if (mutateProbability <= Random.nextDouble) acc + "1" else acc + "0"
+  private def xor(length:Int = 8, p: Double = mutateProbability): Byte = Integer.parseInt(
+    Range(0,length).foldLeft[String]("")(
+      (acc, _) =>  if (Random.nextDouble <= p) acc + "1" else acc + "0"
     ), 2).toByte
 
   /**
