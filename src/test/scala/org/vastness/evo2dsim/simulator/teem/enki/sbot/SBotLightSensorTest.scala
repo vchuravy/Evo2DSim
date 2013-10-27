@@ -25,6 +25,10 @@ class SBotLightSensorTest extends FlatSpec with Matchers {
     val agent2 = sim.addAgent(new Vec2(0,1), sim.Agents.SBotControllerLinearZero).asInstanceOf[SBot]
   }
 
+  trait SimWithTwoAgentsInverse extends  SimWithOneAgent{
+    val agent2 = sim.addAgent(new Vec2(0,-1), sim.Agents.SBotControllerLinearZero).asInstanceOf[SBot]
+  }
+
   "Position and angle" should "be Zero for Agent1" in new SimWithOneAgent {
     agent1.body.getPosition should be (new Vec2(0,0))
     agent1.body.getAngle should be (0)
@@ -74,6 +78,13 @@ class SBotLightSensorTest extends FlatSpec with Matchers {
     val visionStrip = (lightSensor1 invokePrivate visionStripPM())(agent2.light.color)
     visionStrip(0) should be (1)
     visionStrip(180) should be (0)
+  }
+
+  "Activity for the inverse case" should "be zero at 0 and one at 180" in new SimWithTwoAgentsInverse {
+    sim.step(timeStep)
+    val visionStrip = (lightSensor1 invokePrivate visionStripPM())(agent2.light.color)
+    visionStrip(0) should be (0)
+    visionStrip(180) should be (1)
   }
 
 
