@@ -1,7 +1,7 @@
 package org.vastness.evo2dsim
 
 import org.vastness.evo2dsim.simulator.Simulator
-import org.vastness.evo2dsim.gui.GUI
+import org.vastness.evo2dsim.gui._
 import javax.swing.{SwingUtilities, JFrame}
 import org.jbox2d.common.Vec2
 import java.util.Timer
@@ -94,8 +94,8 @@ object App {
       val sizes = Array[Vec2](new Vec2(-halfSize,-halfSize), new Vec2(-halfSize,halfSize), new Vec2(halfSize,halfSize), new Vec2(halfSize,-halfSize))
       val edges = for(i <- 0 until sizes.length) yield origin add sizes(i)
 
-      val f1 = new StaticFoodSource(color = 1, max = 8, reward = 1)
-      val f2 = new StaticFoodSource(color = 1, max = 8, reward = -1)
+      val f1 = new StaticFoodSource(color = Color.RED, max = 8, reward = 1)
+      val f2 = new StaticFoodSource(color = Color.RED, max = 8, reward = -1)
 
       sim.addFoodSource(edges(0) add new Vec2(0.1f, 0.1f), radius = 0.1f, activationRange = 0.15f, f1)
       sim.addFoodSource(edges(2) add new Vec2(-0.1f, -0.1f), radius = 0.1f, activationRange = 0.5f, f2)

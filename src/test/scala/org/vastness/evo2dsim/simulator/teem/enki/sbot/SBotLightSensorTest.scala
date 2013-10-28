@@ -4,6 +4,7 @@ import org.scalatest._
 import org.vastness.evo2dsim.simulator.Simulator
 import org.jbox2d.common.Vec2
 import org.vastness.evo2dsim.teem.enki.sbot._
+import org.vastness.evo2dsim.gui.Color
 
 
 class SBotLightSensorTest extends FlatSpec with Matchers {
@@ -18,7 +19,7 @@ class SBotLightSensorTest extends FlatSpec with Matchers {
     val lightSensor1 = agent1.controller.get match{
       case c: SBotController => c.lightSensor
     }
-    val visionStripPM = PrivateMethod[Array[Array[Float]]]('visionStrip)
+    val visionStripPM = PrivateMethod[Map[Color,Array[Float]]]('visionStrip)
   }
 
   trait SimWithTwoAgents extends SimWithOneAgent {
@@ -47,7 +48,7 @@ class SBotLightSensorTest extends FlatSpec with Matchers {
   "SBotLightSensor" should "have an zero vision Strip" in new SimWithOneAgent {
     sim.step(timeStep)
     val visionStrip = lightSensor1 invokePrivate visionStripPM()
-    for(strip <- visionStrip) strip.sum should be (0)
+    for((_,strip) <- visionStrip) strip.sum should be (0)
   }
 
   "SBotLightSensor" should "have some activity" in new SimWithTwoAgents {
@@ -85,6 +86,14 @@ class SBotLightSensorTest extends FlatSpec with Matchers {
     val visionStrip = (lightSensor1 invokePrivate visionStripPM())(agent2.light.color)
     visionStrip(0) should be (0)
     visionStrip(180) should be (1)
+  }
+
+  "Non origin settings" should "also work" in new SimWithTwoAgents {
+    agent1.body.setTransform(new Vec2(1,1), agent1.body.getAngle)
+    sim.step(timeStep)
+    val visionStrip = (lightSensor1 invokePrivate visionStripPM())(agent2.light.color)
+    visionStrip(90) should be (0)
+    visionStrip(270) should be (1)
   }
 
 

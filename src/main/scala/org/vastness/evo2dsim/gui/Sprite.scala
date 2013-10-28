@@ -9,26 +9,32 @@ import scala.annotation.tailrec
  * Note: AWT is used to upper-left hand corner for coordinates
  * @param p returns the center position of the sprite
  */
-abstract class Sprite(p: () => Vec2) {
+abstract class Sprite(p: => Vec2, color: => Color) {
     val conversionFactor = 200 // From Meters to Pixel 0.1m in the physical World are 20 pixel
-    def position = conversionToPixel(p())
-    def draw(g2: Graphics2D)
+    def position = conversionToPixel(p)
+    def draw(g2: Graphics2D) {g2.setColor(color.underlying)}
     def conversionToPixel(f: Float) = conversionFactor*f
     def conversionToPixel(v: Vec2) = v.mul(conversionFactor)
 }
 
-class BoxSprite(p: () => Vec2, width: Float, height: Float) extends Sprite(p) {
+class BoxSprite(p: => Vec2, color: => Color, width: Float, height: Float) extends Sprite(p,color) {
   val w = conversionToPixel(width).toInt
   val h = conversionToPixel(height).toInt
-  def draw(g2: Graphics2D) = g2.fillRect((position.x - w/2).toInt, (position.y - h/2).toInt , w, h)
+  override def draw(g2: Graphics2D){
+    super.draw(g2)
+    g2.fillRect((position.x - w/2).toInt, (position.y - h/2).toInt , w, h)
+  }
 }
 
-class CircleSprite(p: () => Vec2, radius: Float)  extends Sprite(p) {
+class CircleSprite(p: => Vec2, color: => Color, radius: Float)  extends Sprite(p,color) {
   val d = 2 * conversionToPixel(radius).toInt
-  def draw(g2: Graphics2D) = g2.fillOval(position.x.toInt - d/2, position.y.toInt - d/2, d, d)
+  override def draw(g2: Graphics2D){
+    super.draw(g2)
+    g2.fillOval(position.x.toInt - d/2, position.y.toInt - d/2, d, d)
+  }
 }
 
-class WorldBoundarySprite(p: () => Vec2, edges: Array[Vec2]) extends Sprite(p) {
+class WorldBoundarySprite(p: => Vec2,color: => Color, edges: Array[Vec2]) extends Sprite(p,color) {
   def vectorsToPoints(v: Array[Vec2])  =  _vectorsToPoints(v.reverse, List[Int](), List[Int]())
 
   @tailrec
@@ -38,7 +44,8 @@ class WorldBoundarySprite(p: () => Vec2, edges: Array[Vec2]) extends Sprite(p) {
   }
   val e = vectorsToPoints(edges)
 
-  def draw(g2: Graphics2D){
+  override def draw(g2: Graphics2D){
+    super.draw(g2)
     g2.setStroke(new BasicStroke(3))
     g2.drawPolygon(e._1.toArray, e._2.toArray, edges.length)
   }

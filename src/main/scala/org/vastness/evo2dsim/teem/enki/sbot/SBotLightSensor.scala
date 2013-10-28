@@ -2,6 +2,7 @@ package org.vastness.evo2dsim.teem.enki.sbot
 
 import org.vastness.evo2dsim.neuro.{TransferFunction, SensorNeuron, Neuron}
 import org.vastness.evo2dsim.simulator.light.LightSource
+import org.vastness.evo2dsim.gui.Color
 
 
 class SBotLightSensor(sBot: SBot, segments: Int, bias: Double) {
@@ -12,7 +13,7 @@ class SBotLightSensor(sBot: SBot, segments: Int, bias: Double) {
   createNeurons()
 
 
-  private var visionStrip = Array[Array[Float]](new Array[Float](360), new Array[Float](360)) // two colors
+  private var visionStrip = Map[Color, Array[Float]]((Color.RED,new Array[Float](360)), (Color.BLUE, new Array[Float](360))) // two colors
 
   /**
    * Fills visionStrip, if light from a source falls onto the area.
@@ -20,7 +21,7 @@ class SBotLightSensor(sBot: SBot, segments: Int, bias: Double) {
    * based upon the distance and relative position to the target.
    */
   def calcVision() {
-    visionStrip = Array[Array[Float]](new Array[Float](360), new Array[Float](360)) // clean the last image
+    visionStrip = Map[Color, Array[Float]]((Color.RED,new Array[Float](360)), (Color.BLUE, new Array[Float](360))) // clean the last image
 
     def clamp(x: Float, max: Float) =
       if(x > max) max else x
@@ -54,8 +55,8 @@ class SBotLightSensor(sBot: SBot, segments: Int, bias: Double) {
     assert(360%segments == 0)
     val pixels = 360/segments
     for( i <- 0 until segments){
-      blueNeurons(i) = new SensorNeuron(bias, TransferFunction.thanh, () => visionStrip(0).view(pixels*i,pixels*(i+1)).sum/pixels)
-      redNeurons(i) = new SensorNeuron(bias, TransferFunction.thanh, () => visionStrip(1).view(pixels*i,pixels*(i+1)).sum/pixels)
+      blueNeurons(i) = new SensorNeuron(bias, TransferFunction.thanh, () => visionStrip(Color.BLUE).view(pixels*i,pixels*(i+1)).sum/pixels)
+      redNeurons(i) = new SensorNeuron(bias, TransferFunction.thanh, () => visionStrip(Color.RED).view(pixels*i,pixels*(i+1)).sum/pixels)
     }
   }
 

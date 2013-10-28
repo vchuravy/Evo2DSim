@@ -4,12 +4,11 @@ import org.jbox2d.common.Vec2
 import org.jbox2d.dynamics.{FixtureDef, BodyType, BodyDef}
 import org.jbox2d.dynamics
 import org.jbox2d.collision.shapes._
-import org.vastness.evo2dsim.gui.{WorldBoundarySprite, CircleSprite, BoxSprite}
+import org.vastness.evo2dsim.gui._
 import org.vastness.evo2dsim.teem.enki.sbot.{SBotControllerLinear, SBot}
 import org.vastness.evo2dsim.simulator.light.LightManager
 import org.vastness.evo2dsim.simulator.food.FoodSource
 import scala.collection.mutable.ArrayBuffer
-import sun.awt.SunHints.Value
 
 class Simulator(seed: Long) {
   val random = new scala.util.Random(seed)
@@ -42,21 +41,21 @@ class Simulator(seed: Long) {
   def addStaticBox(pos: Vec2, width: Float, height: Float) {
     val shape = new PolygonShape
     shape.setAsBox(width,height)
-    addEntityToManger(new StaticEntity(new BoxSprite(() => pos, width, height )))
+    addEntityToManger(new StaticEntity(new BoxSprite(pos, Color.BLACK, width, height )))
     addStaticWorldObject(pos, shape)
   }
 
   def addStaticCircle(pos: Vec2, radius: Float){
     val shape = new CircleShape
     shape.setRadius(radius)
-    addEntityToManger(new StaticEntity(new CircleSprite(() => pos, radius )))
+    addEntityToManger(new StaticEntity(new CircleSprite(pos, Color.BLACK, radius )))
     addStaticWorldObject(pos, shape)
   }
 
   def createWorldBoundary(edges: Array[Vec2]) {
     val shape = new ChainShape
     shape.createLoop(edges, edges.length)
-    addEntityToManger(new StaticEntity(new  WorldBoundarySprite(() => origin, edges )))
+    addEntityToManger(new StaticEntity(new  WorldBoundarySprite(origin, Color.BLACK, edges )))
     addStaticWorldObject(new Vec2(0,0), shape)
   }
 
@@ -97,7 +96,7 @@ class Simulator(seed: Long) {
     agentCounter += 1
     addEntityToManger(agent)
     agentList = agent :: agentList
-    return agent
+    agent
   }
 
   def addFoodSource(pos: Vec2, radius: Float, activationRange: Float, foodSource: FoodSource){
@@ -116,7 +115,7 @@ class Simulator(seed: Long) {
     bodyFixtureDef.density = 1.0f
     bodyFixtureDef.shape = shape
 
-    val e = new StaticEntity(new CircleSprite(() => pos, radius ))
+    val e = new StaticEntity(new CircleSprite(pos, foodSource.color, radius ))
     addEntityToManger(e)
 
     foodSource.initialize(e, this)

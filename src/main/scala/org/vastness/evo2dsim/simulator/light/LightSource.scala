@@ -1,14 +1,17 @@
 package org.vastness.evo2dsim.simulator.light
 
 import org.vastness.evo2dsim.simulator.Entity
+import org.vastness.evo2dsim.gui.Color
 
 /**
  * Implements a simple  LightSource
- * @param color has to be either 0 = blue or 1 = red
+ * @param c has to be either blue or red
  */
 
-class LightSource(val color: Int, entity: Entity) {
-  assert(color == 0 || color == 1, "Color is neither one nor zero. Shame on you!")
+class LightSource( c: Color, entity: Entity) {
+  //require(c == Color.BLUE || c == Color.RED, "Color is neither blue or red. Shame on you!")
+
+  def color = if(active) c else Color.BLACK
 
   def position = entity.position
   var active = false
