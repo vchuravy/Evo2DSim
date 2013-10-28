@@ -6,11 +6,9 @@ import org.vastness.evo2dsim.gui.Color
 
 
 /**
- * Implements the very basics for an environment
- * @param timeStep in ms
- * @param simSpeed relative to real time
+ * @see Environment
  */
-class BasicEnvironment(timeStep:Int, simSpeed:Int ) extends Environment(timeStep, simSpeed){
+class BasicEnvironment(timeStep:Int, simSpeed:Int, steps:Int ) extends Environment(timeStep, simSpeed, steps){
 
   val origin = new Vec2(1.015f,1.015f)
   val halfSize = 1f

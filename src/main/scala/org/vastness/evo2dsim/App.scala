@@ -56,7 +56,7 @@ object App {
 
     parser.parse(args, Config()) map { config =>
       timer = new Timer()
-      environments ::= new BasicEnvironment(config.timeStep, config.simSpeed)
+      environments ::= new BasicEnvironment(config.timeStep, config.simSpeed, 1000 )
       environments.head.initialize()
 
       SwingUtilities.invokeLater(new Runnable() {
