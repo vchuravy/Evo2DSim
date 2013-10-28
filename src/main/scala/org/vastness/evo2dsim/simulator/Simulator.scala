@@ -133,11 +133,11 @@ class Simulator(seed: Long) {
   }
 
   def step(timeStep: Float) { //TODO Optimize for concurrency
-    for(a: Agent <- agentList){
+    for(a: Agent <- agentList.par){
       a.step()
     }
     world.step(timeStep, velocityIteration, positionIteration)
-    for(f: FoodSource <- foodSourceList){
+    for(f: FoodSource <- foodSourceList.par){
       f.step()
     }
   }
