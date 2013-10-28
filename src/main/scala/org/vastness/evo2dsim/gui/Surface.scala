@@ -8,10 +8,9 @@ import java.awt
 
 class Surface extends JPanel {
   def draw(g2: Graphics2D) {
-    g2.setColor(awt.Color.BLACK) //Draw everything in black
     g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
-    for(e: Entity <- App.sim.getEntities){
-      e.sprite.draw(g2)
+    for(e: Entity <- App.visibleEntities){
+        e.sprite.draw(g2)
     }
   }
 

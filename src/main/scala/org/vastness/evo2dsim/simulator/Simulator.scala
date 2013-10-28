@@ -20,13 +20,12 @@ class Simulator(seed: Long) {
   val lightManager = new LightManager
   world.setContactListener(new ContactListener)
 
-  var entityList = List[Entity]()
+  var entities = List[Entity]()
   var agentList = List[Agent]()
   var agentCounter = 0
 
   private val foodSourceList = new ArrayBuffer[FoodSource]()
 
-  def getEntities = entityList
 
   //Adds a static box object. Remember width and height are half-units
   def addStaticWorldObject(pos: Vec2, shape: Shape) {
@@ -59,7 +58,7 @@ class Simulator(seed: Long) {
     addStaticWorldObject(new Vec2(0,0), shape)
   }
 
-  def addEntityToManger(e: Entity) {entityList = e :: entityList} // constant time prepend
+  def addEntityToManger(e: Entity) {entities = e :: entities} // constant time prepend
 
   /**
    * Adds a agent of a certain type to the sim
