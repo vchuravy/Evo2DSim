@@ -2,6 +2,7 @@ package org.vastness.evo2dsim.environment
 
 import org.vastness.evo2dsim.simulator.Simulator
 import org.vastness.evo2dsim.App
+import org.vastness.evo2dsim.evolution.Genome
 
 /**
  * Implements the very basics for an environment
@@ -36,5 +37,6 @@ abstract class Environment(val timeStep: Int = 50, val simSpeed: Int = 1, val st
 
   App.timer.schedule(new SimulationLoop, 0, timeStep / simSpeed)
 
-  def initialize()
+  def initializeStatic()
+  def initializeAgents(populationSize: Int, genomes: List[Genome])
 }
