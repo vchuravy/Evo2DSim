@@ -32,9 +32,11 @@ abstract class SBotController(sbot: SBot) extends Controller(sbot) {
     nn.initializeNetwork(currentID, neurons, synapses) // Note safe to call because Motors and Sensors are initialized
   }
 
-  override def step(){
+  override def sensorStep(){
     lightSensor.step()
-    super.step() // Executes nn
+  }
+
+  override def motorStep(){
     motor.step()
   }
 }

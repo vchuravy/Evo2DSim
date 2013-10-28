@@ -14,9 +14,12 @@ abstract class Controller(agent: Agent) {
   def initializeRandom()
   def initializeZeros()
 
+  def sensorStep()
 
-  def step(){
+  def controllerStep(){
     nn.step()
   }
+
+  def motorStep()
 
 }

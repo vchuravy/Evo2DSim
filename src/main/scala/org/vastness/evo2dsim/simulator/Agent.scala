@@ -29,10 +29,23 @@ class Agent(id: Int, pos: Vec2, val sim: Simulator, val radius: Float, mass: Flo
   var fitness = 0.0
   var currentReward = 0.0
 
-  def step() {
+  def sensorStep() {
     controller match{
       case None => {}
-      case Some(c) => c.step()
+      case Some(c) => c.sensorStep()
+    }
+  }
+
+  def controllerStep() {
+    controller match{
+      case None => {}
+      case Some(c) => c.controllerStep()
+    }
+  }
+  def motorStep() {
+    controller match{
+      case None => {}
+      case Some(c) => c.motorStep()
     }
   }
 

@@ -9,11 +9,10 @@ import org.vastness.evo2dsim.gui.Color
  */
 
 class LightSource( c: Color, entity: Entity) {
-  //require(c == Color.BLUE || c == Color.RED, "Color is neither blue or red. Shame on you!")
-
-  def color = if(active) c else Color.BLACK
+  require(c == Color.BLUE || c == Color.RED, "Color is neither blue or red. Shame on you!")
 
   def position = entity.position
   var active = false
+  def color = if(active) c else Color.BLACK
 
 }
