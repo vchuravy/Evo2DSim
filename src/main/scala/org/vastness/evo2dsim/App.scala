@@ -11,7 +11,6 @@ import org.vastness.evo2dsim.evolution.ElitistEvolution
  * @author Valentin Churavy
  */
 object App {
-
   var timer = new Timer
   var running = true
   val HERTZ = 30
@@ -22,6 +21,7 @@ object App {
   }
 
   def loop() {
+    timer = new Timer()
     timer.schedule(new RenderLoop, 0, 1000 / HERTZ)//new timer at 30 fps, the timing mechanism
   }
 
@@ -47,8 +47,6 @@ object App {
     }
 
     parser.parse(args, Config()) map { config =>
-      timer = new Timer()
-
       SwingUtilities.invokeLater(new Runnable() {
         override def run() {
           val frame: JFrame = new JFrame("GUI")
@@ -59,10 +57,8 @@ object App {
         }
       })
 
-      val evo = new ElitistEvolution(0.20, 2000, 10, 3000, 300, config.timeStep)
-
-      loop()
-
+      val evo = new ElitistEvolution(0.20, 2000, 10, 3000, 10, config.timeStep)
+      loop() // starting render loop
       evo.start()
     } getOrElse {
       sys.exit(1)

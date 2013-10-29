@@ -3,6 +3,7 @@ package org.vastness.evo2dsim.environment
 import org.vastness.evo2dsim.simulator.{Agent, Simulator}
 import org.vastness.evo2dsim.evolution.Genome
 import scala.concurrent.{Future, promise, future}
+import org.vastness.evo2dsim.gui.EnvironmentManager
 
 /**
  * Implements the very basics for an environment
@@ -22,6 +23,7 @@ abstract class Environment(val timeStep: Int = 50, val steps:Int = 0, val id: In
     stepCounter += 1
     if(steps == stepCounter) {
       running = false
+      EnvironmentManager.remove(this)
       p success this
     }
   }

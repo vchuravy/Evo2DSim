@@ -2,24 +2,25 @@ package org.vastness.evo2dsim.gui
 
 import org.vastness.evo2dsim.environment.Environment
 import org.vastness.evo2dsim.simulator.Entity
+import scala.collection.mutable.ListBuffer
 
 object EnvironmentManager {
-  private var environments = List.empty[Environment]
+  private var environments = ListBuffer.empty[Environment]
 
   def visibleEntities = environments match {
-    case x :: xs => x.sim.entities
-    case Nil => List.empty[Entity]
+    case xs: ListBuffer[Environment] if xs.nonEmpty => xs.head.sim.entities
+    case xs: ListBuffer[Environment] if xs.isEmpty => List.empty[Entity]
   }
 
   def addEnvironment(e: Environment){
-    environments.synchronized({
-      environments ::= e
-    })
+      environments += e
   }
 
   def clean(){
-    environments.synchronized({
-      environments ::= List.empty[Environment]
-    })
+      environments = ListBuffer.empty[Environment]
+  }
+
+  def remove(e: Environment){
+      environments -= e
   }
 }
