@@ -57,7 +57,8 @@ object App {
       timer = new Timer()
       //environments ::= new BasicEnvironment(config.timeStep, config.simSpeed, 1000 )
       //environments.head.initialize()
-
+	
+      /**
       SwingUtilities.invokeLater(new Runnable() {
         override def run() {
           val frame: JFrame = new JFrame("GUI")
@@ -67,11 +68,11 @@ object App {
           frame.setVisible(true)
         }
       })
+      */
+      val evo = new ElitistEvolution(0.20, 2000, 10, 3000, 300, 50, 25)
+      //loop()
 
-      val evo = new ElitistEvolution(0.20, 200, 10, 1000, 5, 50, 10)
       evo.start()
-
-      loop()
     } getOrElse {
       sys.exit(1)
       // arguments are bad, usage message will have been displayed

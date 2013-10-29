@@ -85,10 +85,7 @@ class NeuronalNetwork {
     (currentID, serializeNeurons, serializeSynapses)
 
   private def initializeSynapses(synapses: immutable.Iterable[(Int,Int,Double)]){
-    for((id1,id2,weight) <- synapses) {
-      println((id1,id2))
-      addSynapse(id1,id2,weight)
-    }
+    synapses.foreach(elem => addSynapse(elem._1,elem._2,elem._3))
   }
 
   /**
