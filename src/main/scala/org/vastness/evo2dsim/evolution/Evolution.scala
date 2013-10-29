@@ -5,6 +5,7 @@ import scala.concurrent.{Await, Future, future}
 import scala.concurrent.duration._
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.annotation.tailrec
+import org.vastness.evo2dsim.gui.EnvironmentManager
 
 
 abstract class Evolution(poolSize: Int, groupSize: Int, evaluationSteps: Int, generations:Int, timeStep: Int) {
@@ -19,11 +20,13 @@ abstract class Evolution(poolSize: Int, groupSize: Int, evaluationSteps: Int, ge
     if(generation == generations) {
         return genomes
     } else {
+      EnvironmentManager.clean()
       val futureEnvironments =
         for(id <- (0 until poolSize / groupSize).par) yield {
           val e = new BasicEnvironment(timeStep, evaluationSteps, id)
           e.initializeStatic()
           e.initializeAgents(groupSize,genomes(e.id))
+          EnvironmentManager.addEnvironment(e)
           future {
             e.run()
           }

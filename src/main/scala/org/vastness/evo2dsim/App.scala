@@ -16,11 +16,6 @@ object App {
   var running = true
   val HERTZ = 30
   val gui = new GUI
-  var environments = List.empty[Environment]
-  def visibleEntities = environments match {
-    case x :: xs => x.sim.entities
-    case Nil => List.empty[Entity]
-  }
 
   private def render() {
     gui.getWorldView.repaint()
@@ -53,10 +48,7 @@ object App {
 
     parser.parse(args, Config()) map { config =>
       timer = new Timer()
-      //environments ::= new BasicEnvironment(config.timeStep, config.simSpeed, 1000 )
-      //environments.head.initialize()
-	
-      /**
+
       SwingUtilities.invokeLater(new Runnable() {
         override def run() {
           val frame: JFrame = new JFrame("GUI")
@@ -66,9 +58,10 @@ object App {
           frame.setVisible(true)
         }
       })
-      */
+
       val evo = new ElitistEvolution(0.20, 2000, 10, 3000, 300, config.timeStep)
-      //loop()
+
+      loop()
 
       evo.start()
     } getOrElse {

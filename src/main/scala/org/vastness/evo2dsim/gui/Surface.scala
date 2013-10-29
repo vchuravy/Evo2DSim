@@ -9,7 +9,7 @@ import java.awt
 class Surface extends JPanel {
   def draw(g2: Graphics2D) {
     g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
-    for(e: Entity <- App.visibleEntities){
+    for(e: Entity <- EnvironmentManager.visibleEntities){
         e.sprite.draw(g2)
     }
   }
