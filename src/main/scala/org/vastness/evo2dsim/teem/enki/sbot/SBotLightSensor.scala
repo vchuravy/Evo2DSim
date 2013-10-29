@@ -3,6 +3,7 @@ package org.vastness.evo2dsim.teem.enki.sbot
 import org.vastness.evo2dsim.neuro.{TransferFunction, SensorNeuron, Neuron}
 import org.vastness.evo2dsim.simulator.light.LightSource
 import org.vastness.evo2dsim.gui.Color
+import org.apache.commons.math3.util.FastMath
 
 
 class SBotLightSensor(sBot: SBot, segments: Int, bias: Double) {
@@ -38,8 +39,8 @@ class SBotLightSensor(sBot: SBot, segments: Int, bias: Double) {
         val centerPoint = lightPosition.mul(radius) // center point of the light cone
 
         val halfRange = (f*360)/2
-        val bearingRad = math.atan2(centerPoint.x, centerPoint.y) // clockwise angle
-        val bearingDeg = (math.toDegrees(bearingRad)+360) % 360
+        val bearingRad = FastMath.atan2(centerPoint.x, centerPoint.y) // clockwise angle
+        val bearingDeg = (FastMath.toDegrees(bearingRad)+360) % 360
 
         val start: Int = ((bearingDeg-halfRange) + 360).round.toInt % 360
 

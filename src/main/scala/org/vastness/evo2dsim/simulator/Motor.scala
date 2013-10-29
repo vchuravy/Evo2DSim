@@ -1,6 +1,7 @@
 package org.vastness.evo2dsim.simulator
 
 import org.jbox2d.common.Vec2
+import org.apache.commons.math3.util.FastMath
 
 class Motor(agent: Agent) {
   val UPPER_OUTPUT_LIMIT = 5 // N?
@@ -27,7 +28,7 @@ class Motor(agent: Agent) {
 
   //taken from enki speed control
   def forwardVelocity = (rightMotorVelocity + leftMotorVelocity) / 2
-  def velocity = new Vec2((forwardVelocity * math.cos(agent.body.getAngle)).toFloat, (forwardVelocity * math.sin(agent.body.getAngle)).toFloat)
+  def velocity = new Vec2((forwardVelocity * FastMath.cos(agent.body.getAngle)).toFloat, (forwardVelocity * FastMath.sin(agent.body.getAngle)).toFloat)
   def angularVelocity = (rightMotorVelocity-leftMotorVelocity)/(4*agent.radius) // 2* wheel distants
 
 
