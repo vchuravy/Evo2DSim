@@ -47,14 +47,16 @@ class SBotLightSensorTest extends FlatSpec with Matchers {
 
   "SBotLightSensor" should "have an zero vision Strip" in new SimWithOneAgent {
     sim.step(timeStep)
+    sim.step(timeStep)
     val visionStrip = lightSensor1 invokePrivate visionStripPM()
     for((_,strip) <- visionStrip) strip.sum should be (0)
   }
 
   "SBotLightSensor" should "have some activity" in new SimWithTwoAgents {
     sim.step(timeStep)
-    val visionStrip = lightSensor1 invokePrivate visionStripPM()
-    visionStrip(agent2.light.color) should not be 0
+    sim.step(timeStep)
+    val visionStrip = (lightSensor1 invokePrivate visionStripPM())(agent2.light.color)
+    visionStrip.sum should not be 0
   }
 
   "Relative position from agent1 to light source" should
@@ -70,18 +72,22 @@ class SBotLightSensorTest extends FlatSpec with Matchers {
 
   "Activity" should "be equally distributed between 0-179 to 180-359 Degree" in new SimWithTwoAgents {
     sim.step(timeStep)
+    sim.step(timeStep)
     val visionStrip = (lightSensor1 invokePrivate visionStripPM())(agent2.light.color)
     visionStrip.view(0,180).sum should be (visionStrip.view(180,360).sum)
   }
 
   "Activity" should "be one at 0 at zero at 180" in new SimWithTwoAgents {
     sim.step(timeStep)
+    sim.step(timeStep)
     val visionStrip = (lightSensor1 invokePrivate visionStripPM())(agent2.light.color)
+    println(visionStrip)
     visionStrip(0) should be (1)
     visionStrip(180) should be (0)
   }
 
   "Activity for the inverse case" should "be zero at 0 and one at 180" in new SimWithTwoAgentsInverse {
+    sim.step(timeStep)
     sim.step(timeStep)
     val visionStrip = (lightSensor1 invokePrivate visionStripPM())(agent2.light.color)
     visionStrip(0) should be (0)
@@ -90,6 +96,7 @@ class SBotLightSensorTest extends FlatSpec with Matchers {
 
   "Non origin settings" should "also work" in new SimWithTwoAgents {
     agent1.body.setTransform(new Vec2(1,1), agent1.body.getAngle)
+    sim.step(timeStep)
     sim.step(timeStep)
     val visionStrip = (lightSensor1 invokePrivate visionStripPM())(agent2.light.color)
     visionStrip(90) should be (0)
