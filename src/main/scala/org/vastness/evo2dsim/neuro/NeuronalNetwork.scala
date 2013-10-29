@@ -15,21 +15,25 @@ class NeuronalNetwork {
 
   def addNeuron(n: Neuron){
     val id = nextID
-    addNeuron(id,n)
+    _addNeuron(id,n)
   }
 
-  private def addNeuron(id: Int, n:Neuron){
+  private def _addNeuron(id: Int, n:Neuron){
     n.id = id
     neurons += ((id,n))
   }
 
   def addNeurons(ns: Traversable[Neuron]){
     val nsHash =
-      for(n <- ns ;val id = nextID) yield (id,n)
+      for(n <- ns ;val id = nextID) yield {
+        n.id = id
+        (id,n)
+      }
     neurons ++= nsHash
   }
 
   def addSynapse(id1: Int, id2: Int, weight:Double) {
+    require(id1 != -1 && id2 != -1)
     val n1 = neurons(id1)
     val n2 = neurons(id2)
     val s = new Synapse(n1, n2, weight)
@@ -81,7 +85,10 @@ class NeuronalNetwork {
     (currentID, serializeNeurons, serializeSynapses)
 
   private def initializeSynapses(synapses: immutable.Iterable[(Int,Int,Double)]){
-    for((id1,id2,weight) <- synapses.par) addSynapse(id1,id2,weight)
+    for((id1,id2,weight) <- synapses) {
+      println((id1,id2))
+      addSynapse(id1,id2,weight)
+    }
   }
 
   /**
@@ -96,7 +103,8 @@ class NeuronalNetwork {
         n.bias = bias
         n.t_func = t_func
       } else {
-       addNeuron(id, new Neuron(bias, t_func))
+        assert(id != -1)
+       _addNeuron(id, new Neuron(bias, t_func))
       }
     }
   }
