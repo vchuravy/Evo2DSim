@@ -11,10 +11,9 @@ import scala.util.Random
  * @param evaluationSteps
  * @param generations
  * @param timeStep
- * @param simSpeed
  */
-class ElitistEvolution(percent: Double, poolSize: Int, groupSize: Int, evaluationSteps: Int, generations:Int, timeStep: Int, simSpeed: Int)
-  extends Evolution(poolSize, groupSize, evaluationSteps, generations, timeStep, simSpeed){
+class ElitistEvolution(percent: Double, poolSize: Int, groupSize: Int, evaluationSteps: Int, generations:Int, timeStep: Int)
+  extends Evolution(poolSize, groupSize, evaluationSteps, generations, timeStep){
 
   override def nextGeneration(results: Seq[(Double, Genome)]): IndexedSeq[List[Genome]] = {
     val r = results.sortWith(_._1 > _._1)

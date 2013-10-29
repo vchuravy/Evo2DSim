@@ -49,8 +49,6 @@ object App {
       head("Evo2DSim is a simple simulator for evolutionary environment.")
       opt[Int]('t', "timeStep") action { (x, c) =>
         c.copy(timeStep = x) } text "Time step in ms"
-      opt[Int]('s', "simSpeed") action { (x, c) =>
-        c.copy(simSpeed = x) } text "Simulation speed"
     }
 
     parser.parse(args, Config()) map { config =>
@@ -69,7 +67,7 @@ object App {
         }
       })
       */
-      val evo = new ElitistEvolution(0.20, 2000, 10, 3000, 300, 50, 25)
+      val evo = new ElitistEvolution(0.20, 2000, 10, 3000, 300, config.timeStep)
       //loop()
 
       evo.start()
@@ -79,5 +77,5 @@ object App {
     }
   }
 
-  case class Config(timeStep: Int = 50, simSpeed: Int = 1)
+  case class Config(timeStep: Int = 50)
 }

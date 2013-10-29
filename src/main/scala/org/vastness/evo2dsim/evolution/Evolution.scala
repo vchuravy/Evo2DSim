@@ -1,18 +1,15 @@
 package org.vastness.evo2dsim.evolution
 
 import org.vastness.evo2dsim.environment.{Environment, BasicEnvironment}
-import scala.concurrent.{Await, Future}
+import scala.concurrent.{Await, Future, future}
 import scala.concurrent.duration._
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.annotation.tailrec
-import org.vastness.evo2dsim.App
-import scala.compat.Platform
-import scala.compat
 
 
-abstract class Evolution(poolSize: Int, groupSize: Int, evaluationSteps: Int, generations:Int, timeStep: Int, simSpeed: Int) {
+abstract class Evolution(poolSize: Int, groupSize: Int, evaluationSteps: Int, generations:Int, timeStep: Int) {
   require(poolSize % groupSize == 0)
-  require(timeStep/simSpeed > 0)
+  require(timeStep > 0)
   require(evaluationSteps > 0)
 
   def nextGeneration(results: Seq[(Double, Genome)]): IndexedSeq[List[Genome]]
@@ -22,17 +19,18 @@ abstract class Evolution(poolSize: Int, groupSize: Int, evaluationSteps: Int, ge
     if(generation == 0) {
         return genomes
     } else {
-      val environments = for(id <- 0 until poolSize / groupSize)
-      yield new BasicEnvironment(timeStep, simSpeed, evaluationSteps, id)
-
-      App.environments = environments.toList
-
       val futureEnvironments =
-        for(e <- environments.par) yield {
+        for(id <- (0 until poolSize / groupSize).par) yield {
+          val e = new BasicEnvironment(timeStep, evaluationSteps, id)
           e.initializeStatic()
           e.initializeAgents(groupSize,genomes(e.id))
+          future {
+            e.run()
+          }
           e.p.future
         }
+
+      //App.environments = environments.toList
 
       val envFuture: Future[Seq[Environment]] = Future sequence futureEnvironments.seq
       val env = Await.result(envFuture, Duration.Inf)

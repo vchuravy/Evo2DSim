@@ -10,7 +10,7 @@ import org.vastness.evo2dsim.evolution.Genome
 /**
  * @see Environment
  */
-class BasicEnvironment(timeStep:Int, simSpeed:Int, steps:Int, id:Int) extends Environment(timeStep, simSpeed, steps, id){
+class BasicEnvironment(timeStep:Int, steps:Int, id:Int) extends Environment(timeStep, steps, id){
 
   val origin = new Vec2(1.015f,1.015f)
   val halfSize = 1f
