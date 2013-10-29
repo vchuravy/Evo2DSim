@@ -16,7 +16,7 @@ abstract class Evolution(poolSize: Int, groupSize: Int, evaluationSteps: Int, ge
 
   @tailrec
   private def run(generation: Int, genomes: IndexedSeq[List[Genome]]){
-    if(generation == 0) {
+    if(generation == generations) {
         return genomes
     } else {
       val futureEnvironments =
@@ -38,7 +38,7 @@ abstract class Evolution(poolSize: Int, groupSize: Int, evaluationSteps: Int, ge
       val results = for(e <- env.par; a <- e.agents.par) yield ( a.fitness, a.controller.get.toGenome)
 
       println("Generation %d done, starting next".format(generation))
-      run(generation-1, nextGeneration(results.seq))
+      run(generation+1, nextGeneration(results.seq))
       }
   }
 
@@ -46,7 +46,7 @@ abstract class Evolution(poolSize: Int, groupSize: Int, evaluationSteps: Int, ge
     val time = System.currentTimeMillis()
     val genomes = for(id <- 0 until poolSize / groupSize) yield List.empty[Genome]
     val timeSpent = (System.currentTimeMillis() - time) / 1000.0 // in seconds
-    println("We are done here:" + run(generations,genomes))
+    println("We are done here:" + run(0, genomes))
     println("Running for: %d min %s sec".format(timeSpent.toLong / 60, timeSpent % 60))
   }
 }
