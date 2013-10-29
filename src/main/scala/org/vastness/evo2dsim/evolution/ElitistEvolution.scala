@@ -17,11 +17,11 @@ class ElitistEvolution(percent: Double, poolSize: Int, groupSize: Int, evaluatio
   extends Evolution(poolSize, groupSize, evaluationSteps, generations, timeStep, simSpeed){
 
   override def nextGeneration(results: Seq[(Double, Genome)]): IndexedSeq[List[Genome]] = {
-    val r = SortedMap(results: _*)
+    val r = results.sortWith(_._1 > _._1)
     r.foreach(p => println(p._1))
     val top = r.view(0,(poolSize*percent).round.toInt).toIndexedSeq
 
-    for(id <- 0 until poolSize % groupSize) yield
+    for(id <- 0 until poolSize / groupSize) yield
       (for (i <- 0 until groupSize) yield top(Random.nextInt(top.size))._2.mutate() ).toList
 
   }

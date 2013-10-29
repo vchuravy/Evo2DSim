@@ -20,7 +20,7 @@ abstract class Evolution(poolSize: Int, groupSize: Int, evaluationSteps: Int, ge
     if(generation == 0) {
         return genomes
     } else {
-        val environments = for(id <- 0 until poolSize % groupSize)
+        val environments = for(id <- 0 until poolSize / groupSize)
           yield new BasicEnvironment(timeStep, simSpeed, evaluationSteps, id)
 
         App.environments = environments.toList
@@ -42,7 +42,7 @@ abstract class Evolution(poolSize: Int, groupSize: Int, evaluationSteps: Int, ge
   }
 
   def start() {
-        val genomes = for(id <- 0 until poolSize % groupSize) yield List.empty[Genome]
+        val genomes = for(id <- 0 until poolSize / groupSize) yield List.empty[Genome]
         run(generations,genomes)
   }
 }
