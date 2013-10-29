@@ -10,7 +10,7 @@ abstract class Genome(nn: NeuronalNetwork) {
     immutable.Iterable[(Int, Double, (Double) => Double)],
     immutable.Iterable[(Int,Int,Double)])
 
-  def mutate()
-  def crossover(g: Genome)
+  def mutate(): Genome
+  def crossover(g: Genome): Genome
 
 }

@@ -10,11 +10,10 @@ import org.vastness.evo2dsim.evolution.Genome
 /**
  * @see Environment
  */
-class BasicEnvironment(timeStep:Int, simSpeed:Int, steps:Int) extends Environment(timeStep, simSpeed, steps){
+class BasicEnvironment(timeStep:Int, simSpeed:Int, steps:Int, id:Int) extends Environment(timeStep, simSpeed, steps, id){
 
   val origin = new Vec2(1.015f,1.015f)
   val halfSize = 1f
-  var agents = IndexedSeq.empty[Agent]
 
   override def initializeStatic() {
     val sizes = Array[Vec2](new Vec2(-halfSize,-halfSize), new Vec2(-halfSize,halfSize), new Vec2(halfSize,halfSize), new Vec2(halfSize,-halfSize))

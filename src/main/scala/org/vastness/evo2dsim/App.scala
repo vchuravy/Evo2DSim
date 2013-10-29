@@ -1,12 +1,11 @@
 package org.vastness.evo2dsim
 
-import org.vastness.evo2dsim.simulator.{Entity, Simulator}
+import org.vastness.evo2dsim.simulator.Entity
 import org.vastness.evo2dsim.gui._
 import javax.swing.{SwingUtilities, JFrame}
-import org.jbox2d.common.Vec2
 import java.util.Timer
-import org.vastness.evo2dsim.simulator.food.StaticFoodSource
-import org.vastness.evo2dsim.environment.{Environment, BasicEnvironment}
+import org.vastness.evo2dsim.environment.Environment
+import org.vastness.evo2dsim.evolution.ElitistEvolution
 
 /**
  * @author Valentin Churavy
@@ -56,8 +55,8 @@ object App {
 
     parser.parse(args, Config()) map { config =>
       timer = new Timer()
-      environments ::= new BasicEnvironment(config.timeStep, config.simSpeed, 1000 )
-      environments.head.initialize()
+      //environments ::= new BasicEnvironment(config.timeStep, config.simSpeed, 1000 )
+      //environments.head.initialize()
 
       SwingUtilities.invokeLater(new Runnable() {
         override def run() {
@@ -68,6 +67,10 @@ object App {
           frame.setVisible(true)
         }
       })
+
+      val evo = new ElitistEvolution(0.20, 200, 10, 1000, 5, 50, 10)
+      evo.start()
+
       loop()
     } getOrElse {
       sys.exit(1)
