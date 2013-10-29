@@ -13,7 +13,8 @@ import scala.util.Random
  */
 class BinaryGenome(nn: NeuronalNetwork, mutateBiases: Boolean = true, mutateWeights: Boolean = true,
                    mutateProbability: Double = 0.01, crossoverProbability: Double = 0.05 ) extends Genome(nn) {
-  private var (currentID, neurons, synapses) = nn.serializeNetwork()
+
+  private val (currentID, neurons, synapses) = nn.serializeNetwork()
 
   //using TreeMap because it is automatically sorted by key
   private val weights = TreeMap( (for ((id1, id2, w) <- synapses) yield (id1,id2) -> w).toSeq: _*)
@@ -28,9 +29,9 @@ class BinaryGenome(nn: NeuronalNetwork, mutateBiases: Boolean = true, mutateWeig
   override def toSerializedNN:(Int,
     immutable.Iterable[(Int, Double, (Double) => Double)],
     immutable.Iterable[(Int,Int,Double)]) = {
-      neurons = for((id, bias) <- biasBytes.mapValues(mapToDouble)) yield (id, bias, t_funcs(id))
-      synapses = for(((id1, id2), w) <- weightBytes.mapValues(mapToDouble)) yield (id1, id2, w)
-      (currentID, neurons, synapses)
+      val n = for((id, bias) <- biasBytes.mapValues(mapToDouble)) yield (id, bias, t_funcs(id))
+      val s = for(((id1, id2), w) <- weightBytes.mapValues(mapToDouble)) yield (id1, id2, w)
+      (currentID, n, s)
   }
 
   /**
@@ -73,6 +74,13 @@ class BinaryGenome(nn: NeuronalNetwork, mutateBiases: Boolean = true, mutateWeig
       }
     }
     return this
+  }
+
+  override def toString: String = {
+    (
+      ( for ((id,b) <- biasBytes) yield "ID: " + id + " Bias: " + b + "\n" ) ++
+      ( for ((id,b) <- weightBytes) yield "ID: " + id + " Bias: " + b + "\n")
+    ).foldLeft("")((acc,value) => acc + value)
   }
 
   /**
