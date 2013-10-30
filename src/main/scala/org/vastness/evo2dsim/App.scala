@@ -57,7 +57,7 @@ object App {
         }
       })
 
-      val evo = new ElitistEvolution(0.20, 2000, 10, 3000, 10, config.timeStep)
+      val evo = new ElitistEvolution(0.20, config.numberOfIndiviums, config.groupSize, config.stepsPerEvaluation, config.generation, config.timeStep)
       loop() // starting render loop
       evo.start()
     } getOrElse {
@@ -66,5 +66,5 @@ object App {
     }
   }
 
-  case class Config(timeStep: Int = 50)
+  case class Config(timeStep: Int = 50, generation: Int = 10, stepsPerEvaluation: Int = 3000, numberOfIndiviums:Int = 2000, groupSize: Int = 10)
 }

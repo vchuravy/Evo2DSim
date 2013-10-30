@@ -6,6 +6,7 @@ import scala.concurrent.duration._
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.annotation.tailrec
 import org.vastness.evo2dsim.gui.EnvironmentManager
+import java.util.concurrent.TimeUnit
 
 
 abstract class Evolution(poolSize: Int, groupSize: Int, evaluationSteps: Int, generations:Int, timeStep: Int) {
@@ -16,9 +17,9 @@ abstract class Evolution(poolSize: Int, groupSize: Int, evaluationSteps: Int, ge
   def nextGeneration(results: Seq[(Double, Genome)]): IndexedSeq[List[Genome]]
 
   @tailrec
-  private def run(generation: Int, genomes: IndexedSeq[List[Genome]]){
+  private def run(generation: Int, genomes: IndexedSeq[List[Genome]]): IndexedSeq[List[Genome]] = {
     if(generation == generations) {
-        return genomes
+        genomes
     } else {
       EnvironmentManager.clean()
       val futureEnvironments =
@@ -46,10 +47,11 @@ abstract class Evolution(poolSize: Int, groupSize: Int, evaluationSteps: Int, ge
   }
 
   def start() {
-    val time = System.currentTimeMillis()
+    val time = System.nanoTime()
     val genomes = for(id <- 0 until poolSize / groupSize) yield List.empty[Genome]
-    val timeSpent = (System.currentTimeMillis() - time) / 1000.0 // in seconds
-    println("We are done here:" + run(0, genomes))
-    println("Running for: %d min %s sec".format(timeSpent.toLong / 60, timeSpent % 60))
+    val timeSpent = TimeUnit.SECONDS.convert(System.nanoTime() - time, TimeUnit.NANOSECONDS) // in seconds
+    run(0, genomes)
+    println("We are done here:")
+    println("Running for: %f min %s sec".format(timeSpent / 60.0f, timeSpent))
   }
 }

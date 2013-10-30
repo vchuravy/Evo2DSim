@@ -13,8 +13,8 @@ import scala.collection.mutable.ArrayBuffer
 class Simulator(seed: Long) {
   val random = new scala.util.Random(seed)
 
-  val velocityIteration = 6
-  val positionIteration = 3 // recommend iteration values
+  val velocityIteration = 8
+  val positionIteration = 4 // recommend iteration values
   val origin = new Vec2(0,0)
   val world = new dynamics.World(origin)
   val lightManager = new LightManager
