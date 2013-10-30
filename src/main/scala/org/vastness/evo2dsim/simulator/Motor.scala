@@ -4,8 +4,8 @@ import org.jbox2d.common.Vec2
 import org.apache.commons.math3.util.FastMath
 
 class Motor(agent: Agent) {
-  val UPPER_OUTPUT_LIMIT = 5 // N?
-  val LOWER_OUTPUT_LIMIT = -5
+  val UPPER_OUTPUT_LIMIT = 0.15 // m/s  taken from Cooperative Hole Avoidance in a Swarm-bot
+  val LOWER_OUTPUT_LIMIT = -0.15
 
   val UPPER_INPUT_LIMIT = 1.0
   val LOWER_INPUT_LIMIT = -1.0

@@ -49,8 +49,8 @@ abstract class Evolution(poolSize: Int, groupSize: Int, evaluationSteps: Int, ge
   def start() {
     val time = System.nanoTime()
     val genomes = for(id <- 0 until poolSize / groupSize) yield List.empty[Genome]
-    val timeSpent = TimeUnit.SECONDS.convert(System.nanoTime() - time, TimeUnit.NANOSECONDS) // in seconds
     run(0, genomes)
+    val timeSpent = TimeUnit.SECONDS.convert(System.nanoTime() - time, TimeUnit.NANOSECONDS)
     println("We are done here:")
     println("Running for: %f min %s sec".format(timeSpent / 60.0f, timeSpent))
   }
