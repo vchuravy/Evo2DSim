@@ -32,15 +32,8 @@ class BinaryGenome private
       (currentID, n, s)
   }
 
-  def copy : BinaryGenome = {
-    val binaryGenome = new BinaryGenome(t_funcs, mutateBiases, mutateWeights, mutateProbability, crossoverProbability)
-
-    binaryGenome.currentID = currentID
-    binaryGenome.weightBytes = weightBytes
-    binaryGenome.biasBytes = biasBytes
-
-    binaryGenome
-  }
+  def copy : BinaryGenome =
+    BinaryGenome(currentID, weightBytes, biasBytes, t_funcs, mutateBiases, mutateWeights, mutateProbability, crossoverProbability)
 
   /**
    * Implements a simple bitwise mutation via a xor map
@@ -100,17 +93,25 @@ class BinaryGenome private
 object BinaryGenome extends Binary {
 
   def apply(nn: NeuronalNetwork, mutateBiases: Boolean = true, mutateWeights: Boolean = true,
-            mutateProbability: Double = 0.01, crossoverProbability: Double = 0.05):BinaryGenome = {
+            mutateProbability: Double = 0.01, crossoverProbability: Double = 0.05): BinaryGenome = {
     val (currentID, neurons, synapses) = nn.serializeNetwork()
     val weights = TreeMap( (for ((id1, id2, w) <- synapses) yield (id1,id2) -> w).toSeq: _*)
     val t_funcs = TreeMap( (for ((id, _, t_func) <- neurons) yield id -> t_func ).toSeq: _*)
     val biases  = TreeMap( (for ((id, bias, _ ) <- neurons) yield id -> bias).toSeq: _*)
 
+    BinaryGenome(currentID, weights.mapValues(mapToByte), biases.mapValues(mapToByte), t_funcs, mutateBiases, mutateWeights, mutateProbability, crossoverProbability)
+  }
+
+  def apply(currentID: Int, weightBytes: SortedMap[(Int, Int), Byte],
+            biasBytes: SortedMap[Int, Byte], t_funcs: TreeMap[Int, (Double) => Double],
+            mutateBiases: Boolean, mutateWeights: Boolean,
+            mutateProbability: Double, crossoverProbability: Double) : BinaryGenome = {
+
     val binaryGenome = new BinaryGenome(t_funcs, mutateBiases, mutateWeights, mutateProbability, crossoverProbability)
 
     binaryGenome.currentID = currentID
-    binaryGenome.weightBytes = weights.mapValues(mapToByte)
-    binaryGenome.biasBytes = biases.mapValues(mapToByte)
+    binaryGenome.weightBytes = weightBytes
+    binaryGenome.biasBytes = biasBytes
 
     binaryGenome
   }
