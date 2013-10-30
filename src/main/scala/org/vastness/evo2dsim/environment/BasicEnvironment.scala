@@ -5,7 +5,7 @@ import org.vastness.evo2dsim.simulator.food.StaticFoodSource
 import org.vastness.evo2dsim.gui.Color
 import org.vastness.evo2dsim.simulator.Agent
 import org.vastness.evo2dsim.evolution.Genome
-
+import scala.collection.Map
 
 /**
  * @see Environment
@@ -28,15 +28,15 @@ class BasicEnvironment(timeStep:Int, steps:Int, id:Int) extends Environment(time
     sim.addFoodSource(edges(2) add new Vec2(-0.1f, -0.1f), radius = 0.1f, activationRange = 0.5f, f2)
   }
 
-  override def initializeAgents(populationSize: Int, genomes: List[Genome]){
+  override def initializeAgents(genomes: Map[Int, (Double, Genome)]){
     def pos = origin.add(new Vec2(sim.random.nextFloat()-0.5f, sim.random.nextFloat()-0.5f))
     def addWithGenome(a: Agent, g: Genome): Agent = {
       a.controller.get.fromGenome(g)
       a
     }
 
-    agents = for( i <- 0 until populationSize) yield
-      if (i < genomes.size) addWithGenome(sim.addAgent(pos, sim.Agents.SBotControllerLinear), genomes(i))
-      else sim.addAgent(pos, sim.Agents.SBotControllerLinearRandom)
+    agents = ( for( (id,(_, genome)) <- genomes) yield
+      (id, addWithGenome(sim.addAgent(pos, sim.Agents.SBotControllerLinear), genome))
+      ).toMap
   }
 }

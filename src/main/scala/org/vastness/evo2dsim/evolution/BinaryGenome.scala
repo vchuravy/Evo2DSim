@@ -37,7 +37,7 @@ class BinaryGenome(nn: NeuronalNetwork, mutateBiases: Boolean = true, mutateWeig
   /**
    * Implements a simple bitwise mutation via a xor map
    */
-  override def mutate(): Genome = {
+  override def mutateLocal() {
     if(mutateWeights){
       weightBytes = for((id,b) <- weightBytes) yield (id, (b ^ xor()).toByte)
     }
@@ -45,7 +45,12 @@ class BinaryGenome(nn: NeuronalNetwork, mutateBiases: Boolean = true, mutateWeig
     if(mutateBiases){
       biasBytes = for((id,b) <- biasBytes) yield (id, (b ^ xor()).toByte)
     }
-    return this // TODO: We should maybe copy the genome and the mutate it.
+  }
+
+  override def mutate = {
+    val newG = new BinaryGenome(nn, mutateBiases, mutateWeights, mutateProbability, crossoverProbability)
+    newG.mutateLocal()
+    newG
   }
 
   /**

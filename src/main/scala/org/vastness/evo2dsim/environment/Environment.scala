@@ -2,8 +2,9 @@ package org.vastness.evo2dsim.environment
 
 import org.vastness.evo2dsim.simulator.{Agent, Simulator}
 import org.vastness.evo2dsim.evolution.Genome
-import scala.concurrent.{Future, promise, future}
+import scala.concurrent.promise
 import org.vastness.evo2dsim.gui.EnvironmentManager
+import scala.collection.Map
 
 /**
  * Implements the very basics for an environment
@@ -13,7 +14,7 @@ import org.vastness.evo2dsim.gui.EnvironmentManager
 abstract class Environment(val timeStep: Int = 50, val steps:Int = 0, val id: Int) {
   protected var stepCounter = 0
   val sim = new Simulator(new scala.util.Random().nextLong())
-  var agents = IndexedSeq.empty[Agent]
+  var agents = Map.empty[Int, Agent]
   val p = promise[Environment]()
 
   var running = true
@@ -35,5 +36,5 @@ abstract class Environment(val timeStep: Int = 50, val steps:Int = 0, val id: In
   }
 
   def initializeStatic()
-  def initializeAgents(populationSize: Int, genomes: List[Genome])
+  def initializeAgents(genomes: Map[Int, (Double, Genome)])
 }

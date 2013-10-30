@@ -1,11 +1,12 @@
 package org.vastness.evo2dsim.neuro
 
-import scala.collection.mutable.{HashMap,ArrayBuffer}
+import scala.collection.mutable.ArrayBuffer
+import scala.collection.mutable
 import scala.collection.immutable
 
 class NeuronalNetwork {
   var synapses = ArrayBuffer[Synapse]()
-  var neurons = HashMap[Int, Neuron]()
+  var neurons = mutable.HashMap[Int, Neuron]()
 
   private var currentID = -1
   def nextID:Int = {
@@ -25,7 +26,7 @@ class NeuronalNetwork {
 
   def addNeurons(ns: Traversable[Neuron]){
     val nsHash =
-      for(n <- ns ;val id = nextID) yield {
+      for(n <- ns ; id = nextID) yield {
         n.id = id
         (id,n)
       }
