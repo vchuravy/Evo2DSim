@@ -1,10 +1,8 @@
 package org.vastness.evo2dsim
 
-import org.vastness.evo2dsim.simulator.Entity
 import org.vastness.evo2dsim.gui._
 import javax.swing.{SwingUtilities, JFrame}
 import java.util.Timer
-import org.vastness.evo2dsim.environment.Environment
 import org.vastness.evo2dsim.evolution.ElitistEvolution
 
 /**
@@ -57,7 +55,7 @@ object App {
         }
       })
 
-      val evo = new ElitistEvolution(0.20, config.numberOfIndiviums, config.groupSize, config.stepsPerEvaluation, config.generation, config.timeStep)
+      val evo = new ElitistEvolution(0.20, config.numberOfIndiviums, config.groupSize, config.stepsPerEvaluation, config.generation, config.evaluationPerGeneration, config.timeStep)
       loop() // starting render loop
       evo.start()
     } getOrElse {
@@ -66,5 +64,5 @@ object App {
     }
   }
 
-  case class Config(timeStep: Int = 50, generation: Int = 10, stepsPerEvaluation: Int = 3000, numberOfIndiviums:Int = 2000, groupSize: Int = 10)
+  case class Config(timeStep: Int = 50, generation: Int = 10, stepsPerEvaluation: Int = 3000,evaluationPerGeneration:Int = 3,  numberOfIndiviums:Int = 2000, groupSize: Int = 10)
 }

@@ -12,8 +12,8 @@ import scala.util.Random
  * @param generations
  * @param timeStep
  */
-class ElitistEvolution(percent: Double, poolSize: Int, groupSize: Int, evaluationSteps: Int, generations:Int, timeStep: Int)
-  extends Evolution(poolSize, groupSize, evaluationSteps, generations, timeStep){
+class ElitistEvolution(percent: Double, poolSize: Int, groupSize: Int, evaluationSteps: Int, generations:Int, evaluationPerGeneration: Int, timeStep: Int)
+  extends Evolution(poolSize, groupSize, evaluationSteps, generations, evaluationPerGeneration, timeStep){
 
   override def nextGeneration(results: Seq[(Int, (Double, Genome))]): mutable.Map[Int, (Double, Genome)] = {
     val r = results.sortWith(_._2._1 > _._2._1)

@@ -12,42 +12,50 @@ import org.vastness.evo2dsim.simulator.Simulator
 import org.jbox2d.common.Vec2
 
 
-abstract class Evolution(poolSize: Int, groupSize: Int, evaluationSteps: Int, generations:Int, timeStep: Int) {
+abstract class Evolution(poolSize: Int, groupSize: Int, evaluationSteps: Int, generations:Int, evaluationPerGeneration: Int, timeStep: Int) {
   require(poolSize % groupSize == 0)
   require(timeStep > 0)
   require(evaluationSteps > 0)
 
   def nextGeneration(results: Seq[(Int, (Double, Genome))]): Map[Int, (Double, Genome)]
 
-  private def run( startGenomes: Map[Int, (Double, Genome)]): List[Map[Int, (Double, Genome)]] = {
+  private def run(startGenomes: Map[Int, (Double, Genome)]): List[Map[Int, (Double, Genome)]] = {
     var generation = 0
     var genomes = List(startGenomes)
 
     while(generation < generations) {
       EnvironmentManager.clean()
-      val futureEnvironments =
-        for(id <- (0 until poolSize / groupSize).par) yield {
-          val range = id*groupSize until (id+1)*groupSize
-          val e = new BasicEnvironment(timeStep, evaluationSteps, id)
-          e.initializeStatic()
-          e.initializeAgents(genomes.head.filterKeys(key => range contains key))
-          EnvironmentManager.addEnvironment(e)
-          future {
-            e.run()
-          }
-          e.p.future
-        }
+      val futureEvaluations =
+        ( for(i <- (0 until evaluationPerGeneration).par ) yield future({
+          val futureEnvironments =
+            for(id <- (0 until poolSize / groupSize).par) yield {
+              val range = id*groupSize until (id+1)*groupSize
+              val e = new BasicEnvironment(timeStep, evaluationSteps, id)
+              e.initializeStatic()
+              e.initializeAgents(genomes.head.filterKeys(key => range contains key))
+              EnvironmentManager.addEnvironment(e)
+              future {
+                e.run()
+              }
+              e.p.future
+            }
 
-        val envFuture: Future[Seq[Environment]] = Future sequence futureEnvironments.seq
-        val env = Await.result(envFuture, Duration.Inf)
+          val envFuture: Future[Seq[Environment]] = Future sequence futureEnvironments.seq
+          val env = Await.result(envFuture, Duration.Inf)
 
-        val results = for(e <- env.par;(id, a) <- e.agents) yield {
-          val (_, genome) = genomes.head(id)
-          (id,(a.fitness, genome))
-        }
+          ( for(e <- env.par; (id, a) <- e.agents.par) yield {
+            (id,a.fitness)
+          } ).seq
+        }) ).seq
+
+      val evaluationFuture = Future sequence futureEvaluations
+      val evaluation = Await.result(evaluationFuture, Duration.Inf).flatten.groupBy[Int](e => e._1).map(
+        (e) => (e._1, e._2.foldLeft(0.0)(_ + _._2)))
+
+      val results = for((id, fitness) <- evaluation) yield id -> (fitness, genomes.head(id)._2)
 
       println("Generation %d done, starting next".format(generation))
-      genomes ::= nextGeneration(results.seq)
+      genomes ::= nextGeneration(results.toSeq.seq)
       generation +=1
     }
     genomes
