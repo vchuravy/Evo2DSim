@@ -12,15 +12,10 @@ import scala.util.Random
  */
 
 class BinaryGenome private
-  ( t_funcs: TreeMap[Int, (Double) => Double],
+  ( currentID: Int, weightBytes: SortedMap[(Int, Int), Byte], biasBytes: SortedMap[Int, Byte],
+    t_funcs: TreeMap[Int, (Double) => Double],
     mutateBiases: Boolean, mutateWeights: Boolean,
     mutateProbability: Double, crossoverProbability: Double) extends Genome with Binary {
-
-  private var currentID = -1
-  private var weightBytes = SortedMap[(Int, Int), Byte]()
-  private var biasBytes = SortedMap[Int, Byte]()
-
-  //using TreeMap because it is automatically sorted by key
 
   protected def bytes = weightBytes.values ++ biasBytes.values
 
@@ -38,20 +33,19 @@ class BinaryGenome private
   /**
    * Implements a simple bitwise mutation via a xor map
    */
-  override def mutateLocal() {
-    if(mutateWeights){
-      weightBytes = for((id,b) <- weightBytes) yield (id, (b ^ xor(p = mutateProbability)).toByte)
-    }
-
-    if(mutateBiases){
-      biasBytes = for((id,b) <- biasBytes) yield (id, (b ^ xor(p = mutateProbability)).toByte)
-    }
-  }
-
   override def mutate = {
-    val newGenome = this.copy
-    newGenome.mutateLocal()
-    newGenome
+    val wB =
+      if(mutateWeights)
+        for((id,b) <- weightBytes) yield (id, (b ^ xor(p = mutateProbability)).toByte)
+      else weightBytes
+
+
+    val bB =
+      if(mutateBiases)
+        for((id,b) <- biasBytes) yield (id, (b ^ xor(p = mutateProbability)).toByte)
+      else biasBytes
+
+    BinaryGenome(currentID, wB, bB, t_funcs, mutateBiases, mutateWeights, mutateProbability, crossoverProbability)
   }
 
   /**
@@ -60,7 +54,7 @@ class BinaryGenome private
    * @param other The other genome from which we draw the second half.
    */
   override def crossover(other: Genome): Genome = {
-    other match {
+    val (wB, bB) = other match {
       case b: BinaryGenome =>
       {
         val otherG = b.bytes
@@ -68,18 +62,20 @@ class BinaryGenome private
           val crossoverPoint = Random.nextInt(otherG.size)
           val newBytes = (bytes.slice(0,crossoverPoint) ++ otherG.slice(crossoverPoint,otherG.size)).toSeq
           var i = 0
-          weightBytes = for((id,b) <- weightBytes) yield {
+          val w = for((id,b) <- weightBytes) yield {
             i+=1
             (id,newBytes(i))
           }
-          biasBytes = for((id,b) <- biasBytes) yield {
+          val b = for((id,b) <- biasBytes) yield {
             i+=1
             (id,newBytes(i))
           }
-        }
+          (w,b)
+        } else (weightBytes, biasBytes)
       }
+      case _ => (weightBytes, biasBytes)
     }
-    return this
+    BinaryGenome(currentID, wB, bB, t_funcs, mutateBiases, mutateWeights, mutateProbability, crossoverProbability)
   }
 
   override def toString: String = {
@@ -107,12 +103,6 @@ object BinaryGenome extends Binary {
             mutateBiases: Boolean, mutateWeights: Boolean,
             mutateProbability: Double, crossoverProbability: Double) : BinaryGenome = {
 
-    val binaryGenome = new BinaryGenome(t_funcs, mutateBiases, mutateWeights, mutateProbability, crossoverProbability)
-
-    binaryGenome.currentID = currentID
-    binaryGenome.weightBytes = weightBytes
-    binaryGenome.biasBytes = biasBytes
-
-    binaryGenome
+    new BinaryGenome(currentID, weightBytes, biasBytes, t_funcs, mutateBiases, mutateWeights, mutateProbability, crossoverProbability)
   }
 }
