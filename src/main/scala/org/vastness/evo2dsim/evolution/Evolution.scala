@@ -4,7 +4,6 @@ import org.vastness.evo2dsim.environment.{Environment, BasicEnvironment}
 import scala.concurrent.{Await, Future, future}
 import scala.concurrent.duration._
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.annotation.tailrec
 import org.vastness.evo2dsim.gui.EnvironmentManager
 import java.util.concurrent.TimeUnit
 import scala.collection.Map
@@ -20,18 +19,18 @@ abstract class Evolution(poolSize: Int, groupSize: Int, evaluationSteps: Int, ge
 
   def nextGeneration(results: Seq[(Int, (Double, Genome))]): Map[Int, (Double, Genome)]
 
-  @tailrec
-  private def run(generation: Int, genomes: Map[Int, (Double, Genome)]): Map[Int, (Double, Genome)] = {
-    if(generation == generations) {
-        genomes
-    } else {
+  private def run( startGenomes: Map[Int, (Double, Genome)]): List[Map[Int, (Double, Genome)]] = {
+    var generation = 0
+    var genomes = List(startGenomes)
+
+    while(generation < generations) {
       EnvironmentManager.clean()
       val futureEnvironments =
         for(id <- (0 until poolSize / groupSize).par) yield {
           val range = id*groupSize until (id+1)*groupSize
           val e = new BasicEnvironment(timeStep, evaluationSteps, id)
           e.initializeStatic()
-          e.initializeAgents(genomes.filterKeys(key => range contains key))
+          e.initializeAgents(genomes.head.filterKeys(key => range contains key))
           EnvironmentManager.addEnvironment(e)
           future {
             e.run()
@@ -39,17 +38,19 @@ abstract class Evolution(poolSize: Int, groupSize: Int, evaluationSteps: Int, ge
           e.p.future
         }
 
-      val envFuture: Future[Seq[Environment]] = Future sequence futureEnvironments.seq
-      val env = Await.result(envFuture, Duration.Inf)
+        val envFuture: Future[Seq[Environment]] = Future sequence futureEnvironments.seq
+        val env = Await.result(envFuture, Duration.Inf)
 
-      val results = for(e <- env.par;(id, a) <- e.agents) yield {
-        val (_, genome) = genomes(id)
-        (id,(a.fitness, genome))
-      }
+        val results = for(e <- env.par;(id, a) <- e.agents) yield {
+          val (_, genome) = genomes.head(id)
+          (id,(a.fitness, genome))
+        }
 
       println("Generation %d done, starting next".format(generation))
-      run(generation+1, nextGeneration(results.seq))
-      }
+      genomes ::= nextGeneration(results.seq)
+      generation +=1
+    }
+    genomes
   }
 
   def start() {
@@ -63,7 +64,7 @@ abstract class Evolution(poolSize: Int, groupSize: Int, evaluationSteps: Int, ge
       c.initializeRandom()
       (id, (0.0, c.toGenome))
     }
-    run(0, Map(genomes: _*))
+    run(Map(genomes: _*))
     val timeSpent = TimeUnit.SECONDS.convert(System.nanoTime() - time, TimeUnit.NANOSECONDS)
     println("We are done here:")
     println("Running for: %d min %s sec".format(timeSpent / 60, timeSpent % 60))
