@@ -5,7 +5,7 @@ import org.vastness.evo2dsim.App
 
 class SBotControllerLinear(sBot: SBot ) extends SBotController(sBot) {
 
-  override def toGenome:Genome = new BinaryGenome(nn)
+  override def toGenome:Genome = BinaryGenome(nn)
 
   override def initialize(weights: Array[Double]) {
     nn.generateLinearNetwork(sensorNeurons, motorNeurons, weights)

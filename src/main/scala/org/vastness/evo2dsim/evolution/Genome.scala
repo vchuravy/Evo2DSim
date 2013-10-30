@@ -1,10 +1,9 @@
 package org.vastness.evo2dsim.evolution
 
-import org.vastness.evo2dsim.neuro.NeuronalNetwork
 import scala.collection.immutable
 
 
-abstract class Genome(nn: NeuronalNetwork) {
+abstract class Genome {
   def toSerializedNN:
   (Int,
     immutable.Iterable[(Int, Double, (Double) => Double)],
