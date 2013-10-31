@@ -12,8 +12,8 @@ import org.vastness.evo2dsim.simulator.Simulator
 import org.jbox2d.common.Vec2
 import scala.collection.parallel.immutable.ParMap
 import scalax.file.Path
-import scala.pickling._
-import json._
+//import scala.pickling._
+//import json._
 
 
 abstract class Evolution(poolSize: Int, groupSize: Int, evaluationSteps: Int, generations:Int, evaluationPerGeneration: Int, timeStep: Int) {
@@ -30,9 +30,7 @@ abstract class Evolution(poolSize: Int, groupSize: Int, evaluationSteps: Int, ge
     var genomes = List(startGenomes)
 
     while(generation < generations) {
-      future{
-        Path("Evo2DSim_run_%d_generation_%d.json".format(timeStamp, generation)).write(genomes.head.pickle.toString)
-      }
+      // Path("Evo2DSim_run_%d_generation_%d.json".format(timeStamp, generation)).write(genomes.head.pickle.toString)
       val time = System.nanoTime()
       EnvironmentManager.clean()
       val futureEvaluations =
@@ -83,6 +81,6 @@ abstract class Evolution(poolSize: Int, groupSize: Int, evaluationSteps: Int, ge
     val timeSpent = TimeUnit.SECONDS.convert(System.nanoTime() - time, TimeUnit.NANOSECONDS)
     println("We are done here:")
     println("Running for: %d min %s sec".format(timeSpent / 60, timeSpent % 60))
-    Path("Evo2DSim_run_%d_final.json".format(timeStamp)).write(result.pickle.toString)
+    // Path("Evo2DSim_run_%d_final.json".format(timeStamp)).write(result.pickle.toString)
   }
 }
