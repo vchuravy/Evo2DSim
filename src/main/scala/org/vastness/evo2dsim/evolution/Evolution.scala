@@ -24,6 +24,7 @@ abstract class Evolution(poolSize: Int, groupSize: Int, evaluationSteps: Int, ge
     var genomes = List(startGenomes)
 
     while(generation < generations) {
+      val time = System.nanoTime()
       EnvironmentManager.clean()
       val futureEvaluations =
         ( for(i <- (0 until evaluationPerGeneration).par ) yield future({
@@ -54,8 +55,11 @@ abstract class Evolution(poolSize: Int, groupSize: Int, evaluationSteps: Int, ge
 
       val results = for((id, fitness) <- evaluation) yield id -> (fitness, genomes.head(id)._2)
 
+      val timeSpent = TimeUnit.SECONDS.convert(System.nanoTime() - time, TimeUnit.NANOSECONDS)
+      println("Generation took %d min %s sec".format(timeSpent / 60, timeSpent % 60))
       println("Generation %d done, starting next".format(generation))
-      genomes ::= nextGeneration(results.toSeq.seq)
+      //genomes ::= nextGeneration(results.toSeq.seq)
+      genomes = List(nextGeneration(results.toSeq.seq)) //Disable
       generation +=1
     }
     genomes
