@@ -10,12 +10,18 @@ import scala.collection.Map
 import org.vastness.evo2dsim.teem.enki.sbot.{SBot, SBotControllerLinear}
 import org.vastness.evo2dsim.simulator.Simulator
 import org.jbox2d.common.Vec2
+import scala.collection.parallel.immutable.ParMap
+import scalax.file.Path
+import scala.pickling._
+import json._
 
 
 abstract class Evolution(poolSize: Int, groupSize: Int, evaluationSteps: Int, generations:Int, evaluationPerGeneration: Int, timeStep: Int) {
   require(poolSize % groupSize == 0)
   require(timeStep > 0)
   require(evaluationSteps > 0)
+
+  val timeStamp = System.nanoTime()
 
   def nextGeneration(results: Seq[(Int, (Double, Genome))]): Map[Int, (Double, Genome)]
 
@@ -24,6 +30,9 @@ abstract class Evolution(poolSize: Int, groupSize: Int, evaluationSteps: Int, ge
     var genomes = List(startGenomes)
 
     while(generation < generations) {
+      future{
+        Path("Evo2DSim_run_%d_generation_%d.json".format(timeStamp, generation)).write(genomes.head.pickle.toString)
+      }
       val time = System.nanoTime()
       EnvironmentManager.clean()
       val futureEvaluations =
@@ -41,12 +50,12 @@ abstract class Evolution(poolSize: Int, groupSize: Int, evaluationSteps: Int, ge
 
       val evaluationFuture = Future sequence futureEvaluations
 
-      val evaluation = Await.result(evaluationFuture, Duration.Inf).par.map(
+      val evaluation: ParMap[Int, Double] = Await.result(evaluationFuture, Duration.Inf).par.map(
                        env => for((id, a) <- env.agents) yield id -> a.fitness
                       ).flatten.groupBy(e => e._1).map(
                       (e) => (e._1, e._2.foldLeft(0.0)(_ + _._2))) // Why oh why did I enjoy writing this?
 
-      val results = for((id, fitness) <- evaluation) yield id -> (fitness, genomes.head(id)._2)
+      val results: ParMap[Int, (Double, Genome)] = for((id, fitness) <- evaluation) yield id -> (fitness, genomes.head(id)._2)
 
       genomes ::= nextGeneration(results.toSeq.seq)
       generation +=1
@@ -59,6 +68,7 @@ abstract class Evolution(poolSize: Int, groupSize: Int, evaluationSteps: Int, ge
   }
 
   def start() {
+    println(Path("").toAbsolute.toString())
     val time = System.nanoTime()
     //TODO: We just need an genome with the correct neuron ids, should be that hard.
     val sim = new Simulator(0)
@@ -69,9 +79,10 @@ abstract class Evolution(poolSize: Int, groupSize: Int, evaluationSteps: Int, ge
       c.initializeRandom()
       (id, (0.0, c.toGenome))
     }
-    run(Map(genomes: _*))
+    val result = run(Map(genomes: _*))
     val timeSpent = TimeUnit.SECONDS.convert(System.nanoTime() - time, TimeUnit.NANOSECONDS)
     println("We are done here:")
     println("Running for: %d min %s sec".format(timeSpent / 60, timeSpent % 60))
+    Path("Evo2DSim_run_%d_final.json".format(timeStamp)).write(result.pickle.toString)
   }
 }

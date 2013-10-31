@@ -1,8 +1,7 @@
 package org.vastness.evo2dsim.evolution
 
 import org.vastness.evo2dsim.neuro.NeuronalNetwork
-import scala.collection.immutable
-import scala.collection.immutable.{SortedMap, TreeMap}
+import scala.collection.immutable.{Iterable, TreeMap}
 import scala.util.Random
 
 /**
@@ -11,17 +10,17 @@ import scala.util.Random
  * Mutation happens via bitflip
  */
 
-class BinaryGenome private
-  ( currentID: Int, weightBytes: SortedMap[(Int, Int), Byte], biasBytes: SortedMap[Int, Byte],
-    t_funcs: TreeMap[Int, (Double) => Double],
+case class BinaryGenome
+  ( currentID: Int, weightBytes: Map[(Int, Int), Byte], biasBytes: Map[Int, Byte],
+    t_funcs: Map[Int, (Double) => Double],
     mutateBiases: Boolean, mutateWeights: Boolean,
     mutateProbability: Double, crossoverProbability: Double) extends Genome with Binary {
 
   protected def bytes = weightBytes.values ++ biasBytes.values
 
   override def toSerializedNN:(Int,
-    immutable.Iterable[(Int, Double, (Double) => Double)],
-    immutable.Iterable[(Int,Int,Double)]) = {
+    Iterable[(Int, Double, (Double) => Double)],
+    Iterable[(Int,Int,Double)]) = {
       val n = for((id, bias) <- biasBytes.mapValues(mapToDouble)) yield (id, bias, t_funcs(id))
       val s = for(((id1, id2), w) <- weightBytes.mapValues(mapToDouble)) yield (id1, id2, w)
       (currentID, n, s)
@@ -84,11 +83,38 @@ class BinaryGenome private
       ( for ((id,b) <- weightBytes) yield "ID: " + id + " Bias: " + b + "\n")
     ).foldLeft("")((acc,value) => acc + value)
   }
+
+  /** override def GenomeCodecJson: CodecJson[BinaryGenome] =
+    CodecJson(
+      (g: BinaryGenome) =>
+        ("currentID" := g.currentID) ->:
+        ("weightBytes" := g.weightBytes) ->:
+        ("biasBytes" := g.biasBytes) ->:
+        ("t_funcs" := g.t_funcs) ->:
+        ("mutateWeights" := g.mutateWeights) ->:
+        ("mutateBiases" := g.mutateBiases) ->:
+        ("mutateProbability" := g.mutateProbability) ->:
+        ("crossoverProbability" := g.crossoverProbability) ->:
+        jEmptyObject,
+      con => for {
+        c <- (con --\ "currentID").as[Int]
+        wB <- (con --\ "weightBytes").as[Map[(Int, Int), Byte]]
+        bB <- (con --\ "biasBytes").as[Map[Int, Byte]]
+        t_f <- (con --\ "t_funcs").as[TreeMap[Int, (Double) => Double]]
+        mW <- (con --\ "mutateWeights").as[Boolean]
+        mB <- (con --\ "mutateBiases").as[Boolean]
+        mP <- (con --\ "mutateProbability").as[Double]
+        cP <- (con --\ "crossoverProbability").as[Double]
+      } yield BinaryGenome(c, wB, bB, t_f, mW, mB, mP, cP)
+    )
+    //Argonaut.casecodec8(BinaryGenome.apply, BinaryGenome.unapply)("currentID", "weightBytes", "biasBytes", "t_funcs",
+    //  "mutateWeights", "mutateBiases", "mutateProbability", "crossoverProbability")
+    */
 }
 
 object BinaryGenome extends Binary {
 
-  def apply(nn: NeuronalNetwork, mutateBiases: Boolean = true, mutateWeights: Boolean = true,
+  def initialize(nn: NeuronalNetwork, mutateBiases: Boolean = true, mutateWeights: Boolean = true,
             mutateProbability: Double = 0.01, crossoverProbability: Double = 0.05): BinaryGenome = {
     val (currentID, neurons, synapses) = nn.serializeNetwork()
     val weights = TreeMap( (for ((id1, id2, w) <- synapses) yield (id1,id2) -> w).toSeq: _*)
@@ -96,13 +122,5 @@ object BinaryGenome extends Binary {
     val biases  = TreeMap( (for ((id, bias, _ ) <- neurons) yield id -> bias).toSeq: _*)
 
     BinaryGenome(currentID, weights.mapValues(mapToByte), biases.mapValues(mapToByte), t_funcs, mutateBiases, mutateWeights, mutateProbability, crossoverProbability)
-  }
-
-  def apply(currentID: Int, weightBytes: SortedMap[(Int, Int), Byte],
-            biasBytes: SortedMap[Int, Byte], t_funcs: TreeMap[Int, (Double) => Double],
-            mutateBiases: Boolean, mutateWeights: Boolean,
-            mutateProbability: Double, crossoverProbability: Double) : BinaryGenome = {
-
-    new BinaryGenome(currentID, weightBytes, biasBytes, t_funcs, mutateBiases, mutateWeights, mutateProbability, crossoverProbability)
   }
 }

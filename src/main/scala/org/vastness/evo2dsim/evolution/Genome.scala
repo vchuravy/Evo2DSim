@@ -3,9 +3,7 @@ package org.vastness.evo2dsim.evolution
 import scala.collection.immutable
 
 
-abstract class
-
-Genome {
+abstract class Genome {
   def toSerializedNN:
   (Int,
     immutable.Iterable[(Int, Double, (Double) => Double)],

@@ -75,6 +75,16 @@
             <artifactId>commons-math3</artifactId>
             <version>3.2</version>
         </dependency>
+        <dependency>
+            <groupId>com.github.scala-incubator.io</groupId>
+            <artifactId>scala-io-file_2.10</artifactId>
+            <version>0.4.2</version>
+        </dependency>
+        <dependency>
+            <groupId>org.scala-lang</groupId>
+            <artifactId>scala-pickling_2.10</artifactId>
+            <version>0.8.0-SNAPSHOT</version>
+        </dependency>
     </dependencies>
 
     <build>
