@@ -27,9 +27,7 @@ abstract class Evolution(poolSize: Int, groupSize: Int, evaluationSteps: Int, ge
       val time = System.nanoTime()
       EnvironmentManager.clean()
       val futureEvaluations =
-        ( for(i <- (0 until evaluationPerGeneration).par ) yield future({
-          val futureEnvironments =
-            for(id <- (0 until poolSize / groupSize).par) yield {
+        ( for(i <- (0 until evaluationPerGeneration).par; id <- (0 until poolSize / groupSize).par ) yield {
               val range = id*groupSize until (id+1)*groupSize
               val e = new BasicEnvironment(timeStep, evaluationSteps, id)
               e.initializeStatic()
@@ -39,28 +37,23 @@ abstract class Evolution(poolSize: Int, groupSize: Int, evaluationSteps: Int, ge
                 e.run()
               }
               e.p.future
-            }
-
-          val envFuture: Future[Seq[Environment]] = Future sequence futureEnvironments.seq
-          val env = Await.result(envFuture, Duration.Inf)
-
-          ( for(e <- env.par; (id, a) <- e.agents.par) yield {
-            (id,a.fitness)
-          } ).seq
-        }) ).seq
+        } ).seq
 
       val evaluationFuture = Future sequence futureEvaluations
-      val evaluation = Await.result(evaluationFuture, Duration.Inf).flatten.groupBy[Int](e => e._1).map(
-        (e) => (e._1, e._2.foldLeft(0.0)(_ + _._2)))
+
+      val evaluation = Await.result(evaluationFuture, Duration.Inf).par.map(
+                       env => for((id, a) <- env.agents) yield id -> a.fitness
+                      ).flatten.groupBy(e => e._1).map(
+                      (e) => (e._1, e._2.foldLeft(0.0)(_ + _._2))) // Why oh why did I enjoy writing this?
 
       val results = for((id, fitness) <- evaluation) yield id -> (fitness, genomes.head(id)._2)
+
+      genomes ::= nextGeneration(results.toSeq.seq)
+      generation +=1
 
       val timeSpent = TimeUnit.SECONDS.convert(System.nanoTime() - time, TimeUnit.NANOSECONDS)
       println("Generation took %d min %s sec".format(timeSpent / 60, timeSpent % 60))
       println("Generation %d done, starting next".format(generation))
-      //genomes ::= nextGeneration(results.toSeq.seq)
-      genomes = List(nextGeneration(results.toSeq.seq)) //Disable
-      generation +=1
     }
     genomes
   }
