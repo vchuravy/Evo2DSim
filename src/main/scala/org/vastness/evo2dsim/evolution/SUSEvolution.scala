@@ -39,10 +39,10 @@ class SUSEvolution (poolSize: Int, groupSize: Int, evaluationSteps: Int, generat
     ( for((key, (fitness, _)) <- results) yield key -> f_norm(fitness) ).toMap
   }
 
-  def numberLine(results: Map[Int, Double]) = _numberLine(0.0, results.toSeq, Seq.empty[(Double, Int)])
+  def numberLine(results: Map[Int, Double]) = _numberLine(0.0, results.toList, Seq.empty[(Double, Int)])
 
   @tailrec
-  private def _numberLine(nextIndex: Double, elems: Seq[(Int, Double)], acc: Seq[(Double, Int)]): Seq[(Double, Int)] = elems match {
+  private def _numberLine(nextIndex: Double, elems: List[(Int, Double)], acc: Seq[(Double, Int)]): Seq[(Double, Int)] = elems match {
     case Nil => acc
     case (key, fitness) :: xs => _numberLine(nextIndex + fitness, xs, (nextIndex, key) +: acc)
   }
