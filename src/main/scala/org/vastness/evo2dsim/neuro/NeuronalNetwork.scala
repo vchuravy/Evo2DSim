@@ -1,12 +1,10 @@
 package org.vastness.evo2dsim.neuro
 
 import scala.collection.mutable.ArrayBuffer
-import scala.collection.mutable
-import scala.collection.immutable
 
 class NeuronalNetwork {
   var synapses = ArrayBuffer[Synapse]()
-  var neurons = mutable.HashMap[Int, Neuron]()
+  var neurons = Map[Int, Neuron]()
 
   private var currentID = -1
   def nextID:Int = {
@@ -44,13 +42,14 @@ class NeuronalNetwork {
   }
 
   def removeNeuron(id: Int) {
-    neurons.remove(id).get match {
+    neurons(id) match {
       case n: Neuron => {
         n.inputSynapses.par.foreach((s: Synapse) => s.input.removeOutput(s))
         n.outputSynapses.par.foreach((s: Synapse) => s.output.removeInput(s))
         synapses --= n.inputSynapses ++ n.outputSynapses
       }
     }
+    neurons -= id
   }
 
   def removeSynapse(id: Int) {
@@ -72,20 +71,20 @@ class NeuronalNetwork {
    * Serializes synapses
    * @return (From.ID,To.ID,Weight)
    */
-  private def serializeSynapses: immutable.Iterable[(Int,Int,Double)] =
-    ( for (s <- synapses) yield (s.input.id,s.output.id,s.weight) ).to[immutable.Iterable]
+  private def serializeSynapses: Iterable[(Int,Int,Double)] =
+    ( for (s <- synapses) yield (s.input.id,s.output.id,s.weight) ).to[Iterable]
 
   /**
    * Serializes neurons
    * @return (ID, bias)
    */
-  private def serializeNeurons: immutable.Iterable[(Int, Double, (Double) => Double)] =
-    ( for ((nID, n) <- neurons) yield (nID, n.bias, n.t_func) ).to[immutable.Iterable]
+  private def serializeNeurons: Iterable[(Int, Double, (Double) => Double)] =
+    ( for ((nID, n) <- neurons) yield (nID, n.bias, n.t_func) ).to[Iterable]
 
   def serializeNetwork() =
     (currentID, serializeNeurons, serializeSynapses)
 
-  private def initializeSynapses(synapses: immutable.Iterable[(Int,Int,Double)]){
+  private def initializeSynapses(synapses: Iterable[(Int,Int,Double)]){
     synapses.foreach(elem => addSynapse(elem._1,elem._2,elem._3))
   }
 
@@ -93,7 +92,7 @@ class NeuronalNetwork {
    * Initialize neurons
    * WARNING: Sensors and motors have to be initialized
    */
-  private def initializeNeurons(neurons: immutable.Iterable[(Int, Double, (Double) => Double)] ){
+  private def initializeNeurons(neurons: Iterable[(Int, Double, (Double) => Double)] ){
     if(currentID == -1) println("Warning: It might be that you forgot to initialize motors and sensors.")
     for((id, bias, t_func) <- neurons){
       if(this.neurons.contains(id)) {
@@ -109,13 +108,10 @@ class NeuronalNetwork {
 
   /**
    * Initializes neurons and synapses. Warning: Motors and sensors have to be initialized first.
-   * @param currentID
-   * @param neurons
-   * @param synapses
    */
   def initializeNetwork(currentID: Int,
-                        neurons: immutable.Iterable[(Int, Double, (Double) => Double)],
-                        synapses: immutable.Iterable[(Int,Int,Double)]) {
+                        neurons: Iterable[(Int, Double, (Double) => Double)],
+                        synapses: Iterable[(Int,Int,Double)]) {
     initializeNeurons(neurons)
     initializeSynapses(synapses)
     this.currentID = currentID
@@ -124,8 +120,6 @@ class NeuronalNetwork {
   /**
    * Use this function to generate a linear network between inputs and outputs
    * We iterate over the inputs and then over the outputs.
-   * @param inputs
-   * @param outputs
    * @param weights must have size == inputs.size * outputs.size
    */
   def generateLinearNetwork(inputs: Seq[Neuron], outputs: Seq[Neuron], weights: Seq[Double]){

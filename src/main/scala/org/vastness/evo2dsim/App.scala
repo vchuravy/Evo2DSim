@@ -3,7 +3,7 @@ package org.vastness.evo2dsim
 import org.vastness.evo2dsim.gui._
 import javax.swing.{SwingUtilities, JFrame}
 import java.util.Timer
-import org.vastness.evo2dsim.evolution.ElitistEvolution
+import org.vastness.evo2dsim.evolution.SUSEvolution
 
 /**
  * @author Valentin Churavy
@@ -55,7 +55,7 @@ object App {
         }
       })
 
-      val evo = new ElitistEvolution(0.20, config.numberOfIndiviums, config.groupSize, config.stepsPerEvaluation, config.generation, config.evaluationPerGeneration, config.timeStep)
+      val evo = new SUSEvolution(config.numberOfIndiviums, config.groupSize, config.stepsPerEvaluation, config.generation, config.evaluationPerGeneration, config.timeStep)
       loop() // starting render loop
       evo.start()
     } getOrElse {

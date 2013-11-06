@@ -1,7 +1,6 @@
 package org.vastness.evo2dsim.evolution
 
 import org.vastness.evo2dsim.neuro.NeuronalNetwork
-import scala.collection.immutable.{Iterable, TreeMap}
 import scala.util.Random
 
 /**
@@ -83,33 +82,6 @@ case class BinaryGenome
       ( for ((id,b) <- weightBytes) yield "ID: " + id + " Bias: " + b + "\n")
     ).foldLeft("")((acc,value) => acc + value)
   }
-
-  /** override def GenomeCodecJson: CodecJson[BinaryGenome] =
-    CodecJson(
-      (g: BinaryGenome) =>
-        ("currentID" := g.currentID) ->:
-        ("weightBytes" := g.weightBytes) ->:
-        ("biasBytes" := g.biasBytes) ->:
-        ("t_funcs" := g.t_funcs) ->:
-        ("mutateWeights" := g.mutateWeights) ->:
-        ("mutateBiases" := g.mutateBiases) ->:
-        ("mutateProbability" := g.mutateProbability) ->:
-        ("crossoverProbability" := g.crossoverProbability) ->:
-        jEmptyObject,
-      con => for {
-        c <- (con --\ "currentID").as[Int]
-        wB <- (con --\ "weightBytes").as[Map[(Int, Int), Byte]]
-        bB <- (con --\ "biasBytes").as[Map[Int, Byte]]
-        t_f <- (con --\ "t_funcs").as[TreeMap[Int, (Double) => Double]]
-        mW <- (con --\ "mutateWeights").as[Boolean]
-        mB <- (con --\ "mutateBiases").as[Boolean]
-        mP <- (con --\ "mutateProbability").as[Double]
-        cP <- (con --\ "crossoverProbability").as[Double]
-      } yield BinaryGenome(c, wB, bB, t_f, mW, mB, mP, cP)
-    )
-    //Argonaut.casecodec8(BinaryGenome.apply, BinaryGenome.unapply)("currentID", "weightBytes", "biasBytes", "t_funcs",
-    //  "mutateWeights", "mutateBiases", "mutateProbability", "crossoverProbability")
-    */
 }
 
 object BinaryGenome extends Binary {
@@ -117,9 +89,9 @@ object BinaryGenome extends Binary {
   def initialize(nn: NeuronalNetwork, mutateBiases: Boolean = true, mutateWeights: Boolean = true,
             mutateProbability: Double = 0.01, crossoverProbability: Double = 0.05): BinaryGenome = {
     val (currentID, neurons, synapses) = nn.serializeNetwork()
-    val weights = TreeMap( (for ((id1, id2, w) <- synapses) yield (id1,id2) -> w).toSeq: _*)
-    val t_funcs = TreeMap( (for ((id, _, t_func) <- neurons) yield id -> t_func ).toSeq: _*)
-    val biases  = TreeMap( (for ((id, bias, _ ) <- neurons) yield id -> bias).toSeq: _*)
+    val weights = Map( (for ((id1, id2, w) <- synapses) yield (id1,id2) -> w).toSeq: _*)
+    val t_funcs = Map( (for ((id, _, t_func) <- neurons) yield id -> t_func ).toSeq: _*)
+    val biases  = Map( (for ((id, bias, _ ) <- neurons) yield id -> bias).toSeq: _*)
 
     BinaryGenome(currentID, weights.mapValues(mapToByte), biases.mapValues(mapToByte), t_funcs, mutateBiases, mutateWeights, mutateProbability, crossoverProbability)
   }
