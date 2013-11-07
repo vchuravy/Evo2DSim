@@ -3,7 +3,8 @@ package org.vastness.evo2dsim.simulator
 import org.jbox2d.common.Vec2
 import org.apache.commons.math3.util.FastMath
 
-class Motor(agent: Agent) {
+class Motor() {
+  var agentOption: Option[Agent] = None
   val UPPER_OUTPUT_LIMIT = 0.15 // m/s  taken from Cooperative Hole Avoidance in a Swarm-bot
   val LOWER_OUTPUT_LIMIT = -0.15
 
@@ -28,13 +29,22 @@ class Motor(agent: Agent) {
 
   //taken from enki speed control
   def forwardVelocity = (rightMotorVelocity + leftMotorVelocity) / 2
-  def velocity = new Vec2((forwardVelocity * FastMath.cos(agent.body.getAngle)).toFloat, (forwardVelocity * FastMath.sin(agent.body.getAngle)).toFloat)
-  def angularVelocity = (rightMotorVelocity-leftMotorVelocity)/(4*agent.radius) // 2* wheel distants
+  def velocity(agent: Agent) = new Vec2((forwardVelocity * FastMath.cos(agent.body.getAngle)).toFloat, (forwardVelocity * FastMath.sin(agent.body.getAngle)).toFloat)
+  def angularVelocity(agent: Agent) = (rightMotorVelocity-leftMotorVelocity)/(4*agent.radius) // 2* wheel distants
 
+  def attachToAgent(agent: Agent) {
+    agentOption = Some(agent)
+  }
 
   //TODO: Check if velocities or forces are better..
   def step() {
-    agent.setLinearVelocity(velocity)
-    agent.setAngularVelocity(angularVelocity.toFloat)
+    agentOption match {
+      case Some(agent) => {
+        agent.setLinearVelocity(velocity(agent))
+        agent.setAngularVelocity(angularVelocity(agent).toFloat)
+      }
+      case None => {}
+    }
+
   }
 }

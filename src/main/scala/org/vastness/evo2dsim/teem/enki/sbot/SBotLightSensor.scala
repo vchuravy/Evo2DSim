@@ -6,8 +6,8 @@ import org.vastness.evo2dsim.gui.Color
 import org.apache.commons.math3.util.FastMath
 
 
-class SBotLightSensor(sBot: SBot, segments: Int, bias: Double) {
-  private val lm = sBot.sim.lightManager
+class SBotLightSensor(segments: Int, bias: Double) {
+  private var agent: Option[SBot] = None
   private val redNeurons = new Array[Neuron](segments)
   private val blueNeurons = new Array[Neuron](segments)
 
@@ -21,14 +21,14 @@ class SBotLightSensor(sBot: SBot, segments: Int, bias: Double) {
    * A point light source (in the center of the object that emits the light) shines light on the surface of an object
    * based upon the distance and relative position to the target.
    */
-  def calcVision() {
+  def calcVision(sBot: SBot) {
     visionStrip = Map[Color, Array[Float]]((Color.RED,new Array[Float](360)), (Color.BLUE, new Array[Float](360))) // clean the last image
 
     def clamp(x: Float, max: Float) =
       if(x > max) max else x
 
     val radius = sBot.radius
-    for(light: LightSource <- lm.lightSources){
+    for(light: LightSource <- sBot.sim.lightManager.lightSources){
       if (light.active && sBot.light != light){
         val lightPosition = sBot.body.getLocalPoint(light.position)
         val distance = lightPosition.length()
@@ -63,8 +63,14 @@ class SBotLightSensor(sBot: SBot, segments: Int, bias: Double) {
 
   def getNeurons = (blueNeurons ++ redNeurons).toList
 
+  def attachToAgent(sBot: SBot){
+    this.agent = Some(sBot)
+  }
   def step() {
-    calcVision()
+    agent match {
+      case Some(sBot) => calcVision(sBot)
+      case None => {}
+    }
   }
 
 }

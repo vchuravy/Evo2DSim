@@ -1,19 +1,16 @@
 package org.vastness.evo2dsim.evolution
 
-import org.vastness.evo2dsim.environment.BasicEnvironment
+import java.io.File
+import java.util.concurrent.TimeUnit
+import scala.pickling._, json._
 import scala.concurrent.{Await, Future, future}
 import scala.concurrent.duration._
 import scala.concurrent.ExecutionContext.Implicits.global
-import org.vastness.evo2dsim.gui.EnvironmentManager
-import java.util.concurrent.TimeUnit
 import scala.collection.Map
-import org.vastness.evo2dsim.teem.enki.sbot.{SBot, SBotControllerLinear}
-import org.vastness.evo2dsim.simulator.Simulator
-import org.jbox2d.common.Vec2
-import scalax.file.Path
-import scala.pickling._
-import json._
-
+import org.vastness.evo2dsim.gui.EnvironmentManager
+import org.vastness.evo2dsim.environment.BasicEnvironment
+import org.vastness.evo2dsim.teem.enki.sbot.SBotControllerLinear
+import scala.util.Random
 
 abstract class Evolution(poolSize: Int, groupSize: Int, evaluationSteps: Int, generations:Int, evaluationPerGeneration: Int, timeStep: Int) {
   require(poolSize % groupSize == 0)
@@ -65,23 +62,17 @@ abstract class Evolution(poolSize: Int, groupSize: Int, evaluationSteps: Int, ge
   }
 
   def start() {
-    println(Path("").toAbsolute.toString())
     val time = System.nanoTime()
-    //TODO: We just need an genome with the correct neuron ids, should be that hard.
-    val sim = new Simulator(0)
-    val sBot = new SBot(-1,new Vec2(0,0), sim)
-
-    val genomes = for(id <- 0 until poolSize) yield {
-      val c = new SBotControllerLinear(sBot)
-      c.initializeRandom()
+    val genomes = for(id <- (0 until poolSize).par) yield {
+      val c = new SBotControllerLinear()
+      c.initializeRandom(Random.nextDouble)
       (id, (0.0, c.toGenome))
     }
-    val result = run(Map(genomes: _*))
+    val output = new io.TextFileOutput(new File("Evo2DSim_run_%d_final.json".format(timeStamp)))
+    run(Map(genomes.seq: _*)).pickleTo(output)
     val timeSpent = TimeUnit.SECONDS.convert(System.nanoTime() - time, TimeUnit.NANOSECONDS)
     println("We are done here:")
     println("Running for: %d min %s sec".format(timeSpent / 60, timeSpent % 60))
-    val p = result.pickle
-    Path("Evo2DSim_run_%d_final.json".format(timeStamp)).write(p.toString)
     sys.exit()
   }
 }

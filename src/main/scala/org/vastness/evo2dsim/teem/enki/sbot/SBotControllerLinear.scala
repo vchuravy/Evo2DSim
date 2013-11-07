@@ -1,9 +1,8 @@
 package org.vastness.evo2dsim.teem.enki.sbot
 
 import org.vastness.evo2dsim.evolution.{BinaryGenome, Genome}
-import org.vastness.evo2dsim.App
 
-class SBotControllerLinear(sBot: SBot ) extends SBotController(sBot) {
+class SBotControllerLinear() extends SBotController() {
 
   override def toGenome:Genome = BinaryGenome.initialize(nn, mutateBiases = false)
 
@@ -11,8 +10,8 @@ class SBotControllerLinear(sBot: SBot ) extends SBotController(sBot) {
     nn.generateLinearNetwork(sensorNeurons, motorNeurons, weights)
   }
 
-  override def initializeRandom(){
-    val weights = Array.fill(size){sBot.sim.random.nextDouble()*2-1}
+  override def initializeRandom(random: () => Double){
+    val weights = Array.fill(size){random() *2-1}
     initialize(weights)
   }
 

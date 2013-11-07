@@ -15,7 +15,7 @@ case class BinaryGenome
     mutateBiases: Boolean, mutateWeights: Boolean,
     mutateProbability: Double, crossoverProbability: Double) extends Genome with Binary {
 
-  protected def bytes = weightBytes.values ++ biasBytes.values
+  protected val bytes = weightBytes.values ++ biasBytes.values
 
   override def toSerializedNN:(Int,
     Iterable[(Int, Double, (Double) => Double)],
@@ -24,9 +24,6 @@ case class BinaryGenome
       val s = for(((id1, id2), w) <- weightBytes.mapValues(mapToDouble)) yield (id1, id2, w)
       (currentID, n, s)
   }
-
-  def copy : BinaryGenome =
-    BinaryGenome(currentID, weightBytes, biasBytes, t_funcs, mutateBiases, mutateWeights, mutateProbability, crossoverProbability)
 
   /**
    * Implements a simple bitwise mutation via a xor map

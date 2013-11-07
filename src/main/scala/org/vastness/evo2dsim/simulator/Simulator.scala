@@ -68,28 +68,31 @@ class Simulator(seed: Long) {
    * @return the created agent
    */
   def addAgent(pos: Vec2, agentType: Agents.Value) : Agent = agentType match {
-      case Agents.SBot => {
-        val a = new SBot(agentCounter, pos, this)
-        addAgent(a)
-      }
-      case Agents.SBotControllerLinear => {
-        val a = new SBot(agentCounter, pos, this)
-        a.controller = Option(new SBotControllerLinear(a))
-        addAgent(a)
-      }
+      case Agents.SBot => addSBot(pos)
+      case Agents.SBotControllerLinear => addSBotWithLinearController(pos)
       case Agents.SBotControllerLinearRandom => {
-        val a = new SBot(agentCounter, pos, this)
-        a.controller = Option(new SBotControllerLinear(a))
-        a.controller.get.initializeRandom()
-        addAgent(a)
+        val a = addSBotWithLinearController(pos)
+        a.controller.get.initializeRandom(random.nextDouble)
+        a
       }
       case Agents.SBotControllerLinearZero => {
-        val a = new SBot(agentCounter, pos, this)
-        a.controller = Option(new SBotControllerLinear(a))
+        val a = addSBotWithLinearController(pos)
         a.controller.get.initializeZeros()
-        addAgent(a)
+        a
       }
     }
+
+  private def addSBot(pos: Vec2): Agent = {
+    val a = new SBot(agentCounter, pos, this)
+    addAgent(a)
+  }
+
+  private def addSBotWithLinearController(pos: Vec2): Agent = {
+    val a = addSBot(pos)
+    a.controller = Option(new SBotControllerLinear)
+    a.controller.get.attachToAgent(a)
+    a
+  }
 
   private def addAgent(agent: Agent) : Agent = {
     agentCounter += 1
@@ -132,7 +135,7 @@ class Simulator(seed: Long) {
     foodSourceList += foodSource
   }
 
-  def step(timeStep: Float) { //TODO Optimize for concurrency
+  def step(timeStep: Float) {
     agentList.par.foreach(_.sensorStep())
     agentList.par.foreach(_.controllerStep())
     agentList.par.foreach(_.motorStep())
