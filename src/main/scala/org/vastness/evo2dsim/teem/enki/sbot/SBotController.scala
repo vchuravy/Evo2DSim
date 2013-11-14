@@ -7,11 +7,11 @@ import org.vastness.evo2dsim.evolution.Genome
 
 abstract class SBotController extends Controller {
   val motor = new Motor()
-  val leftMotorNeuron = new MotorNeuron(0,TransferFunction.thanh, motor.setLeftMotorVelocity)
-  val rightMotorNeuron = new MotorNeuron(0,TransferFunction.thanh, motor.setRightMotorVelocity)
-  val lightSwitch = new MotorNeuron(0, TransferFunction.binary)
+  val leftMotorNeuron = new MotorNeuron(0,TransferFunction.THANH, motor.setLeftMotorVelocity)
+  val rightMotorNeuron = new MotorNeuron(0,TransferFunction.THANH, motor.setRightMotorVelocity)
+  val lightSwitch = new MotorNeuron(0, TransferFunction.BINARY)
 
-  val foodSensorNeuron = new SensorNeuron(0,TransferFunction.thanh)
+  val foodSensorNeuron = new SensorNeuron(0,TransferFunction.THANH)
   val lightSensor = new SBotLightSensor(4, 0)
   val lightNeurons = lightSensor.getNeurons
 

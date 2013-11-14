@@ -1,9 +1,11 @@
 package org.vastness.evo2dsim.evolution
 
-abstract class Genome {
+import org.vastness.evo2dsim.neuro.TransferFunction
+
+trait Genome {
   def toSerializedNN:
   (Int,
-    Iterable[(Int, Double, (Double) => Double)],
+    Iterable[(Int, Double, TransferFunction)],
     Iterable[(Int,Int,Double)])
 
   def mutate: Genome

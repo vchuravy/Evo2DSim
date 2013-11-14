@@ -78,7 +78,7 @@ class NeuronalNetwork {
    * Serializes neurons
    * @return (ID, bias)
    */
-  private def serializeNeurons: Iterable[(Int, Double, (Double) => Double)] =
+  private def serializeNeurons: Iterable[(Int, Double, TransferFunction)] =
     ( for ((nID, n) <- neurons) yield (nID, n.bias, n.t_func) ).to[Iterable]
 
   def serializeNetwork() =
@@ -92,7 +92,7 @@ class NeuronalNetwork {
    * Initialize neurons
    * WARNING: Sensors and motors have to be initialized
    */
-  private def initializeNeurons(neurons: Iterable[(Int, Double, (Double) => Double)] ){
+  private def initializeNeurons(neurons: Iterable[(Int, Double, TransferFunction)] ){
     if(currentID == -1) println("Warning: It might be that you forgot to initialize motors and sensors.")
     for((id, bias, t_func) <- neurons){
       if(this.neurons.contains(id)) {
@@ -110,7 +110,7 @@ class NeuronalNetwork {
    * Initializes neurons and synapses. Warning: Motors and sensors have to be initialized first.
    */
   def initializeNetwork(currentID: Int,
-                        neurons: Iterable[(Int, Double, (Double) => Double)],
+                        neurons: Iterable[(Int, Double, TransferFunction)],
                         synapses: Iterable[(Int,Int,Double)]) {
     initializeNeurons(neurons)
     initializeSynapses(synapses)

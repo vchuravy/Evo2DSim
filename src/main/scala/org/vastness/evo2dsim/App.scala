@@ -45,7 +45,7 @@ object App {
     }
 
     parser.parse(args, Config()) map { config =>
-      SwingUtilities.invokeLater(new Runnable() {
+     /* SwingUtilities.invokeLater(new Runnable() {
         override def run() {
           val frame: JFrame = new JFrame("GUI")
           frame.setContentPane(gui.getPanel)
@@ -53,10 +53,10 @@ object App {
           frame.pack()
           frame.setVisible(true)
         }
-      })
+      }) */
 
       val evo = new SUSEvolution(config.numberOfIndiviums, config.groupSize, config.stepsPerEvaluation, config.generation, config.evaluationPerGeneration, config.timeStep)
-      loop() // starting render loop
+      //loop() // starting render loop
       evo.start()
     } getOrElse {
       sys.exit(1)
@@ -64,5 +64,5 @@ object App {
     }
   }
 
-  case class Config(timeStep: Int = 50, generation: Int = 4, stepsPerEvaluation: Int = 3000, evaluationPerGeneration:Int = 3,  numberOfIndiviums:Int = 2000, groupSize: Int = 10)
+  case class Config(timeStep: Int = 50, generation: Int = 300, stepsPerEvaluation: Int = 5000, evaluationPerGeneration:Int = 3,  numberOfIndiviums:Int = 2000, groupSize: Int = 10)
 }

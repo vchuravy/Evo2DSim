@@ -11,17 +11,23 @@ class SUSEvolution (poolSize: Int, groupSize: Int, evaluationSteps: Int, generat
 
   override def nextGeneration(results: Seq[(Int, (Double, Genome))]): Map[Int, (Double, Genome)] = {
     val line = numberLine(normalizeResults(results))
-    assert(line.size == results.size)
+    assert(line.size == poolSize)
 
     def select(x: Double) = {
       line.filter(_._1 <= x).maxBy(_._1)._2
     }
 
     val rMap = results.toMap
-    val stepSize = 1.0/line.size
+    val stepSize = 1.0/poolSize
     val startingPoint = Random.nextDouble * stepSize
+    //Generate a newId from 0 until poolSize
+    var counter = -1
+    def nextId(x: Double): Int = {
+      counter += 1
+      counter
+    }
 
-    ( for(x <- startingPoint to 1.0 by stepSize; id = select(x)) yield id -> (0.0, rMap(id)._2.mutate) ).toMap
+    ( for(x <- startingPoint to 1.0 by stepSize; id = select(x)) yield nextId(x) -> (0.0, rMap(id)._2.mutate) ).toMap
   }
 
   /**

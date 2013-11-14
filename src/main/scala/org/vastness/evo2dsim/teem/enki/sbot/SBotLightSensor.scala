@@ -56,8 +56,8 @@ class SBotLightSensor(segments: Int, bias: Double) {
     assert(360%segments == 0)
     val pixels = 360/segments
     for( i <- 0 until segments){
-      blueNeurons(i) = new SensorNeuron(bias, TransferFunction.thanh, () => visionStrip(Color.BLUE).view(pixels*i,pixels*(i+1)).sum/pixels)
-      redNeurons(i) = new SensorNeuron(bias, TransferFunction.thanh, () => visionStrip(Color.RED).view(pixels*i,pixels*(i+1)).sum/pixels)
+      blueNeurons(i) = new SensorNeuron(bias, TransferFunction.THANH, () => visionStrip(Color.BLUE).view(pixels*i,pixels*(i+1)).sum/pixels)
+      redNeurons(i) = new SensorNeuron(bias, TransferFunction.THANH, () => visionStrip(Color.RED).view(pixels*i,pixels*(i+1)).sum/pixels)
     }
   }
 

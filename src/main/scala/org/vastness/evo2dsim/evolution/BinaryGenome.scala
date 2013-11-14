@@ -1,6 +1,6 @@
 package org.vastness.evo2dsim.evolution
 
-import org.vastness.evo2dsim.neuro.NeuronalNetwork
+import org.vastness.evo2dsim.neuro.{TransferFunction, NeuronalNetwork}
 import scala.util.Random
 
 /**
@@ -11,14 +11,14 @@ import scala.util.Random
 
 case class BinaryGenome
   ( currentID: Int, weightBytes: Map[(Int, Int), Byte], biasBytes: Map[Int, Byte],
-    t_funcs: Map[Int, (Double) => Double],
+    t_funcs: Map[Int, TransferFunction],
     mutateBiases: Boolean, mutateWeights: Boolean,
-    mutateProbability: Double, crossoverProbability: Double) extends Genome with Binary {
+    mutateProbability: Double, crossoverProbability: Double, name: String = "BinaryGenome") extends Genome with Binary {
 
   protected val bytes = weightBytes.values ++ biasBytes.values
 
   override def toSerializedNN:(Int,
-    Iterable[(Int, Double, (Double) => Double)],
+    Iterable[(Int, Double, TransferFunction)],
     Iterable[(Int,Int,Double)]) = {
       val n = for((id, bias) <- biasBytes.mapValues(mapToDouble)) yield (id, bias, t_funcs(id))
       val s = for(((id1, id2), w) <- weightBytes.mapValues(mapToDouble)) yield (id1, id2, w)
