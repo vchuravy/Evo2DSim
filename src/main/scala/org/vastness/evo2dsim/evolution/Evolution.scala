@@ -30,16 +30,12 @@ abstract class Evolution(poolSize: Int, groupSize: Int, evaluationSteps: Int, ge
   def nextGeneration(results: Seq[(Int, (Double, Genome))]): Map[Int, (Double, Genome)]
 
   private def run(startGenomes: Map[Int, (Double, Genome)]): Map[Int, (Double, Genome)] = {
+    val outputStats = new io.TextFileOutput(new File("%s/Evo2DSim_stats.json".format(timeStamp)))
     var generation = 0
     var genomes: Map[Int, (Double, Genome)] = startGenomes
-    var stats = List.empty[(Int, (Double, Double, Double, Double))] // Min, Max, Mean, Var
 
     while(generation < generations) {
       val generationStartTime = System.nanoTime()
-      val output = new io.TextFileOutput(new File("%s/Evo2DSim_run_gen%d.json".format(timeStamp, generation)))
-      output.put(genomes.map(x => x._1.toString -> x._2).toJson.toString())
-      output.close()
-
 
       EnvironmentManager.clean()
       val futureEvaluations =
@@ -68,6 +64,11 @@ abstract class Evolution(poolSize: Int, groupSize: Int, evaluationSteps: Int, ge
       val evaluationFinishedTime = System.nanoTime()
 
       val results = for((id, fitness) <- evaluation) yield id -> (fitness / evaluationPerGeneration , genomes(id)._2)
+
+      val output = new io.TextFileOutput(new File("%s/Evo2DSim_run_gen%d.json".format(timeStamp, generation)))
+      output.put(results.map(x => x._1.toString -> x._2).toJson.toString())
+      output.close()
+
       genomes = nextGeneration(results.toSeq.seq)
       generation +=1
       assert(genomes.size == poolSize)
@@ -84,19 +85,19 @@ abstract class Evolution(poolSize: Int, groupSize: Int, evaluationSteps: Int, ge
       val timeEvalSpent = timeSpent(simulationFinishedTime, evaluationFinishedTime)
       val timeNextGenSpent = timeSpent(evaluationFinishedTime, generationFinishedTime)
 
+      println("Generation %d done".format(generation))
       printTime("Generation took %d min %d sec in total",timeTotalSpent)
       printTime("Setup of the simulation took %d min %d sec",timeSetupSpent)
       printTime("Simulation took %d min %d sec", timeSimSpent)
       printTime("Evaluation took %d min %d sec", timeEvalSpent)
       printTime("Preparing the next Generation took %d min %d sec", timeNextGenSpent)
-      println("Generation %d done, starting next".format(generation))
+      println("Starting next generation.")
 
-      stats ::= generation -> collectStats(results.map(_._2._1).toList)
-
+      outputStats.put((generation -> collectStats(results.map(_._2._1).toList)).toJson.toString)
     }
-    val output = new io.TextFileOutput(new File("%s/Evo2DSim_stats.json".format(timeStamp)))
-    output.put(stats.toJson.toString)
-    output.close()
+
+
+    outputStats.close()
     genomes
   }
 
