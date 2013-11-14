@@ -33,7 +33,7 @@ class SUSEvolution (poolSize: Int, groupSize: Int, evaluationSteps: Int, generat
   /**
    * Returns positive values for the fitness
    */
-  def normalizeResults(results: Seq[(Int,(Double, Genome))]): Map[Int, Double] = {
+  def normalizeResults(results: Seq[(Int,(Double, Genome))]): List[(Int, Double)] = {
     val abs_rel = (results minBy {case (_, (fitness, _)) => fitness})._2._1 match {
       case x: Double if x <= 0 => (y: Double) => (y-x)+1 // So that we don't have a genome with zero fitness
       case _ => (y: Double) => y
@@ -42,13 +42,13 @@ class SUSEvolution (poolSize: Int, groupSize: Int, evaluationSteps: Int, generat
     val total = results.foldLeft(0.0){case (acc, (_, (fitness, _))) => acc + abs_rel(fitness)}
     def f_norm(x: Double) = abs_rel(x) / total
 
-    ( for((key, (fitness, _)) <- results) yield key -> f_norm(fitness) ).toMap
+    ( for((key, (fitness, _)) <- results) yield key -> f_norm(fitness) ).sortBy(_._1).toList
   }
 
-  def numberLine(results: Map[Int, Double]) = _numberLine(0.0, results.toList, Seq.empty[(Double, Int)])
+  def numberLine(results: List[(Int, Double)]) = _numberLine(0.0, results, List.empty[(Double, Int)]).reverse
 
   @tailrec
-  private def _numberLine(nextIndex: Double, elems: List[(Int, Double)], acc: Seq[(Double, Int)]): Seq[(Double, Int)] = elems match {
+  private def _numberLine(nextIndex: Double, elems: List[(Int, Double)], acc: List[(Double, Int)]): List[(Double, Int)] = elems match {
     case Nil => acc
     case (key, fitness) :: xs => _numberLine(nextIndex + fitness, xs, (nextIndex, key) +: acc)
   }
