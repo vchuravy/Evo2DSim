@@ -93,7 +93,7 @@ abstract class Evolution(poolSize: Int, groupSize: Int, evaluationSteps: Int, ge
       printTime("Preparing the next Generation took %d min %d sec", timeNextGenSpent)
       println("Starting next generation.")
 
-      outputStats.write((generation -> collectStats(results.map(_._2._1).toList)).toJson.prettyPrint + "\n")
+      outputStats.append((generation -> collectStats(results.map(_._2._1).toList)).toJson.prettyPrint + "\n")
     }
 
     genomes
