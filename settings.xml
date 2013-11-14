@@ -14,6 +14,11 @@
                     <name>sonatype</name>
                     <url>http://oss.sonatype.org/content/groups/public/</url>
                 </repository>
+                <repository>
+                    <id>spray</id>
+                    <name>spray.io</name>
+                    <url>http://repo.spray.io/</url>
+                </repository>
             </repositories>
             <pluginRepositories>
                 <pluginRepository>

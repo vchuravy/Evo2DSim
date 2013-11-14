@@ -1,8 +1,6 @@
 package org.vastness.evo2dsim.evolution
 
-import java.io.File
 import java.util.concurrent.TimeUnit
-import scala.pickling._
 import spray.json._
 import org.vastness.evo2dsim.utils.MyJsonProtocol._
 
@@ -15,6 +13,7 @@ import org.vastness.evo2dsim.teem.enki.sbot.SBotControllerLinear
 import scala.util.Random
 import java.util.Calendar
 import java.text.SimpleDateFormat
+import scalax.file.Path
 
 abstract class Evolution(poolSize: Int, groupSize: Int, evaluationSteps: Int, generations:Int, evaluationPerGeneration: Int, timeStep: Int) {
   require(poolSize % groupSize == 0)
@@ -25,12 +24,14 @@ abstract class Evolution(poolSize: Int, groupSize: Int, evaluationSteps: Int, ge
   val dateFormat = new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss")
   val timeStamp = dateFormat.format(now)
 
-  new File("%s".format(timeStamp)).mkdir()
+  Path("%s".format(timeStamp)).createDirectory()
 
   def nextGeneration(results: Seq[(Int, (Double, Genome))]): Map[Int, (Double, Genome)]
 
   private def run(startGenomes: Map[Int, (Double, Genome)]): Map[Int, (Double, Genome)] = {
-    val outputStats = new io.TextFileOutput(new File("%s/Evo2DSim_stats.json".format(timeStamp)))
+    val outputStats = Path("%s/Evo2DSim_stats.json".format(timeStamp))
+    outputStats.createFile()
+
     var generation = 0
     var genomes: Map[Int, (Double, Genome)] = startGenomes
 
@@ -65,9 +66,8 @@ abstract class Evolution(poolSize: Int, groupSize: Int, evaluationSteps: Int, ge
 
       val results = for((id, fitness) <- evaluation) yield id -> (fitness / evaluationPerGeneration , genomes(id)._2)
 
-      val output = new io.TextFileOutput(new File("%s/Evo2DSim_run_gen%d.json".format(timeStamp, generation)))
-      output.put(results.map(x => x._1.toString -> x._2).toJson.toString())
-      output.close()
+      val output = Path("%s/Evo2DSim_run_gen%d.json".format(timeStamp, generation))
+      output.write(results.map(x => x._1.toString -> x._2).toJson.prettyPrint)
 
       genomes = nextGeneration(results.toSeq.seq)
       generation +=1
@@ -93,11 +93,9 @@ abstract class Evolution(poolSize: Int, groupSize: Int, evaluationSteps: Int, ge
       printTime("Preparing the next Generation took %d min %d sec", timeNextGenSpent)
       println("Starting next generation.")
 
-      outputStats.put((generation -> collectStats(results.map(_._2._1).toList)).toJson.toString)
+      outputStats.write((generation -> collectStats(results.map(_._2._1).toList)).toJson.prettyPrint + "\n")
     }
 
-
-    outputStats.close()
     genomes
   }
 
@@ -108,9 +106,8 @@ abstract class Evolution(poolSize: Int, groupSize: Int, evaluationSteps: Int, ge
       c.initializeRandom(Random.nextDouble)
       (id, (0.0, c.toGenome))
     }
-    val output = new io.TextFileOutput(new File("%s/Evo2DSim_run_final.json".format(timeStamp)))
-    output.put(run(Map(genomes.seq: _*)).toJson.toString)
-    output.close()
+    val output = Path("%s/Evo2DSim_run_final.json".format(timeStamp))
+    output.write(run(Map(genomes.seq: _*)).toJson.prettyPrint )
     val timeSpent = TimeUnit.SECONDS.convert(System.nanoTime() - time, TimeUnit.NANOSECONDS)
     println("We are done here:")
     println("Running for: %d min %s sec".format(timeSpent / 60, timeSpent % 60))
