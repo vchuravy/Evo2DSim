@@ -27,12 +27,12 @@ abstract class FoodSource(c: Color, var max: Int) {
 
   val feeders = mutable.HashSet[Agent]()
 
-  def reward(): Double
+  def reward: Double
 
   def step(){
-    val r = reward()
-    for(a <- feeders.par){
-       a.fitness += r
+    val r = reward
+    for(a <- feeders){
+      a.fitness += r
       a.currentReward = r
     }
   }

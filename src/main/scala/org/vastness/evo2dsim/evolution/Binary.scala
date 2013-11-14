@@ -23,8 +23,8 @@ trait Binary {
    * @return Double ortedMapin the range of -1 to 1
    */
   def mapToDouble(value: Byte): Double = value match{
-    case v if 0 <= v => v / 127
-    case v if v <  0 => v / 128
+    case v if 0 <= v => v / 127.0
+    case v if v <  0 => v / 128.0
   }
 
   /**

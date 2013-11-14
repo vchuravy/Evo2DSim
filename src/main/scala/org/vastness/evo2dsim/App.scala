@@ -1,7 +1,6 @@
 package org.vastness.evo2dsim
 
 import org.vastness.evo2dsim.gui._
-import javax.swing.{SwingUtilities, JFrame}
 import java.util.Timer
 import org.vastness.evo2dsim.evolution.SUSEvolution
 
@@ -64,5 +63,5 @@ object App {
     }
   }
 
-  case class Config(timeStep: Int = 50, generation: Int = 300, stepsPerEvaluation: Int = 5000, evaluationPerGeneration:Int = 3,  numberOfIndiviums:Int = 2000, groupSize: Int = 10)
+  case class Config(timeStep: Int = 50, generation: Int = 130, stepsPerEvaluation: Int = 5000, evaluationPerGeneration:Int = 3,  numberOfIndiviums:Int = 2000, groupSize: Int = 10)
 }
