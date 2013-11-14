@@ -13,7 +13,7 @@ import org.vastness.evo2dsim.teem.enki.sbot.SBotControllerLinear
 import scala.util.Random
 import java.util.Calendar
 import java.text.SimpleDateFormat
-import scalax.file.Path
+import scalax.file._
 
 abstract class Evolution(poolSize: Int, groupSize: Int, evaluationSteps: Int, generations:Int, evaluationPerGeneration: Int, timeStep: Int) {
   require(poolSize % groupSize == 0)
@@ -24,12 +24,12 @@ abstract class Evolution(poolSize: Int, groupSize: Int, evaluationSteps: Int, ge
   val dateFormat = new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss")
   val timeStamp = dateFormat.format(now)
 
-  Path("%s".format(timeStamp)).createDirectory()
+  val dir = Path("%s".format(timeStamp)).createDirectory()
 
   def nextGeneration(results: Seq[(Int, (Double, Genome))]): Map[Int, (Double, Genome)]
 
   private def run(startGenomes: Map[Int, (Double, Genome)]): Map[Int, (Double, Genome)] = {
-    val outputStats = Path("%s/Evo2DSim_stats.json".format(timeStamp))
+    val outputStats =  dir resolve "Evo2DSim_stats.json"
     outputStats.createFile()
 
     var generation = 0
@@ -66,7 +66,7 @@ abstract class Evolution(poolSize: Int, groupSize: Int, evaluationSteps: Int, ge
 
       val results = for((id, fitness) <- evaluation) yield id -> (fitness / evaluationPerGeneration , genomes(id)._2)
 
-      val output = Path("%s/Evo2DSim_run_gen%d.json".format(timeStamp, generation))
+      val output = dir resolve "Evo2DSim_run_gen%d.json".format(generation)
       output.write(results.map(x => x._1.toString -> x._2).toJson.prettyPrint)
 
       genomes = nextGeneration(results.toSeq.seq)
@@ -106,7 +106,7 @@ abstract class Evolution(poolSize: Int, groupSize: Int, evaluationSteps: Int, ge
       c.initializeRandom(Random.nextDouble)
       (id, (0.0, c.toGenome))
     }
-    val output = Path("%s/Evo2DSim_run_final.json".format(timeStamp))
+    val output = dir resolve "Evo2DSim_run_final.json"
     output.write(run(Map(genomes.seq: _*)).toJson.prettyPrint )
     val timeSpent = TimeUnit.SECONDS.convert(System.nanoTime() - time, TimeUnit.NANOSECONDS)
     println("We are done here:")
