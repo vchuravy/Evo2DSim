@@ -109,7 +109,7 @@ abstract class Evolution(poolSize: Int, groupSize: Int, evaluationSteps: Int, ge
       (id, (0.0, c.toGenome))
     }
     val output = dir resolve "Evo2DSim_run_final.json"
-    output.write(run(Map(genomes.seq: _*)).toJson.prettyPrint )
+    output.write(run(Map(genomes.seq: _*)).map(x => x._1.toString -> x._2).toJson.prettyPrint )
     val timeSpent = TimeUnit.SECONDS.convert(System.nanoTime() - time, TimeUnit.NANOSECONDS)
     println("We are done here:")
     println("Running for: %d min %s sec".format(timeSpent / 60, timeSpent % 60))
