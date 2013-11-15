@@ -14,6 +14,7 @@ import scala.util.Random
 import java.util.Calendar
 import java.text.SimpleDateFormat
 import scalax.file._
+import scalaz.Tree
 
 abstract class Evolution(poolSize: Int, groupSize: Int, evaluationSteps: Int, generations:Int, evaluationPerGeneration: Int, timeStep: Int) {
   require(poolSize % groupSize == 0)
@@ -70,8 +71,8 @@ abstract class Evolution(poolSize: Int, groupSize: Int, evaluationSteps: Int, ge
       val output = dir resolve "Evo2DSim_run_gen%d.json".format(generation)
       output.write(results.map(x => x._1.toString -> x._2).toJson.prettyPrint)
 
-      genomes = nextGeneration(results.toSeq.seq)
       generation +=1
+      if(generation < generations) genomes = nextGeneration(results.toSeq.seq)
       assert(genomes.size == poolSize)
 
       val generationFinishedTime = System.nanoTime()
@@ -92,12 +93,12 @@ abstract class Evolution(poolSize: Int, groupSize: Int, evaluationSteps: Int, ge
       printTime("Simulation took %d min %d sec", timeSimSpent)
       printTime("Evaluation took %d min %d sec", timeEvalSpent)
       printTime("Preparing the next Generation took %d min %d sec", timeNextGenSpent)
-      println("Starting next generation.")
+      if(generation < generations) println("Starting next generation.")
+      else println("We are done here :)")
 
       val (max, min, mean, variance) = collectStats(results.map(_._2._1).toList)
       outputStats.append("%d, %d, %d, %d, %d \n".format(generation, max, min, mean ,variance))
     }
-
     genomes
   }
 
@@ -108,8 +109,9 @@ abstract class Evolution(poolSize: Int, groupSize: Int, evaluationSteps: Int, ge
       c.initializeRandom(Random.nextDouble)
       (id, (0.0, c.toGenome))
     }
-    val output = dir resolve "Evo2DSim_run_final.json"
-    output.write(run(Map(genomes.seq: _*)).map(x => x._1.toString -> x._2).toJson.prettyPrint )
+    val output = dir resolve "Evo2DSim_gen_tree_.json"
+    val result = run(Map(genomes.seq: _*))
+    output.write(constructTree(result).drawTree)
     val timeSpent = TimeUnit.SECONDS.convert(System.nanoTime() - time, TimeUnit.NANOSECONDS)
     println("We are done here:")
     println("Running for: %d min %s sec".format(timeSpent / 60, timeSpent % 60))
@@ -122,6 +124,21 @@ abstract class Evolution(poolSize: Int, groupSize: Int, evaluationSteps: Int, ge
     val mean = results.sum / results.size
     val variance = results.foldLeft(0.0) {(acc, x) => acc + math.pow(x - mean,2)} / results.size
     (max, min, mean, variance)
+  }
+
+  /**
+   * Currently only constructs trees where no crossover happend.
+   * @param result
+   */
+  def constructTree(result: Map[Int, (Double, Genome)]) = {
+    val genomes = result.map(_._2._2)
+    val history = genomes.map(_.history.reverse)
+    _constructTree(-1, history.toList)
+  }
+
+  def _constructTree(id: Int, history: List[List[Int]]): Tree[Int] = history match {
+    case Nil => Tree.leaf[Int](id)
+    case h: List[List[Int]] => Tree.node[Int](id, h.groupBy(_.head).map{ case (k, v) => _constructTree(k, v.map(_.tail))}.toStream)
   }
 }
 
