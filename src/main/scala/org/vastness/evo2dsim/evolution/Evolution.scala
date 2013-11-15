@@ -29,8 +29,9 @@ abstract class Evolution(poolSize: Int, groupSize: Int, evaluationSteps: Int, ge
   def nextGeneration(results: Seq[(Int, (Double, Genome))]): Map[Int, (Double, Genome)]
 
   private def run(startGenomes: Map[Int, (Double, Genome)]): Map[Int, (Double, Genome)] = {
-    val outputStats =  dir resolve "Evo2DSim_stats.json"
+    val outputStats =  dir resolve "Evo2DSim_stats.csv"
     outputStats.createFile()
+    outputStats.append("Generation, Max, Min, Mean, Variance")
 
     var generation = 0
     var genomes: Map[Int, (Double, Genome)] = startGenomes
@@ -93,7 +94,8 @@ abstract class Evolution(poolSize: Int, groupSize: Int, evaluationSteps: Int, ge
       printTime("Preparing the next Generation took %d min %d sec", timeNextGenSpent)
       println("Starting next generation.")
 
-      outputStats.append((generation -> collectStats(results.map(_._2._1).toList)).toJson.prettyPrint + "\n")
+      val (max, min, mean, variance) = collectStats(results.map(_._2._1).toList)
+      outputStats.append("%d, %d, %d, %d, %d \n".format(generation, max, min, mean ,variance))
     }
 
     genomes
