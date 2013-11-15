@@ -30,7 +30,8 @@ object MyJsonProtocol extends DefaultJsonProtocol {
       "mutateBiases" -> JsBoolean(bG.mutateBiases),
       "mutateWeights" -> JsBoolean(bG.mutateWeights),
       "mutateProbability" -> JsNumber(bG.mutateProbability),
-      "crossoverProbability" -> JsNumber(bG.crossoverProbability)
+      "crossoverProbability" -> JsNumber(bG.crossoverProbability),
+      "ancestors" -> JsArray(bG.ancestors.map(JsNumber(_)))
     )
     def read(value: JsValue) = {
       value.asJsObject.getFields("currentId", "weights",
@@ -40,7 +41,7 @@ object MyJsonProtocol extends DefaultJsonProtocol {
           case Seq(JsNumber(currentId), weights, biases,
                     t_funcs, JsBoolean(mutateBiases),
                     JsBoolean(mutateWeights), JsNumber(mutateProbability),
-                    JsNumber(crossoverProbability), JsString(name)) =>
+                    JsNumber(crossoverProbability), JsArray(ancestors), JsString(name)) =>
           BinaryGenome(
             currentId.toInt,
             weights.convertTo[Map[String, ((Int, Int), Byte)]].map(x => x._2),
@@ -50,6 +51,9 @@ object MyJsonProtocol extends DefaultJsonProtocol {
             mutateWeights,
             mutateProbability.toDouble,
             crossoverProbability.toDouble,
+            ancestors.map{
+              case JsNumber(v) => v.toInt
+              case _ => -1},
             name
           )
           case _ => deserializationError("BinaryGenome expected")

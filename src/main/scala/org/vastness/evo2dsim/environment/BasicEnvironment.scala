@@ -30,13 +30,14 @@ class BasicEnvironment(timeStep:Int, steps:Int, id:Int) extends Environment(time
 
   override def initializeAgents(genomes: Map[Int, (Double, Genome)]){
     def pos = origin.add(new Vec2(sim.random.nextFloat()-0.5f, sim.random.nextFloat()-0.5f))
-    def addWithGenome(a: Agent, g: Genome): Agent = {
+    def addWithGenome(id: Int, a: Agent, g: Genome): Agent = {
+      g.addId(id)
       a.controller.get.fromGenome(g)
       a
     }
 
     agents = ( for( (id,(_, genome)) <- genomes) yield
-      (id, addWithGenome(sim.addAgent(pos, sim.Agents.SBotControllerLinear), genome))
+      (id, addWithGenome(id, sim.addAgent(pos, sim.Agents.SBotControllerLinear), genome))
       ).toMap
   }
 }

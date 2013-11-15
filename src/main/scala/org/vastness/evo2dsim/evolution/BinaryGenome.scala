@@ -13,9 +13,17 @@ case class BinaryGenome
   ( currentID: Int, weightBytes: Map[(Int, Int), Byte], biasBytes: Map[Int, Byte],
     t_funcs: Map[Int, TransferFunction],
     mutateBiases: Boolean, mutateWeights: Boolean,
-    mutateProbability: Double, crossoverProbability: Double, name: String = "BinaryGenome") extends Genome with Binary {
+    mutateProbability: Double, crossoverProbability: Double,
+    ancestors: List[Int], name: String = "BinaryGenome") extends Genome with Binary {
 
   protected val bytes = weightBytes.values ++ biasBytes.values
+  protected var id = -1
+
+  def addId(id: Int) {
+    this.id = id
+  }
+
+  def history = id :: ancestors
 
   override def toSerializedNN:(Int,
     Iterable[(Int, Double, TransferFunction)],
@@ -40,7 +48,7 @@ case class BinaryGenome
         for((id,b) <- biasBytes) yield (id, (b ^ xor(p = mutateProbability)).toByte)
       else biasBytes
 
-    BinaryGenome(currentID, wB, bB, t_funcs, mutateBiases, mutateWeights, mutateProbability, crossoverProbability)
+    BinaryGenome(currentID, wB, bB, t_funcs, mutateBiases, mutateWeights, mutateProbability, crossoverProbability, history)
   }
 
   /**
@@ -70,7 +78,7 @@ case class BinaryGenome
       }
       case _ => (weightBytes, biasBytes)
     }
-    BinaryGenome(currentID, wB, bB, t_funcs, mutateBiases, mutateWeights, mutateProbability, crossoverProbability)
+    BinaryGenome(currentID, wB, bB, t_funcs, mutateBiases, mutateWeights, mutateProbability, crossoverProbability, history ++ other.history)//TODD: history is wrong in this case
   }
 
   override def toString: String = {
@@ -90,6 +98,6 @@ object BinaryGenome extends Binary {
     val t_funcs = Map( (for ((id, _, t_func) <- neurons) yield id -> t_func ).toSeq: _*)
     val biases  = Map( (for ((id, bias, _ ) <- neurons) yield id -> bias).toSeq: _*)
 
-    BinaryGenome(currentID, weights.mapValues(mapToByte), biases.mapValues(mapToByte), t_funcs, mutateBiases, mutateWeights, mutateProbability, crossoverProbability)
+    BinaryGenome(currentID, weights.mapValues(mapToByte), biases.mapValues(mapToByte), t_funcs, mutateBiases, mutateWeights, mutateProbability, crossoverProbability, Nil)
   }
 }
