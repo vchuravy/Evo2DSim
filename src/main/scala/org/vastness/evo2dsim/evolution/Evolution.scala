@@ -14,7 +14,8 @@ import scala.util.Random
 import java.util.Calendar
 import java.text.SimpleDateFormat
 import scalax.file._
-import scalaz.Tree
+import scalaz._, Scalaz._
+import scala.annotation.tailrec
 
 abstract class Evolution(poolSize: Int, groupSize: Int, evaluationSteps: Int, generations:Int, evaluationPerGeneration: Int, timeStep: Int) {
   require(poolSize % groupSize == 0)
@@ -30,9 +31,9 @@ abstract class Evolution(poolSize: Int, groupSize: Int, evaluationSteps: Int, ge
   def nextGeneration(results: Seq[(Int, (Double, Genome))]): Map[Int, (Double, Genome)]
 
   private def run(startGenomes: Map[Int, (Double, Genome)]): Map[Int, (Double, Genome)] = {
-    val outputStats =  dir resolve "Evo2DSim_stats.csv"
+    val outputStats =  dir resolve "Stats.csv"
     outputStats.createFile()
-    outputStats.append("Generation, Max, Min, Mean, Variance")
+    outputStats.append("Generation, Max, Min, Mean, Variance \n")
 
     var generation = 0
     var genomes: Map[Int, (Double, Genome)] = startGenomes
@@ -68,7 +69,7 @@ abstract class Evolution(poolSize: Int, groupSize: Int, evaluationSteps: Int, ge
 
       val results = for((id, fitness) <- evaluation) yield id -> (fitness / evaluationPerGeneration , genomes(id)._2)
 
-      val output = dir resolve "Evo2DSim_run_gen%d.json".format(generation)
+      val output = dir resolve "Gen_%04d.json".format(generation)
       output.write(results.map(x => x._1.toString -> x._2).toJson.prettyPrint)
 
       generation +=1
@@ -97,7 +98,7 @@ abstract class Evolution(poolSize: Int, groupSize: Int, evaluationSteps: Int, ge
       else println("We are done here :)")
 
       val (max, min, mean, variance) = collectStats(results.map(_._2._1).toList)
-      outputStats.append("%d, %d, %d, %d, %d \n".format(generation, max, min, mean ,variance))
+      outputStats.append("%d, %f, %f, %f, %f \n".format(generation, max, min, mean ,variance))
     }
     genomes
   }
@@ -109,9 +110,9 @@ abstract class Evolution(poolSize: Int, groupSize: Int, evaluationSteps: Int, ge
       c.initializeRandom(Random.nextDouble)
       (id, (0.0, c.toGenome))
     }
-    val output = dir resolve "Evo2DSim_gen_tree_.json"
+    val output = dir resolve "Phylogenetic_Tree.tree"
     val result = run(Map(genomes.seq: _*))
-    output.write(constructTree(result).drawTree)
+    output.write(constructTree(result).map(_.toString.intern).drawTree)
     val timeSpent = TimeUnit.SECONDS.convert(System.nanoTime() - time, TimeUnit.NANOSECONDS)
     println("We are done here:")
     println("Running for: %d min %s sec".format(timeSpent / 60, timeSpent % 60))
@@ -130,15 +131,32 @@ abstract class Evolution(poolSize: Int, groupSize: Int, evaluationSteps: Int, ge
    * Currently only constructs trees where no crossover happend.
    * @param result
    */
-  def constructTree(result: Map[Int, (Double, Genome)]) = {
+  def constructTree(result: Map[Int, (Double, Genome)]): Tree[Int] = {
     val genomes = result.map(_._2._2)
-    val history = genomes.map(_.history.reverse)
-    _constructTree(-1, history.toList)
+    val history = genomes.map(_.history.reverse).toList
+    _constructTree(Tree.leaf[Int](-1),history)
   }
 
-  def _constructTree(id: Int, history: List[List[Int]]): Tree[Int] = history match {
-    case Nil => Tree.leaf[Int](id)
-    case h: List[List[Int]] => Tree.node[Int](id, h.groupBy(_.head).map{ case (k, v) => _constructTree(k, v.map(_.tail))}.toStream)
+  def _constructTree(tree: Tree[Int], history: List[List[Int]]):Tree[Int] = {
+    var t = tree.loc
+    for(path <- history) {
+      t = createTreeFromPath(path, t.root)
+    }
+    t.toTree
+  }
+
+  @tailrec
+  private def createTreeFromPath(path: List[Int], t: TreeLoc[Int]): TreeLoc[Int] = path match {
+    case x :: xs => {
+      t.findChild(_.rootLabel == x) match {
+        case Some(child) => createTreeFromPath(xs, child)
+        case None => {
+          val newT = t.insertDownFirst(Tree.leaf(x))
+          createTreeFromPath(xs, newT)
+        }
+      }
+    }
+    case _ => t
   }
 }
 
