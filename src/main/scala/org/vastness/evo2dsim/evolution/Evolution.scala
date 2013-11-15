@@ -118,7 +118,7 @@ abstract class Evolution(poolSize: Int, groupSize: Int, evaluationSteps: Int, ge
     val max = results.max
     val min = results.min
     val mean = results.sum / results.size
-    val variance = results.foldLeft(0.0) {(acc, x) => acc + math.pow((x - mean),2)}
+    val variance = results.foldLeft(0.0) {(acc, x) => acc + math.pow(x - mean,2)} / results.size
     (max, min, mean, variance)
   }
 }
