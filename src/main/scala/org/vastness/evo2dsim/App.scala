@@ -73,5 +73,5 @@ object App {
     }
   }
 
-  case class Config(timeStep: Int = 50, generation: Int = 130, stepsPerEvaluation: Int = 5000, evaluationPerGeneration:Int = 5,  numberOfIndiviums:Int = 2000, groupSize: Int = 10)
+  case class Config(timeStep: Int = 50, generation: Int = 130, stepsPerEvaluation: Int = 1, evaluationPerGeneration:Int = 1,  numberOfIndiviums:Int = 2000, groupSize: Int = 10)
 }
