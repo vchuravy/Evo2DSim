@@ -137,11 +137,11 @@ abstract class Evolution(poolSize: Int, groupSize: Int, evaluationSteps: Int, ge
     val result = genomes.map(_._2._2)
     val history = result.map(_.history.reverse).toList
     val dot = for(h <- history) yield {
-      h.foldLeft("")(_ + " -> " + _) + ";"
+      h.foldLeft("ROOT")(_ + " -> " + _) + ";"
     }
     val o = "digraph Tree {" :: dot
-    val output = dir / "Tree.graphviz"
-    output.writeStrings(dot, "\n")
+    val output = dir / "Tree.dot"
+    output.writeStrings(o, "\n")
     output.append("}")
   }
 }

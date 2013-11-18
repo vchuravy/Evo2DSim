@@ -23,7 +23,7 @@ case class BinaryGenome
     this.id = id
   }
 
-  def history = "%d:id".format(ancestors.size) :: ancestors
+  def history = "G%d_%d".format(ancestors.size, id) :: ancestors
 
   override def toSerializedNN:(Int,
     Iterable[(Int, Double, TransferFunction)],
