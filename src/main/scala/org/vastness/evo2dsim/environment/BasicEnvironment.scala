@@ -10,7 +10,7 @@ import scala.collection.Map
 /**
  * @see Environment
  */
-class BasicEnvironment(timeStep:Int, steps:Int, id:Int) extends Environment(timeStep, steps, id){
+class BasicEnvironment(timeStep:Int, steps:Int) extends Environment(timeStep, steps){
 
   val origin = new Vec2(1.015f,1.015f)
   val halfSize = 1f

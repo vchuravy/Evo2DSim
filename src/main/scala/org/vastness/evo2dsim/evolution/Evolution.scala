@@ -8,7 +8,7 @@ import scala.concurrent.{Await, Future, future}
 import scala.concurrent.duration._
 import scala.concurrent.ExecutionContext.Implicits.global
 import org.vastness.evo2dsim.gui.EnvironmentManager
-import org.vastness.evo2dsim.environment.BasicEnvironment
+import org.vastness.evo2dsim.environment.{Environment, BasicEnvironment}
 import org.vastness.evo2dsim.teem.enki.sbot.SBotControllerLinear
 import scala.util.Random
 import java.util.Calendar
@@ -40,19 +40,10 @@ abstract class Evolution(poolSize: Int, groupSize: Int, evaluationSteps: Int, ge
       val generationStartTime = System.nanoTime()
 
       EnvironmentManager.clean()
-      val futureEvaluations =
-        ( for(i <- (0 until evaluationPerGeneration).par; id <- (0 until poolSize / groupSize).par ) yield {
-              val range = id*groupSize until (id+1)*groupSize
-              val e = new BasicEnvironment(timeStep, evaluationSteps, id)
-              e.initializeStatic()
-              e.initializeAgents(genomes.filterKeys(key => range contains key))
-              EnvironmentManager.addEnvironment(e)
-              future {
-                e.run()
-              }
-              e.p.future
-        } ).seq
+
+      val futureEvaluations =  groupEvaluations(genomes.toList)
       assert(futureEvaluations.size == evaluationPerGeneration*(poolSize / groupSize))
+
       val evaluationFuture = Future sequence futureEvaluations
       val environmentSetupTime = System.nanoTime()
 
@@ -99,6 +90,23 @@ abstract class Evolution(poolSize: Int, groupSize: Int, evaluationSteps: Int, ge
       outputStats.append("%d, %f, %f, %f, %f \n".format(generation, max, min, mean ,variance))
     }
     genomes
+  }
+
+
+  def groupEvaluations(genomes: List[(Int, (Double, Genome))]): Seq[Future[Environment]] = {
+    val gs = genomes.sortBy(_._1).grouped(groupSize).toSeq
+    ( for (g <- gs.par) yield {
+      for (i <- 0 until evaluationPerGeneration) yield {
+        val e = new BasicEnvironment(timeStep, evaluationSteps)
+        e.initializeStatic()
+        e.initializeAgents(g.toMap)
+        EnvironmentManager.addEnvironment(e)
+        future {
+          e.run()
+        }
+        e.p.future
+      }
+    } ).flatten.seq
   }
 
   def start() {
