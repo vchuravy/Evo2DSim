@@ -14,8 +14,6 @@ import scala.util.Random
 import java.util.Calendar
 import java.text.SimpleDateFormat
 import scalax.file._
-import scalaz._, Scalaz._
-import scala.annotation.tailrec
 
 abstract class Evolution(poolSize: Int, groupSize: Int, evaluationSteps: Int, generations:Int, evaluationPerGeneration: Int, timeStep: Int) {
   require(poolSize % groupSize == 0)
@@ -110,9 +108,7 @@ abstract class Evolution(poolSize: Int, groupSize: Int, evaluationSteps: Int, ge
       c.initializeRandom(Random.nextDouble)
       (id, (0.0, c.toGenome))
     }
-    val output = dir resolve "Phylogenetic_Tree.tree"
-    val result = run(Map(genomes.seq: _*))
-    output.write(constructTree(result).map(_.toString.intern).drawTree)
+    run(Map(genomes.seq: _*))
     val timeSpent = TimeUnit.SECONDS.convert(System.nanoTime() - time, TimeUnit.NANOSECONDS)
     println("We are done here:")
     println("Running for: %d min %s sec".format(timeSpent / 60, timeSpent % 60))
@@ -125,38 +121,6 @@ abstract class Evolution(poolSize: Int, groupSize: Int, evaluationSteps: Int, ge
     val mean = results.sum / results.size
     val variance = results.foldLeft(0.0) {(acc, x) => acc + math.pow(x - mean,2)} / results.size
     (max, min, mean, variance)
-  }
-
-  /**
-   * Currently only constructs trees where no crossover happend.
-   * @param result
-   */
-  def constructTree(result: Map[Int, (Double, Genome)]): Tree[Int] = {
-    val genomes = result.map(_._2._2)
-    val history = genomes.map(_.history.reverse).toList
-    _constructTree(Tree.leaf[Int](-1),history)
-  }
-
-  def _constructTree(tree: Tree[Int], history: List[List[Int]]):Tree[Int] = {
-    var t = tree.loc
-    for(path <- history) {
-      t = createTreeFromPath(path, t.root)
-    }
-    t.toTree
-  }
-
-  @tailrec
-  private def createTreeFromPath(path: List[Int], t: TreeLoc[Int]): TreeLoc[Int] = path match {
-    case x :: xs => {
-      t.findChild(_.rootLabel == x) match {
-        case Some(child) => createTreeFromPath(xs, child)
-        case None => {
-          val newT = t.insertDownFirst(Tree.leaf(x))
-          createTreeFromPath(xs, newT)
-        }
-      }
-    }
-    case _ => t
   }
 }
 
