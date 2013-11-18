@@ -14,6 +14,7 @@ import scala.util.Random
 import java.util.Calendar
 import java.text.SimpleDateFormat
 import scalax.file._
+import scala.{Double, Int}
 
 abstract class Evolution(poolSize: Int, groupSize: Int, evaluationSteps: Int, generations:Int, evaluationPerGeneration: Int, timeStep: Int) {
   require(poolSize % groupSize == 0)
@@ -116,7 +117,8 @@ abstract class Evolution(poolSize: Int, groupSize: Int, evaluationSteps: Int, ge
       c.initializeRandom(Random.nextDouble)
       (id, (0.0, c.toGenome))
     }
-    run(Map(genomes.seq: _*))
+    val result = run(Map(genomes.seq: _*))
+    writeGraphViz(result)
     val timeSpent = TimeUnit.SECONDS.convert(System.nanoTime() - time, TimeUnit.NANOSECONDS)
     println("We are done here:")
     println("Running for: %d min %s sec".format(timeSpent / 60, timeSpent % 60))
@@ -129,6 +131,18 @@ abstract class Evolution(poolSize: Int, groupSize: Int, evaluationSteps: Int, ge
     val mean = results.sum / results.size
     val variance = results.foldLeft(0.0) {(acc, x) => acc + math.pow(x - mean,2)} / results.size
     (max, min, mean, variance)
+  }
+
+  def writeGraphViz(genomes: Map[Int, (Double, Genome)]) = {
+    val result = genomes.map(_._2._2)
+    val history = result.map(_.history.reverse).toList
+    val dot = for(h <- history) yield {
+      h.foldLeft("")(_ + " -> " + _) + ";"
+    }
+    val o = "digraph Tree {" :: dot
+    val output = dir / "Tree.graphviz"
+    output.writeStrings(dot, "\n")
+    output.append("}")
   }
 }
 
