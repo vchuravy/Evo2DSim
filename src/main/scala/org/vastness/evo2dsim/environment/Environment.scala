@@ -11,7 +11,7 @@ import scala.collection.Map
  * @param timeStep in ms
  * @param steps how many steps should the evaluation run?
  */
-abstract class Environment(val timeStep: Int = 50, val steps:Int = 0, val id: Int) {
+abstract class Environment(val timeStep: Int = 50, val steps:Int = 0) {
   protected var stepCounter = 0
   val sim = new Simulator(new scala.util.Random().nextLong())
   var agents = Map.empty[Int, Agent]

@@ -14,7 +14,7 @@ case class BinaryGenome
     t_funcs: Map[Int, TransferFunction],
     mutateBiases: Boolean, mutateWeights: Boolean,
     mutateProbability: Double, crossoverProbability: Double,
-    ancestors: List[Int], name: String = "BinaryGenome") extends Genome with Binary {
+    ancestors: List[String], name: String = "BinaryGenome") extends Genome with Binary {
 
   protected val bytes = weightBytes.values ++ biasBytes.values
   protected var id = -1
@@ -23,7 +23,7 @@ case class BinaryGenome
     this.id = id
   }
 
-  def history = id :: ancestors
+  def history = "G%d_%d".format(ancestors.size, id) :: ancestors
 
   override def toSerializedNN:(Int,
     Iterable[(Int, Double, TransferFunction)],

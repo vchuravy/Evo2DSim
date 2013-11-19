@@ -41,6 +41,16 @@ object App {
       head("Evo2DSim is a simple simulator for evolutionary environment.")
       opt[Int]('t', "timeStep") action { (x, c) =>
         c.copy(timeStep = x) } text "Time step in ms"
+      opt[Int]('g', "generations") action { (x, c) =>
+        c.copy(generation = x) } text "How many generations are run"
+      opt[Int]('s', "steps") action { (x, c) =>
+        c.copy(stepsPerEvaluation = x) } text "Steps per Evaluation"
+      opt[Int]('e', "evals") action { (x, c) =>
+        c.copy(evaluationPerGeneration = x) } text "Evaluation per Generation"
+      opt[Int]('n', "numberOfIndividiums") action { (x, c) =>
+        c.copy(numberOfIndiviums = x) } text "Individiums per Generation"
+      opt[Int]('z', "groupSize") action { (x, c) =>
+        c.copy(groupSize = x) } text "Group Size"
     }
 
     parser.parse(args, Config()) map { config =>
@@ -63,5 +73,5 @@ object App {
     }
   }
 
-  case class Config(timeStep: Int = 50, generation: Int = 130, stepsPerEvaluation: Int = 5000, evaluationPerGeneration:Int = 3,  numberOfIndiviums:Int = 2000, groupSize: Int = 10)
+  case class Config(timeStep: Int = 50, generation: Int = 130, stepsPerEvaluation: Int = 5000, evaluationPerGeneration:Int = 5,  numberOfIndiviums:Int = 2000, groupSize: Int = 10)
 }

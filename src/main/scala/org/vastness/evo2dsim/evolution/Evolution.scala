@@ -8,14 +8,13 @@ import scala.concurrent.{Await, Future, future}
 import scala.concurrent.duration._
 import scala.concurrent.ExecutionContext.Implicits.global
 import org.vastness.evo2dsim.gui.EnvironmentManager
-import org.vastness.evo2dsim.environment.BasicEnvironment
+import org.vastness.evo2dsim.environment.{Environment, BasicEnvironment}
 import org.vastness.evo2dsim.teem.enki.sbot.SBotControllerLinear
 import scala.util.Random
 import java.util.Calendar
 import java.text.SimpleDateFormat
 import scalax.file._
-import scalaz._, Scalaz._
-import scala.annotation.tailrec
+import scala.{Double, Int}
 
 abstract class Evolution(poolSize: Int, groupSize: Int, evaluationSteps: Int, generations:Int, evaluationPerGeneration: Int, timeStep: Int) {
   require(poolSize % groupSize == 0)
@@ -42,19 +41,10 @@ abstract class Evolution(poolSize: Int, groupSize: Int, evaluationSteps: Int, ge
       val generationStartTime = System.nanoTime()
 
       EnvironmentManager.clean()
-      val futureEvaluations =
-        ( for(i <- (0 until evaluationPerGeneration).par; id <- (0 until poolSize / groupSize).par ) yield {
-              val range = id*groupSize until (id+1)*groupSize
-              val e = new BasicEnvironment(timeStep, evaluationSteps, id)
-              e.initializeStatic()
-              e.initializeAgents(genomes.filterKeys(key => range contains key))
-              EnvironmentManager.addEnvironment(e)
-              future {
-                e.run()
-              }
-              e.p.future
-        } ).seq
+
+      val futureEvaluations =  groupEvaluations(genomes.toList)
       assert(futureEvaluations.size == evaluationPerGeneration*(poolSize / groupSize))
+
       val evaluationFuture = Future sequence futureEvaluations
       val environmentSetupTime = System.nanoTime()
 
@@ -103,6 +93,23 @@ abstract class Evolution(poolSize: Int, groupSize: Int, evaluationSteps: Int, ge
     genomes
   }
 
+
+  def groupEvaluations(genomes: List[(Int, (Double, Genome))]): Seq[Future[Environment]] = {
+    val gs = genomes.sortBy(_._1).grouped(groupSize).toSeq
+    ( for (g <- gs.par) yield {
+      for (i <- 0 until evaluationPerGeneration) yield {
+        val e = new BasicEnvironment(timeStep, evaluationSteps)
+        e.initializeStatic()
+        e.initializeAgents(g.toMap)
+        EnvironmentManager.addEnvironment(e)
+        future {
+          e.run()
+        }
+        e.p.future
+      }
+    } ).flatten.seq
+  }
+
   def start() {
     val time = System.nanoTime()
     val genomes = for(id <- (0 until poolSize).par) yield {
@@ -110,9 +117,8 @@ abstract class Evolution(poolSize: Int, groupSize: Int, evaluationSteps: Int, ge
       c.initializeRandom(Random.nextDouble)
       (id, (0.0, c.toGenome))
     }
-    val output = dir resolve "Phylogenetic_Tree.tree"
     val result = run(Map(genomes.seq: _*))
-    output.write(constructTree(result).map(_.toString.intern).drawTree)
+    writeGraphViz(result)
     val timeSpent = TimeUnit.SECONDS.convert(System.nanoTime() - time, TimeUnit.NANOSECONDS)
     println("We are done here:")
     println("Running for: %d min %s sec".format(timeSpent / 60, timeSpent % 60))
@@ -127,36 +133,16 @@ abstract class Evolution(poolSize: Int, groupSize: Int, evaluationSteps: Int, ge
     (max, min, mean, variance)
   }
 
-  /**
-   * Currently only constructs trees where no crossover happend.
-   * @param result
-   */
-  def constructTree(result: Map[Int, (Double, Genome)]): Tree[Int] = {
-    val genomes = result.map(_._2._2)
-    val history = genomes.map(_.history.reverse).toList
-    _constructTree(Tree.leaf[Int](-1),history)
-  }
-
-  def _constructTree(tree: Tree[Int], history: List[List[Int]]):Tree[Int] = {
-    var t = tree.loc
-    for(path <- history) {
-      t = createTreeFromPath(path, t.root)
+  def writeGraphViz(genomes: Map[Int, (Double, Genome)]) = {
+    val result = genomes.map(_._2._2)
+    val history = result.map(_.history.reverse).toList
+    val dot = for(h <- history) yield {
+      h.foldLeft("ROOT")(_ + " -> " + _) + ";"
     }
-    t.toTree
-  }
-
-  @tailrec
-  private def createTreeFromPath(path: List[Int], t: TreeLoc[Int]): TreeLoc[Int] = path match {
-    case x :: xs => {
-      t.findChild(_.rootLabel == x) match {
-        case Some(child) => createTreeFromPath(xs, child)
-        case None => {
-          val newT = t.insertDownFirst(Tree.leaf(x))
-          createTreeFromPath(xs, newT)
-        }
-      }
-    }
-    case _ => t
+    val o = "digraph Tree {" :: dot
+    val output = dir / "Tree.dot"
+    output.writeStrings(o, "\n")
+    output.append("}")
   }
 }
 

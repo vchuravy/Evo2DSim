@@ -10,6 +10,6 @@ trait Genome {
 
   def mutate: Genome
   def crossover(g: Genome): Genome
-  def history: List[Int]
+  def history: List[String]
   def addId(id: Int)
 }
