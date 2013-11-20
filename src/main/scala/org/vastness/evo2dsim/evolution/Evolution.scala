@@ -15,6 +15,9 @@ import java.util.Calendar
 import java.text.SimpleDateFormat
 import scalax.file._
 import scala.{Double, Int}
+import scalaz.{TreeLoc, Tree}
+import scala.annotation.tailrec
+import scala.collection.immutable.Stream.Empty
 
 abstract class Evolution(poolSize: Int, groupSize: Int, evaluationSteps: Int, generations:Int, evaluationPerGeneration: Int, timeStep: Int) {
   require(poolSize % groupSize == 0)
@@ -119,6 +122,7 @@ abstract class Evolution(poolSize: Int, groupSize: Int, evaluationSteps: Int, ge
     }
     val result = run(Map(genomes.seq: _*))
     writeGraphViz(result)
+    writeNewickTree(result)
     val timeSpent = TimeUnit.SECONDS.convert(System.nanoTime() - time, TimeUnit.NANOSECONDS)
     println("We are done here:")
     println("Running for: %d min %s sec".format(timeSpent / 60, timeSpent % 60))
@@ -133,16 +137,63 @@ abstract class Evolution(poolSize: Int, groupSize: Int, evaluationSteps: Int, ge
     (max, min, mean, variance)
   }
 
-  def writeGraphViz(genomes: Map[Int, (Double, Genome)]) = {
+  def writeGraphViz(genomes: Map[Int, (Double, Genome)]){
     val result = genomes.map(_._2._2)
     val history = result.map(_.history.reverse).toList
     val dot = for(h <- history) yield {
       h.foldLeft("ROOT")(_ + " -> " + _) + ";"
     }
     val o = "digraph Tree {" :: dot
-    val output = dir / "Tree.dot"
+    val output = dir / "Tree.gv"
     output.writeStrings(o, "\n")
     output.append("}")
+  }
+
+  def writeNewickTree(genomes: Map[Int, (Double, Genome)]){
+    val tree = constructTree(genomes)
+    val newick = createNewickTree(tree) + ";"
+    val output = dir / "Tree.nh"
+    output.write(newick)
+
+  }
+
+  /**
+   * Currently only constructs trees where no crossover happend.
+   * @param result
+   */
+  def constructTree(result: Map[Int, (Double, Genome)]): Tree[String] = {
+    val genomes = result.map(_._2._2)
+    val history = genomes.map(_.history.reverse).toList
+    _constructTree(Tree.leaf[String]("ROOT"),history)
+  }
+
+  def _constructTree(tree: Tree[String], history: List[List[String]]):Tree[String] = {
+    var t = tree.loc
+    for(path <- history) {
+      t = createTreeFromPath(path, t.root)
+    }
+    t.toTree
+  }
+
+  @tailrec
+  private def createTreeFromPath(path: List[String], t: TreeLoc[String]): TreeLoc[String] = path match {
+    case x :: xs => {
+      t.findChild(_.rootLabel == x) match {
+        case Some(child) => createTreeFromPath(xs, child)
+        case None => {
+          val newT = t.insertDownFirst(Tree.leaf(x))
+          createTreeFromPath(xs, newT)
+        }
+      }
+    }
+    case _ => t
+  }
+
+  def createNewickTree(tree: Tree[String]):String = tree.subForest match {
+    case Empty => tree.rootLabel
+    case forest: Stream[Tree[String]] =>
+      forest.foldLeft("(")((acc, tree) => acc + createNewickTree(tree) + ",").dropRight(1) + ")"+tree.rootLabel
+
   }
 }
 
