@@ -13,7 +13,7 @@ import scala.collection.Map
  */
 abstract class Environment(val timeStep: Int = 50, val steps:Int = 0) {
   protected var stepCounter = 0
-  val sim = new Simulator(new scala.util.Random().nextLong())
+  val sim = new Simulator(scala.util.Random.nextLong())
   var agents = Map.empty[Int, Agent]
   val p = promise[Environment]()
 
