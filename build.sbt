@@ -1,4 +1,4 @@
-organization := org.vastness
+organization := "org.vastness"
 
 name := "utils"
 
