@@ -1,4 +1,5 @@
 organization := org.vastness
+
 name := "utils"
 
 version := "0.1"
