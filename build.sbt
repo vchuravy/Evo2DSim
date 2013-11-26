@@ -16,3 +16,5 @@ libraryDependencies ++= Seq(
   "io.spray" %% "spray-json" % "1.2.5",
   "org.scalaz" %% "scalaz-core" % "7.1.0-M3"
 )
+
+resolvers += "spray" at "http://repo.spray.io/"
