@@ -60,7 +60,7 @@ abstract class Evolution(poolSize: Int, groupSize: Int, evaluationSteps: Int, ge
       val evaluation = fitnessValuesPerAgent.map((e) => (e._1, e._2.foldLeft(0.0)(_ + _._2)))
       val evaluationFinishedTime = System.nanoTime()
 
-      val results = for((id, fitness) <- evaluation) yield id -> (fitness / evaluationPerGeneration , genomes(id)._2)
+      val results: Map[Int, (Double, Genome)] = for((id, fitness) <- evaluation) yield id -> (fitness / evaluationPerGeneration , genomes(id)._2)
 
       val output = dir resolve "Gen_%04d.json".format(generation)
       output.write(results.map(x => x._1.toString -> x._2).toJson.prettyPrint)

@@ -8,6 +8,7 @@ scalaVersion := "2.10.3"
 
 libraryDependencies ++= Seq(
   "org.scalatest" %% "scalatest" % "2.0.RC2",
+  "org.scala-lang" % "scala-swing" % "2.10.3",
   "org.jbox2d" % "jbox2d-library" % "2.2.1.1",
   "com.intellij" % "forms_rt" % "7.0.3",
   "com.github.scopt" %% "scopt" % "3.1.0",
