@@ -12,6 +12,8 @@
 #$ -l h_vmem=10g
 #$ -l virtual_free=4g
 
-cd /work/DoyaU/v-churavy/Evo2DSim/target
-#java -server -Xmx4g -Xss100m -jar Evo2DSim-1.0-SNAPSHOT.jar
-java -server -Xmx4g -Xms512M -Xss100m -jar Evo2DSim-1.0-SNAPSHOT.jar -g 500
+JAVA_OPTS="-server"
+CMD=target/universal/stage/bin/evo2dsim
+
+cd /work/DoyaU/v-churavy/Evo2DSim
+$CMD -mem 4096 -g 500

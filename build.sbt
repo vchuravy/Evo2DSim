@@ -19,4 +19,6 @@ libraryDependencies ++= Seq(
   "org.vastness" %% "utils" % "0.1"
 )
 
+packageArchetype.java_application
+
 resolvers += "spray" at "http://repo.spray.io/"
