@@ -10,17 +10,20 @@ import scala.collection.Map
 /**
  * @see Environment
  */
-class BasicEnvironment(timeStep:Int, steps:Int) extends Environment(timeStep, steps){
+class BasicEnvironment(val timeStep:Int, val steps:Int) extends Environment{
 
   val origin = new Vec2(1.015f,1.015f)
   val halfSize = 1f
 
-  override def initializeStatic() {
+  def initializeStatic() {
     val sizes = Array[Vec2](new Vec2(-halfSize,-halfSize), new Vec2(-halfSize,halfSize), new Vec2(halfSize,halfSize), new Vec2(halfSize,-halfSize))
     val edges = for(i <- 0 until sizes.length) yield origin add sizes(i)
 
     sim.createWorldBoundary(edges.toArray)
+    addFoodSources(edges)
+  }
 
+  protected def addFoodSources(edges: Seq[Vec2]) {
     val f1 = new StaticFoodSource(color = Color.RED, max = 8, reward = 1)
     val f2 = new StaticFoodSource(color = Color.RED, max = 8, reward = -0.3)
 
@@ -28,8 +31,8 @@ class BasicEnvironment(timeStep:Int, steps:Int) extends Environment(timeStep, st
     sim.addFoodSource(edges(2) add new Vec2(-0.1f, -0.1f), radius = 0.1f, activationRange = 0.5f, f2)
   }
 
-  override def initializeAgents(genomes: Map[Int, (Double, Genome)]){
-    def pos = origin.add(new Vec2(sim.random.nextFloat()-0.5f, sim.random.nextFloat()-0.5f))
+  def initializeAgents(genomes: Map[Int, (Double, Genome)]){
+    def pos = newRandomPosition
     def addWithGenome(id: Int, a: Agent, g: Genome): Agent = {
       g.addId(id)
       a.controller.get.fromGenome(g)

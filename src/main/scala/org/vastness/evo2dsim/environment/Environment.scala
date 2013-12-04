@@ -5,13 +5,25 @@ import org.vastness.evo2dsim.evolution.Genome
 import scala.concurrent.promise
 import org.vastness.evo2dsim.gui.EnvironmentManager
 import scala.collection.Map
+import org.jbox2d.common.Vec2
 
 /**
  * Implements the very basics for an environment
- * @param timeStep in ms
- * @param steps how many steps should the evaluation run?
  */
-abstract class Environment(val timeStep: Int = 50, val steps:Int = 0) {
+trait  Environment {
+  def timeStep: Int
+  def steps:Int
+
+  def origin: Vec2
+  def halfSize: Float
+
+  def spawnSize: Float = halfSize*0.8f
+
+  def newRandomPosition: Vec2 = {
+    def randomFloat: Float = (sim.random.nextFloat * 2) - 1
+    origin add new Vec2(randomFloat * spawnSize, randomFloat * spawnSize)
+  }
+
   protected var stepCounter = 0
   val sim = new Simulator(scala.util.Random.nextLong())
   var agents = Map.empty[Int, Agent]

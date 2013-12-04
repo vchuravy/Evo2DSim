@@ -8,7 +8,7 @@ import scala.concurrent.{Await, Future, future}
 import scala.concurrent.duration._
 import scala.concurrent.ExecutionContext.Implicits.global
 import org.vastness.evo2dsim.gui.EnvironmentManager
-import org.vastness.evo2dsim.environment.{Environment, BasicEnvironment}
+import org.vastness.evo2dsim.environment.{BasicRandomEnvironment, Environment}
 import org.vastness.evo2dsim.teem.enki.sbot.SBotControllerLinear
 import scala.util.Random
 import java.util.Calendar
@@ -101,7 +101,7 @@ abstract class Evolution(poolSize: Int, groupSize: Int, evaluationSteps: Int, ge
     val gs = genomes.sortBy(_._1).grouped(groupSize).toSeq
     ( for (g <- gs.par) yield {
       for (i <- 0 until evaluationPerGeneration) yield {
-        val e = new BasicEnvironment(timeStep, evaluationSteps)
+        val e = new BasicRandomEnvironment(timeStep, evaluationSteps)
         e.initializeStatic()
         e.initializeAgents(g.toMap)
         EnvironmentManager.addEnvironment(e)
