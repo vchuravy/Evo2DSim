@@ -11,3 +11,5 @@ libraryDependencies ++= Seq(
   "org.scalanlp" %% "breeze-viz" % "0.5.2",
   "org.vastness" %% "evo2dsim" % "1.0-SNAPSHOT"
 )
+
+packageArchetype.java_application
