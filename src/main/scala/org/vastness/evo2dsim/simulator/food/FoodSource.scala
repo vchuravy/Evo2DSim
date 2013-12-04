@@ -1,7 +1,7 @@
 package org.vastness.evo2dsim.simulator.food
 
 import org.vastness.evo2dsim.simulator.{Simulator, Entity, Agent}
-import org.vastness.evo2dsim.simulator.light.LightSource
+import org.vastness.evo2dsim.simulator.light.{LightCategory, LightSource}
 import scala.collection.mutable
 import org.vastness.evo2dsim.gui.Color
 
@@ -15,7 +15,7 @@ abstract class FoodSource(c: Color, var max: Int) {
   protected var light: Option[LightSource] = None
 
   def initialize(e: Entity, sim: Simulator) {
-    val l = new LightSource(c, e)
+    val l = new LightSource(c, e, LightCategory.FoodSourceLight)
     l.active_ = true
     sim.lightManager.addLight(l)
     light = Some(l)
