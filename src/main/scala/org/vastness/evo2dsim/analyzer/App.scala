@@ -12,16 +12,39 @@ import org.vastness.evo2dsim.evolution.Genome
 import org.vastness.evo2dsim.environment.BasicEnvironment
 import scala.concurrent._
 import ExecutionContext.Implicits.global
+import scala.swing.event.{Key, KeyPressed}
+import org.vastness.evo2dsim.simulator.light.{LightCategory, LightManager}
 
 object App extends SwingApplication {
   val worldView: Surface = new Surface
   var e: Option[BasicEnvironment] = None
+
+  var timeStep: Int = 50
+  var group: Int = 0
+  var generation: Map[Int, (Double, Genome)] = Map.empty
+
+  def lm: Option[LightManager] = e.map(_.sim.lightManager)
+
   def top = new MainFrame {
     title = "Evo2DSim Analyzer"
 
     contents = new BorderPanel {
       import BorderPanel._
       add(worldView, Position.Center)
+
+      listenTo(keys)
+      reactions += {
+        case KeyPressed(_, Key.R, _, _)                     => initEnvironment()
+        case KeyPressed(_, Key.A, Key.Modifier.Control, _)  => lm.map(_.disableCategory(LightCategory.AgentLight))
+        case KeyPressed(_, Key.A, Key.Modifier.Shift, _)    => lm.map(_.enableCategory(LightCategory.AgentLight))
+        case KeyPressed(_, Key.A, _, _)                     => lm.map(_.toggleCategory(LightCategory.AgentLight))
+        case KeyPressed(_, Key.F, Key.Modifier.Control, _)  => lm.map(_.disableCategory(LightCategory.FoodSourceLight))
+        case KeyPressed(_, Key.F, Key.Modifier.Shift, _)    => lm.map(_.enableCategory(LightCategory.FoodSourceLight))
+        case KeyPressed(_, Key.F, _, _)                     => lm.map(_.toggleCategory(LightCategory.FoodSourceLight))
+      }
+
+      focusable = true
+      requestFocus()
     }
 
     size = new Dimension(300, 200)
@@ -65,7 +88,8 @@ object App extends SwingApplication {
     parser.parse(args, Config()) map { config =>
 
     loop() // starting render loop
-    tui(config.path, config.timeStep)
+    timeStep = config.timeStep
+    tui(config.path)
     top.pack()
     top.visible = true
     } getOrElse {
@@ -99,7 +123,7 @@ object App extends SwingApplication {
     ( for(i <- groupPerformance.indices) yield (i, groupPerformance(i) / size) ).toList.sortBy(_._2)
   }
 
-  def tui(path: File, timeStep: Int) {
+  def tui(path: File) {
     val dir = Path(path)
     val stats = loadStats(dir)
     for((index,(max, min, mean, v)) <- stats.sortBy(_._2._3)) {
@@ -107,22 +131,36 @@ object App extends SwingApplication {
     }
     print("Please select a generation: ")
     val genIndex = readInt()
-    val gen = loadGeneration(dir, genIndex)
+    generation = loadGeneration(dir, genIndex)
 
-    for((index, gP) <- findBestGroupInGen(gen, 10)) {
+    for((index, gP) <- findBestGroupInGen(generation, 10)) {
       printf("GI: %4d, %.2f \n", index, gP)
     }
     print("Select a group to evaluate: ")
-    val group = readInt()
+    group = readInt()
 
     println("Setting up environment")
-    e = Some(new BasicEnvironment(timeStep, 0))
-    e.get.initializeStatic()
-    e.get.initializeAgents(gen.grouped(10).toIndexedSeq(group))
-    EnvironmentManager.addEnvironment(e.get)
-    println("Finished Setup")
-    future {
-      e.get.run()
+    initEnvironment()
+  }
+
+  def initEnvironment() {
+    val disabledLightSourceCategories = this.e match {
+      case Some(env) =>
+         EnvironmentManager.clean()
+         this.e = None
+         env.running = false
+         env.sim.lightManager.disabledCategories
+      case None => Set.empty[LightCategory]
     }
+
+    val e = new BasicEnvironment(timeStep, 0)
+    e.initializeStatic()
+    e.initializeAgents(generation.grouped(10).toIndexedSeq(group))
+    EnvironmentManager.addEnvironment(e)
+    e.sim.lightManager.disabledCategories = disabledLightSourceCategories
+    future {
+      e.run()
+    }
+    this.e = Some(e)
   }
 }
