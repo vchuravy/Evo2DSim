@@ -40,21 +40,21 @@ class Simulator(seed: Long) {
   def addStaticBox(pos: Vec2, width: Float, height: Float) {
     val shape = new PolygonShape
     shape.setAsBox(width,height)
-    addEntityToManger(new StaticEntity(new BoxSprite(pos, Color.BLACK, width, height )))
+    addEntityToManger(new StaticEntity(new BoxSprite(pos, Color.BLACK, width, height), this))
     addStaticWorldObject(pos, shape)
   }
 
   def addStaticCircle(pos: Vec2, radius: Float){
     val shape = new CircleShape
     shape.setRadius(radius)
-    addEntityToManger(new StaticEntity(new CircleSprite(pos, Color.BLACK, radius )))
+    addEntityToManger(new StaticEntity(new CircleSprite(pos, Color.BLACK, radius), this))
     addStaticWorldObject(pos, shape)
   }
 
   def createWorldBoundary(edges: Array[Vec2]) {
     val shape = new ChainShape
     shape.createLoop(edges, edges.length)
-    addEntityToManger(new StaticEntity(new  WorldBoundarySprite(origin, Color.BLACK, edges )))
+    addEntityToManger(new StaticEntity(new  WorldBoundarySprite(origin, Color.BLACK, edges), this))
     addStaticWorldObject(new Vec2(0,0), shape)
   }
 
@@ -70,16 +70,14 @@ class Simulator(seed: Long) {
   def addAgent(pos: Vec2, agentType: Agents.Value) : Agent = agentType match {
       case Agents.SBot => addSBot(pos)
       case Agents.SBotControllerLinear => addSBotWithLinearController(pos)
-      case Agents.SBotControllerLinearRandom => {
+      case Agents.SBotControllerLinearRandom =>
         val a = addSBotWithLinearController(pos)
         a.controller.get.initializeRandom(random.nextDouble)
         a
-      }
-      case Agents.SBotControllerLinearZero => {
+      case Agents.SBotControllerLinearZero =>
         val a = addSBotWithLinearController(pos)
         a.controller.get.initializeZeros()
         a
-      }
     }
 
   private def addSBot(pos: Vec2): Agent = {
@@ -117,12 +115,12 @@ class Simulator(seed: Long) {
     bodyFixtureDef.density = 1.0f
     bodyFixtureDef.shape = shape
 
-    val e1 = new StaticEntity(new CircleSprite(pos, foodSource.color, radius ))
+    val e1 = new StaticEntity(new CircleSprite(pos, foodSource.color, radius), this)
     addEntityToManger(e1)
 
     foodSource.initialize(e1, this)
 
-    val e2 = new StaticEntity(new EmptyCircleSprite(pos, foodSource.color, activationRange ))
+    val e2 = new StaticEntity(new EmptyCircleSprite(pos, foodSource.color, activationRange), this)
     addEntityToManger(e2)
 
     val sensorFixtureDef = new FixtureDef

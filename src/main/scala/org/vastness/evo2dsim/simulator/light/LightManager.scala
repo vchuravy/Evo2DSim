@@ -4,19 +4,23 @@ import scala.collection.mutable.ArrayBuffer
 
 class LightManager {
   var lightSources = ArrayBuffer[LightSource]()
+  var disabledCategories = Set.empty[LightCategory]
 
   def addLight(l: LightSource){
     lightSources += l
   }
 
-  def findByCategory(category: LightCategory) = lightSources.filter(_.category == category)
 
-  def toggleByCategory(category: LightCategory) =
-    findByCategory(category).foreach {l => l.forced_disable = !l.forced_disable}
+  def disableCategory(c: LightCategory) {
+    disabledCategories += c
+  }
 
-  def disableByCategory(category: LightCategory) =
-    findByCategory(category).foreach(_.forced_disable = true)
+  def enableCategory(c: LightCategory) {
+    disabledCategories -= c
+  }
 
-  def enableByCategory(category: LightCategory) =
-    findByCategory(category).foreach(_.forced_disable = false)
+  def toggleCategory(c: LightCategory) {
+    if (disabledCategories.contains(c)) enableCategory(c)
+    else disableCategory(c)
+  }
 }
