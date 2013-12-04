@@ -12,6 +12,14 @@ class LightManager {
 
   def findByCategory(category: LightCategory) = lightSources.filter(_.category == category)
 
+  def toggleByCategory(category: LightCategory) =
+    findByCategory(category).foreach {l => l.forced_disable = !l.forced_disable}
+
+  def disableByCategory(category: LightCategory) =
+    findByCategory(category).foreach(_.forced_disable = true)
+
+  def enableByCategory(category: LightCategory) =
+    findByCategory(category).foreach(_.forced_disable = false)
 }
 
 sealed trait LightCategory
