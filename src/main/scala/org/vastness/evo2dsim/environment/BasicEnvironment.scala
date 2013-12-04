@@ -12,23 +12,34 @@ import scala.collection.Map
  */
 class BasicEnvironment(val timeStep:Int, val steps:Int) extends Environment{
 
-  val origin = new Vec2(1.015f,1.015f)
-  val halfSize = 1f
+  val origin = new Vec2(1.515f,1.515f)
+  val halfSize = 1.5f
+
+  val fRadius: Float = 0.17f
+  val aRange: Float = fRadius * 1.3f
+
+  val sizes = Array[Vec2](new Vec2(-halfSize,-halfSize), new Vec2(-halfSize,halfSize), new Vec2(halfSize,halfSize), new Vec2(halfSize,-halfSize))
+  val edges = for(i <- 0 until sizes.length) yield origin add sizes(i)
+
+  val f1 = new StaticFoodSource(color = Color.RED, max = 8, reward = 1)
+  val f2 = new StaticFoodSource(color = Color.RED, max = 8, reward = -1)
 
   def initializeStatic() {
-    val sizes = Array[Vec2](new Vec2(-halfSize,-halfSize), new Vec2(-halfSize,halfSize), new Vec2(halfSize,halfSize), new Vec2(halfSize,-halfSize))
-    val edges = for(i <- 0 until sizes.length) yield origin add sizes(i)
-
     sim.createWorldBoundary(edges.toArray)
     addFoodSources(edges)
   }
 
-  protected def addFoodSources(edges: Seq[Vec2]) {
-    val f1 = new StaticFoodSource(color = Color.RED, max = 8, reward = 1)
-    val f2 = new StaticFoodSource(color = Color.RED, max = 8, reward = -0.3)
+  protected def normToOrigin(p: Vec2): Vec2 = {
+      val v = p sub origin
+      v.normalize()
+      v
+  }
 
-    sim.addFoodSource(edges(0) add new Vec2(0.1f, 0.1f), radius = 0.1f, activationRange = 0.15f, f1)
-    sim.addFoodSource(edges(2) add new Vec2(-0.1f, -0.1f), radius = 0.1f, activationRange = 0.15f, f2)
+  protected def foodPos = edges map {e => e sub (normToOrigin(e) mul 2f*fRadius)}
+
+  protected def addFoodSources(edges: Seq[Vec2]) {
+    sim.addFoodSource(foodPos(0), radius = fRadius, activationRange = aRange, f1)
+    sim.addFoodSource(foodPos(2), radius = fRadius, activationRange = aRange, f2)
   }
 
   def initializeAgents(genomes: Map[Int, (Double, Genome)]){
