@@ -4,8 +4,7 @@ import org.vastness.evo2dsim.gui._
 import java.util.Timer
 import spray.json._
 import org.vastness.evo2dsim.utils.MyJsonProtocol._
-import javax.swing.SwingUtilities
-import scala.swing.Frame
+import scala.swing._
 import scalax.file.Path
 import scalax.io.Input
 import java.io.File
@@ -14,14 +13,26 @@ import org.vastness.evo2dsim.environment.BasicEnvironment
 import scala.concurrent._
 import ExecutionContext.Implicits.global
 
-object App {
+object App extends SwingApplication {
+  val worldView: Surface = new Surface
+  var e: Option[BasicEnvironment] = None
+  def top = new MainFrame {
+    title = "Evo2DSim Analyzer"
+
+    contents = new BorderPanel {
+      import BorderPanel._
+      add(worldView, Position.Center)
+    }
+
+    size = new Dimension(300, 200)
+  }
+
   var timer = new Timer
   var running = true
   val HERTZ = 30
-  val gui = new GUI
 
   private def render() {
-    gui.worldView.repaint()
+    worldView.repaint()
   }
 
   def loop() {
@@ -42,7 +53,7 @@ object App {
     }
   }
 
-  def main(args : Array[String]) {
+  def startup(args : Array[String]) {
     val parser = new scopt.OptionParser[Config]("scopt") {
       head("Evo2DSim is a simple simulator for evolutionary environment.")
       opt[Int]('t', "timeStep") action { (x, c) =>
@@ -53,21 +64,15 @@ object App {
 
     parser.parse(args, Config()) map { config =>
 
-     SwingUtilities.invokeLater(new Runnable() {
-       override def run() {
-         val frame: Frame = new Frame() {
-           override def contents = Seq(gui.panel)
-         }
-         frame.pack()
-       }
-     })
-
     loop() // starting render loop
     tui(config.path, config.timeStep)
+    top.pack()
+    top.visible = true
     } getOrElse {
       sys.exit(1)
       // arguments are bad, usage message will have been displayed
     }
+    println("Startup done")
   }
 
   case class Config(timeStep: Int = 50, path: File = new File("."))
@@ -110,13 +115,14 @@ object App {
     print("Select a group to evaluate: ")
     val group = readInt()
 
-    val e = new BasicEnvironment(timeStep, 0)
-    e.initializeStatic()
-    e.initializeAgents(gen.grouped(10).toIndexedSeq(group))
-    EnvironmentManager.addEnvironment(e)
+    println("Setting up environment")
+    e = Some(new BasicEnvironment(timeStep, 0))
+    e.get.initializeStatic()
+    e.get.initializeAgents(gen.grouped(10).toIndexedSeq(group))
+    EnvironmentManager.addEnvironment(e.get)
+    println("Finished Setup")
     future {
-      e.run()
+      e.get.run()
     }
-
   }
 }
