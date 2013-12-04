@@ -12,7 +12,11 @@ class LightSource( c: Color, entity: Entity) {
   require(c == Color.BLUE || c == Color.RED, "Color is neither blue or red. Shame on you!")
 
   def position = entity.position
-  var active = false
+  def active = active_ && !forced_disable
+  var active_ = false
+  var forced_disable = false
+
   def color = if(active) c else Color.BLACK
+
 
 }

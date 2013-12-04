@@ -30,7 +30,7 @@ abstract class SBotController extends Controller {
 
     agent match {
       case sBot: SBot => {
-        lightSwitch.m_func = (x: Double) => sBot.light.active = x == 1
+        lightSwitch.m_func = (x: Double) => sBot.light.active_ = x == 1
         lightSensor.attachToAgent(sBot)
       }
       case _ => println("Warning you just attached a SBotController to an agent that is not of type SBot")

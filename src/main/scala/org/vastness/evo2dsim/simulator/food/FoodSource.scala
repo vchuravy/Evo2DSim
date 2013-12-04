@@ -12,17 +12,18 @@ import org.vastness.evo2dsim.gui.Color
  */
 abstract class FoodSource(c: Color, var max: Int) {
   //require(c == Color.BLUE || c == Color.RED)
-  protected var light:LightSource = _
+  protected var light: Option[LightSource] = None
 
-  def initialize(e: Entity, sim: Simulator){
-    light = new LightSource(c, e)
-    light.active = true
-    sim.lightManager.addLight(light)
+  def initialize(e: Entity, sim: Simulator) {
+    val l = new LightSource(c, e)
+    l.active_ = true
+    sim.lightManager.addLight(l)
+    light = Some(l)
   }
 
   def color = light match{
-    case l: LightSource => l.color
-    case _ => Color.CYAN // Not initialized
+    case Some(l) => l.color
+    case None => Color.CYAN // Not initialized
   }
 
   val feeders = mutable.HashSet[Agent]()
