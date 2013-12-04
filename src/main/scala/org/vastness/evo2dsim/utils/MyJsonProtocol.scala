@@ -7,7 +7,10 @@ import org.vastness.evo2dsim.evolution.{BinaryGenome, Genome}
 object MyJsonProtocol extends DefaultJsonProtocol {
   implicit object transferFunctionFormat extends JsonFormat[TransferFunction] {
     def write(t: TransferFunction) = JsString(t.name)
-    def read(value: JsValue) = TransferFunction.values.find(_.name == value.toString()).get
+    def read(value: JsValue) = value match {
+      case JsString(name) => TransferFunction.values.find(_.name == name).get
+      case _ => deserializationError("Got: " + value + " expected JsString")
+    }
   }
   implicit object genomeFormat extends JsonFormat[Genome] {
     def write(g: Genome): JsValue = g match {
@@ -37,7 +40,7 @@ object MyJsonProtocol extends DefaultJsonProtocol {
       value.asJsObject.getFields("currentId", "weights",
         "biases", "t_funcs", "mutateBiases",
         "mutateWeights", "mutateProbability",
-        "crossoverProbability" ,"name") match {
+        "crossoverProbability", "ancestors" ,"name") match {
           case Seq(JsNumber(currentId), weights, biases,
                     t_funcs, JsBoolean(mutateBiases),
                     JsBoolean(mutateWeights), JsNumber(mutateProbability),

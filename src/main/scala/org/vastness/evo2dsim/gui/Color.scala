@@ -1,14 +1,14 @@
 package org.vastness.evo2dsim.gui
 
 import java.awt
-import org.vastness.evo2dsim.utils.Enum
+import org.vastness.utils.Enum
 
 /**
  * Singelton that abstracts away the actual color implementation from the runtime
  */
 
 
-sealed trait Color extends Color.Value { def underlying: awt.Color }
+sealed trait Color { def underlying: awt.Color }
 
 object Color extends Enum[Color] {
   case object BLACK extends Color { val underlying = awt.Color.BLACK }

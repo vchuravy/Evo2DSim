@@ -1,9 +1,9 @@
 package org.vastness.evo2dsim.neuro
 
 import org.apache.commons.math3.util.FastMath
-import org.vastness.evo2dsim.utils.Enum
+import org.vastness.utils.Enum
 
-sealed trait TransferFunction extends TransferFunction.Value {
+sealed trait TransferFunction {
   def name: String
   def apply(x: Double): Double
 }
