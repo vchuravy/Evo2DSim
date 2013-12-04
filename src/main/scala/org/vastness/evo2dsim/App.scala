@@ -26,8 +26,8 @@ object App {
 
     parser.parse(args, Config()) map { config =>
 
-      val evo = new SUSEvolution(config.numberOfIndiviums, config.groupSize, config.stepsPerEvaluation, config.generation, config.evaluationPerGeneration, config.timeStep)
-      evo.start()
+    val evo = new SUSEvolution(config.numberOfIndiviums, config.groupSize, config.stepsPerEvaluation, config.generation, config.evaluationPerGeneration, config.timeStep)
+    evo.start()
     } getOrElse {
       sys.exit(1)
       // arguments are bad, usage message will have been displayed
@@ -35,5 +35,5 @@ object App {
   }
 
 
-  case class Config(timeStep: Int = 50, generation: Int = 500, stepsPerEvaluation: Int = 5000, evaluationPerGeneration:Int = 5,  numberOfIndiviums:Int = 2000, groupSize: Int = 10)
+  case class Config(timeStep: Int = 50, generation: Int = 500, stepsPerEvaluation: Int = 6000, evaluationPerGeneration:Int = 5,  numberOfIndiviums:Int = 2000, groupSize: Int = 10)
 }
