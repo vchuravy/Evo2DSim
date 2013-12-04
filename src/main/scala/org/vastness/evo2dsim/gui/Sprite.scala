@@ -34,6 +34,14 @@ class CircleSprite(p: => Vec2, color: => Color, radius: Float)  extends Sprite(p
   }
 }
 
+class EmptyCircleSprite(p: => Vec2, color: => Color, radius: Float)  extends Sprite(p,color) {
+  val d = 2 * conversionToPixel(radius).toInt
+  override def draw(g2: Graphics2D){
+    super.draw(g2)
+    g2.drawOval(position.x.toInt - d/2, position.y.toInt - d/2, d, d)
+  }
+}
+
 class WorldBoundarySprite(p: => Vec2,color: => Color, edges: Array[Vec2]) extends Sprite(p,color) {
   def vectorsToPoints(v: Array[Vec2])  =  _vectorsToPoints(v.reverse, List[Int](), List[Int]())
 

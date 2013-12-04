@@ -117,10 +117,13 @@ class Simulator(seed: Long) {
     bodyFixtureDef.density = 1.0f
     bodyFixtureDef.shape = shape
 
-    val e = new StaticEntity(new CircleSprite(pos, foodSource.color, radius ))
-    addEntityToManger(e)
+    val e1 = new StaticEntity(new CircleSprite(pos, foodSource.color, radius ))
+    addEntityToManger(e1)
 
-    foodSource.initialize(e, this)
+    foodSource.initialize(e1, this)
+
+    val e2 = new StaticEntity(new EmptyCircleSprite(pos, foodSource.color, activationRange ))
+    addEntityToManger(e2)
 
     val sensorFixtureDef = new FixtureDef
     sensorFixtureDef.shape = sensorShape

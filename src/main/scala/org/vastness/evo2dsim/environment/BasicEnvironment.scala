@@ -28,7 +28,7 @@ class BasicEnvironment(val timeStep:Int, val steps:Int) extends Environment{
     val f2 = new StaticFoodSource(color = Color.RED, max = 8, reward = -0.3)
 
     sim.addFoodSource(edges(0) add new Vec2(0.1f, 0.1f), radius = 0.1f, activationRange = 0.15f, f1)
-    sim.addFoodSource(edges(2) add new Vec2(-0.1f, -0.1f), radius = 0.1f, activationRange = 0.5f, f2)
+    sim.addFoodSource(edges(2) add new Vec2(-0.1f, -0.1f), radius = 0.1f, activationRange = 0.15f, f2)
   }
 
   def initializeAgents(genomes: Map[Int, (Double, Genome)]){
