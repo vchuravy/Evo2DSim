@@ -83,6 +83,10 @@ abstract class Evolution(poolSize: Int, groupSize: Int, evaluationSteps: Int, ge
       output.write(results.map(x => x._1.toString -> x._2).toJson.prettyPrint)
 
       generation +=1
+
+      val (max, min, mean, variance) = collectStats(results.map(_._2._1).toList)
+      outputStats.append("%d, %f, %f, %f, %f \n".format(generation, max, min, mean ,variance))
+
       if(generation < generations) genomes = nextGeneration(results.toSeq.seq)
       assert(genomes.size == poolSize)
 
@@ -106,9 +110,6 @@ abstract class Evolution(poolSize: Int, groupSize: Int, evaluationSteps: Int, ge
       printTime("Preparing the next Generation took %d min %d sec", timeNextGenSpent)
       if(generation < generations) println("Starting next generation.")
       else println("We are done here :)")
-
-      val (max, min, mean, variance) = collectStats(results.map(_._2._1).toList)
-      outputStats.append("%d, %f, %f, %f, %f \n".format(generation, max, min, mean ,variance))
     }
     genomes
   }
