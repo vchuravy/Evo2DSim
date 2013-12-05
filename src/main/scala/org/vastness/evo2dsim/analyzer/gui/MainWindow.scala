@@ -107,7 +107,7 @@ class MainWindow extends MainFrame {
   }
 
   def loadEvaluations(dir: Path) = {
-    (IndexedSeq("Dir"), dir.children().toArray map {c => Array(c.name)} )
+    (IndexedSeq("Dir"), dir.children().toArray.sorted map {c => Array(c.name)} )
   }
   def showEvaluations(jDir: File): Path = {
     val (columnNames, rowData) = loadEvaluations(Path(jDir))
@@ -126,11 +126,9 @@ class MainWindow extends MainFrame {
     val columnNames = csv.head.toIndexedSeq
     val columns = csv.tail.map {
       case Array(index, max, min, mean, variance) => Array(index.toInt, max.toDouble, min.toDouble, mean.toDouble, variance.toDouble)
-    }.toArray
+    }.toArray.sortBy(_(3)).reverse
     (columnNames, columns)
   }
-
-  private def mapToAny[A <: Any](array: Array[Array[A]]) = array map { _ map { _.asInstanceOf[Any] }}
 
   def showStats(dir: Path): Int = {
     val (columnNames, rowData) = loadStats(dir)
@@ -144,9 +142,9 @@ class MainWindow extends MainFrame {
   def loadGen(size: Int) = {
     val groups = generation.toList.sortBy(_._1).grouped(size)
     val groupPerformance = groups.map(e => e.foldLeft[Double](0.0){ case (acc, (_, (fitness, _))) => acc + fitness}).toIndexedSeq
-    val rowData = ( for(i <- groupPerformance.indices) yield (i, groupPerformance(i) / size) ).toList.sortBy(_._2) map
+    val rowData = ( for(i <- groupPerformance.indices) yield (i, groupPerformance(i) / size) ).toArray.sortBy(_._2).reverse map
       {case (i, gP) => Array(i,gP)}
-    (IndexedSeq("Index", "GroupPerformance"), rowData.toArray)
+    (IndexedSeq("Index", "GroupPerformance"), rowData)
   }
 
   def showGroups: Int = {
@@ -178,4 +176,6 @@ class MainWindow extends MainFrame {
     }
     this.e = Some(e)
   }
+
+  private def mapToAny[A <: Any](array: Array[Array[A]]) = array map { _ map { _.asInstanceOf[Any] }}
 }
