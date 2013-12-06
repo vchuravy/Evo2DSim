@@ -28,7 +28,7 @@ import org.vastness.evo2dsim.evolution.Genome
 import org.vastness.evo2dsim.environment.BasicEnvironment
 import scala.concurrent._
 import ExecutionContext.Implicits.global
-import scala.swing.event.{Key, KeyPressed}
+import scala.swing.event.{TableRowsSelected, Key, KeyPressed}
 import org.vastness.evo2dsim.simulator.light.{LightCategory, LightManager}
 
 
@@ -57,12 +57,12 @@ class MainWindow extends MainFrame {
       fc.fileSelectionMode = FileChooser.SelectionMode.DirectoriesOnly
 
       dataDir = fc.showOpenDialog(this) match {
-        case FileChooser.Result.Approve => Some(fc.selectedFile)
+        case FileChooser.Result.Approve if fc.selectedFile.exists() => Some(fc.selectedFile)
         case _ => None
       }
     })
     contents += new MenuItem( Action("Select evaluation run") {
-      evalDir = dataDir map showEvaluations
+      evalDir = dataDir map {d => Path(d)} map showEvaluations
     })
     contents += new MenuItem( Action("Select generation") {
       generation = evalDir map showStats match {
@@ -107,16 +107,18 @@ class MainWindow extends MainFrame {
   }
 
   def loadEvaluations(dir: Path) = {
-    (IndexedSeq("Dir"), dir.children().toArray.sorted map {c => Array(c.name)} )
+    (IndexedSeq("Dir"), dir.children().filter(_.isDirectory).toArray.sorted map {c => Array(c.name)} )
   }
-  def showEvaluations(jDir: File): Path = {
-    val (columnNames, rowData) = loadEvaluations(Path(jDir))
-    val table = new Table(mapToAny(rowData) , columnNames.toSeq)
-    val tD = new TableDialog(this, table)
+  def showEvaluations(dir: Path): Path = {
+    val (columnNames, rowData) = loadEvaluations(dir)
+    val s = new PlotStats(dir)
+    val table = new Table(mapToAny(rowData), columnNames.toSeq)
+
+    val tD = new EvaluationTableDialog(this, table, s)
     tD.showTableDialog()
     val index = tD.selectedValue
     val result = rowData(index).head
-    Path(jDir) resolve result
+    dir resolve result
   }
 
   def loadStats(dir: Path) = {

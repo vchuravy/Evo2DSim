@@ -19,7 +19,7 @@ package org.vastness.evo2dsim.analyzer.gui
 
 import scala.swing._
 
-class TableDialog(owner: Window, table: Table) extends Dialog(owner) {
+class TableDialog(owner: Window, val table: Table) extends Dialog(owner) {
   private var result = Dialog.Result.Closed
 
   setLocationRelativeTo(owner)
@@ -33,12 +33,11 @@ class TableDialog(owner: Window, table: Table) extends Dialog(owner) {
     peer.setVisible(false)
   })
 
-  val tablePane = new ScrollPane() {
+  def tablePane: Component = new ScrollPane() {
     contents = table
   }
 
-
-  contents = new BorderPanel {
+  val bP = new BorderPanel {
     import BorderPanel._
 
     val buttonPanel = new BoxPanel(Orientation.Horizontal) {
@@ -49,6 +48,8 @@ class TableDialog(owner: Window, table: Table) extends Dialog(owner) {
     add(tablePane, Position.North)
     add(buttonPanel, Position.South)
   }
+
+  contents = bP
 
   def showTableDialog() = {
     this.pack()
