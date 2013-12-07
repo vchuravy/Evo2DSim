@@ -29,7 +29,7 @@ import org.vastness.evo2dsim.gui.Color
  */
 class SBot(id: Int, pos: Vec2, sim: Simulator)
   extends Agent(id, pos, sim, radius = 0.06f, mass = 0.66f) {
-  val light = new LightSource(Color.BLUE, this, LightCategory.AgentLight)
+  val light = new LightSource(Color.BLUE, this, LightCategory.AgentLight, radius)
   sim.lightManager.addLight(light)
 
   override def color = light.color

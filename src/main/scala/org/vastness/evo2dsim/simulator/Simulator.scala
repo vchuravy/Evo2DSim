@@ -116,13 +116,13 @@ class Simulator(seed: Long) {
     agent
   }
 
-  def addFoodSource(pos: Vec2, radius: Float, activationRange: Float, foodSource: FoodSource){
+  def addFoodSource(pos: Vec2, activationRange: Float, foodSource: FoodSource){
     val bodyDef = new BodyDef
     bodyDef.position.set(pos)
     bodyDef.`type` = BodyType.STATIC
 
     val shape = new CircleShape
-    shape.setRadius(radius)
+    shape.setRadius(foodSource.radius)
 
     val sensorShape = new CircleShape
     sensorShape.setRadius(activationRange)
@@ -132,7 +132,7 @@ class Simulator(seed: Long) {
     bodyFixtureDef.density = 1.0f
     bodyFixtureDef.shape = shape
 
-    val e1 = new StaticEntity(new CircleSprite(pos, foodSource.color, radius), this)
+    val e1 = new StaticEntity(new CircleSprite(pos, foodSource.color, foodSource.radius), this)
     addEntityToManger(e1)
 
     foodSource.initialize(e1, this)

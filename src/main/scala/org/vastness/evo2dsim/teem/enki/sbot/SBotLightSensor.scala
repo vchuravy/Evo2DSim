@@ -46,22 +46,19 @@ class SBotLightSensor(segments: Int, bias: Double) {
 
     val radius = sBot.radius
     for(light: LightSource <- sBot.sim.lightManager.lightSources){
-      if (light.active && sBot.light != light){
+      if (light.active && sBot.light != light && light.radius > 0){
         val lightPosition = sBot.body.getLocalPoint(light.position)
         val distance = lightPosition.length()
 
-        val f = clamp((distance - radius) / 2 * distance,0.5f) // http://www.neoprogrammics.com/spheres/visible_fraction_of_surface.php
-
         lightPosition.normalize()
-        val centerPoint = lightPosition.mul(radius) // center point of the light cone
 
-        val halfRange = (f*360)/2
-        val bearingRad = FastMath.atan2(centerPoint.x, centerPoint.y) // clockwise angle
+        val aperture = FastMath.atan(light.radius / distance).toFloat
+        val bearingRad = FastMath.atan2(lightPosition.x, lightPosition.y) // clockwise angle
         val bearingDeg = (FastMath.toDegrees(bearingRad)+360) % 360
 
-        val start: Int = ((bearingDeg-halfRange) + 360).round.toInt % 360
+        val start: Int = ((bearingDeg-aperture) + 360).round.toInt % 360
 
-        for(i:Int <-  start to (start + 2*halfRange).round){
+        for(i:Int <-  start to (start + 2*aperture).round){
           visionStrip(light.color)(i % 360) = 1 //TODO: fog, noise, objects standing in sight?
         }
 

@@ -27,12 +27,12 @@ import org.vastness.evo2dsim.gui.Color
  * @param c on which color channel the light source is sending
  * @param max maximal numbers of individuals who can feed from this source
  */
-abstract class FoodSource(c: Color, var max: Int) {
+abstract class FoodSource(c: Color, var max: Int, var radius: Float) {
   //require(c == Color.BLUE || c == Color.RED)
   protected var light: Option[LightSource] = None
 
   def initialize(e: Entity, sim: Simulator) {
-    val l = new LightSource(c, e, LightCategory.FoodSourceLight)
+    val l = new LightSource(c, e, LightCategory.FoodSourceLight, radius)
     l.active_ = true
     sim.lightManager.addLight(l)
     light = Some(l)

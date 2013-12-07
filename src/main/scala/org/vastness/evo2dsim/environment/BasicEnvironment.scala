@@ -38,8 +38,8 @@ class BasicEnvironment(timeStep:Int, steps:Int) extends Environment(timeStep, st
   val sizes = Array[Vec2](new Vec2(-halfSize,-halfSize), new Vec2(-halfSize,halfSize), new Vec2(halfSize,halfSize), new Vec2(halfSize,-halfSize))
   val edges = for(i <- 0 until sizes.length) yield origin add sizes(i)
 
-  val f1 = new StaticFoodSource(color = Color.RED, max = 8, reward = 1)
-  val f2 = new StaticFoodSource(color = Color.RED, max = 8, reward = -1)
+  val f1 = new StaticFoodSource(color = Color.RED, max = 8, reward = 1, fRadius)
+  val f2 = new StaticFoodSource(color = Color.RED, max = 8, reward = -1, fRadius)
 
   def initializeStatic() {
     sim.createWorldBoundary(edges.toArray)
@@ -55,8 +55,8 @@ class BasicEnvironment(timeStep:Int, steps:Int) extends Environment(timeStep, st
   protected def foodPos = edges map {e => e sub (normToOrigin(e) mul 2f*fRadius)}
 
   protected def addFoodSources(edges: Seq[Vec2]) {
-    sim.addFoodSource(foodPos(0), radius = fRadius, activationRange = aRange, f1)
-    sim.addFoodSource(foodPos(2), radius = fRadius, activationRange = aRange, f2)
+    sim.addFoodSource(foodPos(0), activationRange = aRange, f1)
+    sim.addFoodSource(foodPos(2), activationRange = aRange, f2)
   }
 
   def initializeAgents(genomes: Map[Int, (Double, Genome)]){
