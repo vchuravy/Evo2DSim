@@ -27,10 +27,7 @@ import org.jbox2d.common.Vec2
 /**
  * Implements the very basics for an environment
  */
-trait  Environment {
-  def timeStep: Int
-  def steps:Int
-
+abstract class  Environment(val timeStep: Int, val steps: Int) {
   def origin: Vec2
   def halfSize: Float
 

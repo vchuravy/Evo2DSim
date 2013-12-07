@@ -27,7 +27,7 @@ import scala.collection.Map
 /**
  * @see Environment
  */
-class BasicEnvironment(val timeStep:Int, val steps:Int) extends Environment{
+class BasicEnvironment(timeStep:Int, steps:Int) extends Environment(timeStep, steps){
 
   val origin = new Vec2(1.515f,1.515f)
   val halfSize = 1.5f

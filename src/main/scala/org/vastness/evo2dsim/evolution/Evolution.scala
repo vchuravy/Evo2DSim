@@ -25,7 +25,7 @@ import scala.concurrent.{Await, Future, future}
 import scala.concurrent.duration._
 import scala.concurrent.ExecutionContext.Implicits.global
 import org.vastness.evo2dsim.gui.EnvironmentManager
-import org.vastness.evo2dsim.environment.{BasicRandomEnvironment, Environment}
+import org.vastness.evo2dsim.environment.{Env, BasicRandomEnvironment, Environment}
 import org.vastness.evo2dsim.teem.enki.sbot.SBotControllerLinear
 import scala.util.Random
 import java.util.Calendar
@@ -49,7 +49,7 @@ abstract class Evolution(poolSize: Int, groupSize: Int, evaluationSteps: Int, ge
 
   def nextGeneration(results: Seq[(Int, (Double, Genome))]): Map[Int, (Double, Genome)]
 
-  private def run(startGenomes: Map[Int, (Double, Genome)]): Map[Int, (Double, Genome)] = {
+  private def run(startGenomes: Map[Int, (Double, Genome)], envSetup: Seq[(Range,Env)]): Map[Int, (Double, Genome)] = {
     val outputStats =  dir resolve "Stats.csv"
     outputStats.createFile()
     outputStats.append("Generation, Max, Min, Mean, Variance \n")
@@ -62,7 +62,23 @@ abstract class Evolution(poolSize: Int, groupSize: Int, evaluationSteps: Int, ge
 
       EnvironmentManager.clean()
 
-      val futureEvaluations =  groupEvaluations(genomes.toList)
+      val envBuilders = envSetup filter {case (range, _) => range contains generation} map {_._2}
+      val envBuilder = envBuilders.size match {
+        case 0 => throw new Exception("Could not find an environment for generation %d.".format(generation))
+        case 1 => envBuilders.head
+        case 2 => {
+          printf("Warning: Two possible environment for generation %d \n", generation)
+          println("Selecting the last.")
+          envBuilders.tail.head
+        }
+        case _ => {
+          printf("Warning: Multiple possible environment for generation %d \n", generation)
+          println("Selecting randomly.")
+          scala.util.Random.shuffle(envBuilders).head
+        }
+      }
+
+      val futureEvaluations =  groupEvaluations(genomes.toList)(envBuilder)
       assert(futureEvaluations.size == evaluationPerGeneration*(poolSize / groupSize))
 
       val evaluationFuture = Future sequence futureEvaluations
@@ -115,11 +131,11 @@ abstract class Evolution(poolSize: Int, groupSize: Int, evaluationSteps: Int, ge
   }
 
 
-  def groupEvaluations(genomes: List[(Int, (Double, Genome))]): Seq[Future[Environment]] = {
+  def groupEvaluations(genomes: List[(Int, (Double, Genome))])(env: Env): Seq[Future[Environment]] = {
     val gs = genomes.sortBy(_._1).grouped(groupSize).toSeq
     ( for (g <- gs.par) yield {
       for (i <- 0 until evaluationPerGeneration) yield {
-        val e = new BasicRandomEnvironment(timeStep, evaluationSteps)
+        val e = env(timeStep, evaluationSteps)
         e.initializeStatic()
         e.initializeAgents(g.toMap)
         EnvironmentManager.addEnvironment(e)
@@ -138,7 +154,7 @@ abstract class Evolution(poolSize: Int, groupSize: Int, evaluationSteps: Int, ge
       c.initializeRandom(Random.nextDouble)
       (id, (0.0, c.toGenome))
     }
-    val result = run(Map(genomes.seq: _*))
+    val result = run(Map(genomes.seq: _*), Seq((0 to generations, Env.BasicRandom)))
     writeGraphViz(result)
     writeNewickTree(result)
     val timeSpent = TimeUnit.SECONDS.convert(System.nanoTime() - time, TimeUnit.NANOSECONDS)
