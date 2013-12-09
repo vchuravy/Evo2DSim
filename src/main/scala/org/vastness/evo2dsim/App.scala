@@ -50,7 +50,7 @@ object App {
         case _ => throw new IllegalArgumentException("Could not parse envConf")
       }
       val envs = parse(config.generation, envConf)
-
+      for((r, e) <- envs) println("Running %s from %d until %d".format(e.name, r.start, r.end))
       val evo = new SUSEvolution(config.numberOfIndiviums, config.groupSize, config.stepsPerEvaluation, config.generation, config.evaluationPerGeneration, config.timeStep)
       evo.start(envs)
     } getOrElse {
@@ -61,7 +61,7 @@ object App {
 
   def parse(max: Int, envs: Seq[(Int, String)]) = _parse(max, envs.toList.sortBy(_._1).reverse)
   private def _parse(next: Int, elems: List[(Int, String)]): List[(Range, Env)] = elems match {
-    case (gen, name) :: xs => (gen to next, Env.resolve(name) ) :: _parse(gen, xs)
+    case (gen, name) :: xs => (gen until next, Env.resolve(name) ) :: _parse(gen, xs)
     case Nil => List.empty
   }
 
