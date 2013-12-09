@@ -34,4 +34,9 @@ case object Env extends Enum[Env] {
     def name = "basicRandom"
     def apply(t: Int, s:Int) = new BasicRandomEnvironment(t, s)
   }
+
+  def resolve(name: String) = values.find(_.name == name) match {
+    case Some(e) => e
+    case None => throw new Exception("Could not find: " + name + " in " + values)
+  }
 }

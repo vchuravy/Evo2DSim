@@ -147,14 +147,14 @@ abstract class Evolution(poolSize: Int, groupSize: Int, evaluationSteps: Int, ge
     } ).flatten.seq
   }
 
-  def start() {
+  def start(envs: Seq[(Range, Env)] = Seq((0 to generations, Env.BasicRandom))) {
     val time = System.nanoTime()
     val genomes = for(id <- (0 until poolSize).par) yield {
       val c = new SBotControllerLinear()
       c.initializeRandom(Random.nextDouble)
       (id, (0.0, c.toGenome))
     }
-    val result = run(Map(genomes.seq: _*), Seq((0 to generations, Env.BasicRandom)))
+    val result = run(Map(genomes.seq: _*), envs)
     writeGraphViz(result)
     writeNewickTree(result)
     val timeSpent = TimeUnit.SECONDS.convert(System.nanoTime() - time, TimeUnit.NANOSECONDS)

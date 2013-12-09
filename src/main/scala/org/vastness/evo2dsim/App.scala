@@ -19,6 +19,7 @@ package org.vastness.evo2dsim
 
 
 import org.vastness.evo2dsim.evolution.SUSEvolution
+import org.vastness.evo2dsim.environment.Env
 
 /**
  * @author Valentin Churavy
@@ -39,18 +40,30 @@ object App {
         c.copy(numberOfIndiviums = x) } text "Individiums per Generation"
       opt[Int]('z', "groupSize") action { (x, c) =>
         c.copy(groupSize = x) } text "Group Size"
+      opt[String]('c', "evalConf") action { (x, c) =>
+        c.copy(envConf = x) } text "Generation:Environment;X:Y..."
     }
 
     parser.parse(args, Config()) map { config =>
+      val envConf = config.envConf.split(';') map {_.split(':').toList } map {
+        case x :: List(y) => (x.toInt ,y)
+        case _ => throw new IllegalArgumentException("Could not parse envConf")
+      }
+      val envs = parse(config.generation, envConf)
 
-    val evo = new SUSEvolution(config.numberOfIndiviums, config.groupSize, config.stepsPerEvaluation, config.generation, config.evaluationPerGeneration, config.timeStep)
-    evo.start()
+      val evo = new SUSEvolution(config.numberOfIndiviums, config.groupSize, config.stepsPerEvaluation, config.generation, config.evaluationPerGeneration, config.timeStep)
+      evo.start(envs)
     } getOrElse {
       sys.exit(1)
       // arguments are bad, usage message will have been displayed
     }
   }
 
+  def parse(max: Int, envs: Seq[(Int, String)]) = _parse(max, envs.toList.sortBy(_._1).reverse)
+  private def _parse(next: Int, elems: List[(Int, String)]): List[(Range, Env)] = elems match {
+    case (gen, name) :: xs => (gen to next, Env.resolve(name) ) :: _parse(gen, xs)
+    case Nil => List.empty
+  }
 
-  case class Config(timeStep: Int = 50, generation: Int = 500, stepsPerEvaluation: Int = 6000, evaluationPerGeneration:Int = 5,  numberOfIndiviums:Int = 2000, groupSize: Int = 10)
+  case class Config(timeStep: Int = 50, generation: Int = 500, stepsPerEvaluation: Int = 6000, evaluationPerGeneration:Int = 5,  numberOfIndiviums:Int = 2000, groupSize: Int = 10, envConf: String = "0:basic")
 }
