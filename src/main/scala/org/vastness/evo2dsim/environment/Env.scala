@@ -18,7 +18,12 @@
 package org.vastness.evo2dsim.environment
 
 import org.vastness.utils.Enum
+import org.vastness.evo2dsim.environment.mixins.foodSources._
+import org.vastness.evo2dsim.environment.mixins.foodPos._
 
+/**
+ * Builder functions for Environment.
+ */
 sealed trait Env {
   def name: String
   def apply(timeStep:Int, steps:Int): Environment
@@ -27,12 +32,32 @@ sealed trait Env {
 case object Env extends Enum[Env] {
   case object Basic extends Env {
     def name = "basic"
-    def apply(t: Int, s: Int)   = new BasicEnvironment(t,s)
+    def apply(t: Int, s: Int)   = new BasicEnvironment(t,s) with SimpleFoodPos with StaticFoodSources
+  }
+
+  case object BasicSimpleRandom extends Env {
+    def name = "basicSimpleRandom"
+    def apply(t: Int, s:Int) = new BasicEnvironment(t, s) with SimpleRandomFoodPos with StaticFoodSources
   }
 
   case object BasicRandom extends Env {
     def name = "basicRandom"
-    def apply(t: Int, s:Int) = new BasicRandomEnvironment(t, s)
+    def apply(t: Int, s:Int) = new BasicEnvironment(t, s) with RandomFoodPos with StaticFoodSources
+  }
+
+  case object Dynamic extends Env {
+    def name = "dynamic"
+    def apply(t: Int, s: Int)   = new BasicEnvironment(t,s) with SimpleFoodPos with DynamicFoodSources
+  }
+
+  case object DynamicSimpleRandom extends Env {
+    def name = "dynamicSimpleRandom"
+    def apply(t: Int, s: Int)   = new BasicEnvironment(t,s) with SimpleRandomFoodPos with DynamicFoodSources
+  }
+
+  case object DynamicRandom extends Env {
+    def name = "dynamicRandom"
+    def apply(t: Int, s: Int)   = new BasicEnvironment(t,s) with RandomFoodPos with DynamicFoodSources
   }
 
   def resolve(name: String) = values.find(_.name == name) match {

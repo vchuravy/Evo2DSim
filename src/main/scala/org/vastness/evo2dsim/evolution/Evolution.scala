@@ -25,7 +25,7 @@ import scala.concurrent.{Await, Future, future}
 import scala.concurrent.duration._
 import scala.concurrent.ExecutionContext.Implicits.global
 import org.vastness.evo2dsim.gui.EnvironmentManager
-import org.vastness.evo2dsim.environment.{Env, BasicRandomEnvironment, Environment}
+import org.vastness.evo2dsim.environment.{Env, Environment}
 import org.vastness.evo2dsim.teem.enki.sbot.SBotControllerLinear
 import scala.util.Random
 import java.util.Calendar

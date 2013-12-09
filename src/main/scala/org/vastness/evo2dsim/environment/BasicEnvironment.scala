@@ -18,32 +18,36 @@
 package org.vastness.evo2dsim.environment
 
 import org.jbox2d.common.Vec2
-import org.vastness.evo2dsim.simulator.food.StaticFoodSource
-import org.vastness.evo2dsim.gui.Color
 import org.vastness.evo2dsim.simulator.Agent
 import org.vastness.evo2dsim.evolution.Genome
 import scala.collection.Map
+import org.vastness.evo2dsim.simulator.food.FoodSource
 
 /**
  * @see Environment
  */
-class BasicEnvironment(timeStep:Int, steps:Int) extends Environment(timeStep, steps){
+abstract class BasicEnvironment(timeStep:Int, steps:Int) extends Environment(timeStep, steps) {
+
+  // Overwritten in mixins.foodSources
+  val fRadius: Float
+  val f1: FoodSource
+  val f2: FoodSource
+
+  // Overwritten in mixins.foodPos
+  protected def foodPos: IndexedSeq[Vec2]
 
   val origin = new Vec2(1.515f,1.515f)
   val halfSize = 1.5f
-
-  val fRadius: Float = 0.17f
   val aRange: Float = fRadius * 1.3f
 
   val sizes = Array[Vec2](new Vec2(-halfSize,-halfSize), new Vec2(-halfSize,halfSize), new Vec2(halfSize,halfSize), new Vec2(halfSize,-halfSize))
   val edges = for(i <- 0 until sizes.length) yield origin add sizes(i)
 
-  val f1 = new StaticFoodSource(color = Color.RED, max = 8, reward = 1, fRadius)
-  val f2 = new StaticFoodSource(color = Color.RED, max = 8, reward = -1, fRadius)
-
   def initializeStatic() {
     sim.createWorldBoundary(edges.toArray)
-    addFoodSources(edges)
+
+    sim.addFoodSource(foodPos(0), activationRange = aRange, f1)
+    sim.addFoodSource(foodPos(1), activationRange = aRange, f2)
   }
 
   protected def normToOrigin(p: Vec2): Vec2 = {
@@ -52,12 +56,7 @@ class BasicEnvironment(timeStep:Int, steps:Int) extends Environment(timeStep, st
       v
   }
 
-  protected def foodPos = edges map {e => e sub (normToOrigin(e) mul 2f*fRadius)}
-
-  protected def addFoodSources(edges: Seq[Vec2]) {
-    sim.addFoodSource(foodPos(0), activationRange = aRange, f1)
-    sim.addFoodSource(foodPos(2), activationRange = aRange, f2)
-  }
+  protected def edgeLocations = edges map {e => e sub (normToOrigin(e) mul 2f*fRadius)}
 
   def initializeAgents(genomes: Map[Int, (Double, Genome)]){
     def pos = newRandomPosition

@@ -15,18 +15,13 @@
  * along with Evo2DSim.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.vastness.evo2dsim.simulator.food
+package org.vastness.evo2dsim.environment.mixins.foodSources
 
 import org.vastness.evo2dsim.gui.Color
+import org.vastness.evo2dsim.simulator.food.StaticFoodSource
 
-
-/**
- * Implements a dynamic food source, where the reward is dependent on an other food source
- * this.n - other.n - constant
- * @see DynamicFoodSource
- * @param other the other food source
- */
-class DependentDynamicFoodSource(color: Color, max: Int, constant: Double, other: FoodSource, radius: Float) extends DynamicFoodSource(color, max, constant, radius) {
-
-  override def reward = super.reward - other.feeders.size
+trait StaticFoodSources extends FoodSources {
+  val fRadius: Float = 0.17f
+  val f1 = new StaticFoodSource(color = Color.RED, max = 8, reward = 1, fRadius)
+  val f2 = new StaticFoodSource(color = Color.RED, max = 8, reward = -1, fRadius)
 }
