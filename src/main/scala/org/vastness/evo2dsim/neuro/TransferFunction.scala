@@ -25,7 +25,7 @@ sealed trait TransferFunction {
   def apply(x: Double): Double
 }
 
-object TransferFunction extends Enum[TransferFunction]{
+object TransferFunction extends Enum[TransferFunction] {
   case object THANH extends TransferFunction {
     val name = "thanh"
     def apply(activity: Double) = FastMath.tanh(activity)

@@ -24,44 +24,39 @@ import org.vastness.evo2dsim.environment.mixins.foodPos._
 /**
  * Builder functions for Environment.
  */
-sealed trait Env {
+sealed trait EnvironmentBuilder {
   def name: String
   def apply(timeStep:Int, steps:Int): Environment
 }
 
-case object Env extends Enum[Env] {
-  case object Basic extends Env {
-    def name = "basic"
-    def apply(t: Int, s: Int)   = new BasicEnvironment(t,s) with SimpleFoodPos with StaticFoodSources
+object EnvironmentBuilder extends Enum[EnvironmentBuilder] {
+  case object Basic extends EnvironmentBuilder {
+    val name = "basic"
+    def apply(t: Int, s: Int) = new BasicEnvironment(t,s) with SimpleFoodPos with StaticFoodSources
   }
 
-  case object BasicSimpleRandom extends Env {
-    def name = "basicSimpleRandom"
+  case object BasicSimpleRandom extends EnvironmentBuilder {
+    val name = "basicSimpleRandom"
     def apply(t: Int, s:Int) = new BasicEnvironment(t, s) with SimpleRandomFoodPos with StaticFoodSources
   }
 
-  case object BasicRandom extends Env {
-    def name = "basicRandom"
+  case object BasicRandom extends EnvironmentBuilder {
+    val name = "basicRandom"
     def apply(t: Int, s:Int) = new BasicEnvironment(t, s) with RandomFoodPos with StaticFoodSources
   }
 
-  case object Dynamic extends Env {
-    def name = "dynamic"
+  case object Dynamic extends EnvironmentBuilder {
+    val name = "dynamic"
     def apply(t: Int, s: Int)   = new BasicEnvironment(t,s) with SimpleFoodPos with DynamicFoodSources
   }
 
-  case object DynamicSimpleRandom extends Env {
-    def name = "dynamicSimpleRandom"
+  case object DynamicSimpleRandom extends EnvironmentBuilder {
+    val name = "dynamicSimpleRandom"
     def apply(t: Int, s: Int)   = new BasicEnvironment(t,s) with SimpleRandomFoodPos with DynamicFoodSources
   }
 
-  case object DynamicRandom extends Env {
-    def name = "dynamicRandom"
+  case object DynamicRandom extends EnvironmentBuilder {
+    val name = "dynamicRandom"
     def apply(t: Int, s: Int)   = new BasicEnvironment(t,s) with RandomFoodPos with DynamicFoodSources
-  }
-
-  def resolve(name: String) = values.find(_.name == name) match {
-    case Some(e) => e
-    case None => throw new Exception("Could not find: " + name + " in " + values)
   }
 }

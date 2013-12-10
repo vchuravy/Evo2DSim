@@ -19,7 +19,7 @@ package org.vastness.evo2dsim
 
 
 import org.vastness.evo2dsim.evolution.SUSEvolution
-import org.vastness.evo2dsim.environment.Env
+import org.vastness.evo2dsim.environment.EnvironmentBuilder
 
 /**
  * @author Valentin Churavy
@@ -53,6 +53,7 @@ object App {
       for((r, e) <- envs) println("Running %s from %d until %d".format(e.name, r.start, r.end))
       val evo = new SUSEvolution(config.numberOfIndiviums, config.groupSize, config.stepsPerEvaluation, config.generation, config.evaluationPerGeneration, config.timeStep)
       evo.start(envs)
+
     } getOrElse {
       sys.exit(1)
       // arguments are bad, usage message will have been displayed
@@ -60,9 +61,14 @@ object App {
   }
 
   def parse(max: Int, envs: Seq[(Int, String)]) = _parse(max, envs.toList.sortBy(_._1).reverse)
-  private def _parse(next: Int, elems: List[(Int, String)]): List[(Range, Env)] = elems match {
-    case (gen, name) :: xs => (gen until next, Env.resolve(name) ) :: _parse(gen, xs)
+  private def _parse(next: Int, elems: List[(Int, String)]): List[(Range, EnvironmentBuilder)] = elems match {
+    case (gen, name) :: xs => (gen until next, resolve(name)) :: _parse(gen, xs)
     case Nil => List.empty
+  }
+
+  private def resolve(name: String) = EnvironmentBuilder.values.find(_.name == name) match {
+    case Some(e) => e
+    case None => throw new Exception("Could not find: " + name + " in " + EnvironmentBuilder.values)
   }
 
   case class Config(timeStep: Int = 50, generation: Int = 500, stepsPerEvaluation: Int = 6000, evaluationPerGeneration:Int = 5,  numberOfIndiviums:Int = 2000, groupSize: Int = 10, envConf: String = "0:basic")

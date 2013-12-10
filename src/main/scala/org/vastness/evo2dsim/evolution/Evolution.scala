@@ -25,7 +25,7 @@ import scala.concurrent.{Await, Future, future}
 import scala.concurrent.duration._
 import scala.concurrent.ExecutionContext.Implicits.global
 import org.vastness.evo2dsim.gui.EnvironmentManager
-import org.vastness.evo2dsim.environment.{Env, Environment}
+import org.vastness.evo2dsim.environment.{EnvironmentBuilder, Environment}
 import org.vastness.evo2dsim.teem.enki.sbot.SBotControllerLinear
 import scala.util.Random
 import java.util.Calendar
@@ -49,7 +49,7 @@ abstract class Evolution(poolSize: Int, groupSize: Int, evaluationSteps: Int, ge
 
   def nextGeneration(results: Seq[(Int, (Double, Genome))]): Map[Int, (Double, Genome)]
 
-  private def run(startGenomes: Map[Int, (Double, Genome)], envSetup: Seq[(Range,Env)]): Map[Int, (Double, Genome)] = {
+  private def run(startGenomes: Map[Int, (Double, Genome)], envSetup: Seq[(Range,EnvironmentBuilder)]): Map[Int, (Double, Genome)] = {
     val outputStats =  dir resolve "Stats.csv"
     outputStats.createFile()
     outputStats.append("Generation, Max, Min, Mean, Variance \n")
@@ -131,7 +131,7 @@ abstract class Evolution(poolSize: Int, groupSize: Int, evaluationSteps: Int, ge
   }
 
 
-  def groupEvaluations(genomes: List[(Int, (Double, Genome))])(env: Env): Seq[Future[Environment]] = {
+  def groupEvaluations(genomes: List[(Int, (Double, Genome))])(env: EnvironmentBuilder): Seq[Future[Environment]] = {
     val gs = genomes.sortBy(_._1).grouped(groupSize).toSeq
     ( for (g <- gs.par) yield {
       for (i <- 0 until evaluationPerGeneration) yield {
@@ -147,7 +147,7 @@ abstract class Evolution(poolSize: Int, groupSize: Int, evaluationSteps: Int, ge
     } ).flatten.seq
   }
 
-  def start(envs: Seq[(Range, Env)] = Seq((0 to generations, Env.BasicRandom))) {
+  def start(envs: Seq[(Range, EnvironmentBuilder)] = Seq((0 to generations, EnvironmentBuilder.BasicRandom))) {
     val time = System.nanoTime()
     val genomes = for(id <- (0 until poolSize).par) yield {
       val c = new SBotControllerLinear()
