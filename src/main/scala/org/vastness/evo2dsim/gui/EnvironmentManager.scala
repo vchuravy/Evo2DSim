@@ -22,6 +22,7 @@ import org.vastness.evo2dsim.simulator.Entity
 import scala.collection.mutable.ListBuffer
 
 object EnvironmentManager {
+  var showData = true
   private var environments = ListBuffer.empty[Environment]
 
   def visibleEntities = environments match {

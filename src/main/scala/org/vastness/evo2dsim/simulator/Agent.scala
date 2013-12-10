@@ -22,7 +22,7 @@ import org.jbox2d.dynamics.{BodyType, BodyDef}
 import org.jbox2d.collision.shapes.CircleShape
 import org.vastness.evo2dsim.gui.{Color, CircleSprite}
 
-class Agent(id: Int, pos: Vec2, val sim: Simulator, val radius: Float, mass: Float) extends Entity{
+abstract class Agent(id: Int, pos: Vec2, val sim: Simulator, val radius: Float, mass: Float) extends Entity{
   //Defines BodyDef
   val bodyDef = new BodyDef
   bodyDef.position.set(pos)
@@ -40,11 +40,13 @@ class Agent(id: Int, pos: Vec2, val sim: Simulator, val radius: Float, mass: Flo
 
   var controller:Option[Controller] = None
 
-  override def sprite = new CircleSprite(body.getPosition, color, radius)
+  override def sprite = new CircleSprite(radius)(body.getPosition, color, text)
   override def position = body.getPosition
 
   var fitness = 0.0
   var currentReward = 0.0
+
+  def text = "F:%.2f \n CR:%.2f".format(fitness, currentReward)
 
   def sensorStep() {
     controller match{

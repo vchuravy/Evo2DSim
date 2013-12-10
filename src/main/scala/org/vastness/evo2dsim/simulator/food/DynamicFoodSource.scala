@@ -25,7 +25,11 @@ import org.vastness.evo2dsim.gui.Color
  * @see FoodSource
  * @param constant reward bias
  */
-class DynamicFoodSource(color: Color, max: Int,  constant: Double, radius: Float) extends FoodSource(color, max, radius) {
+class DynamicFoodSource(color: Color,
+                        max: Int,
+                        constant: Double,
+                        radius: Float,
+                        activationRange: Float) extends FoodSource(color, max, radius, activationRange) {
 
   override def reward = feeders.size - constant
 }

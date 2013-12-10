@@ -26,6 +26,7 @@ class Surface extends Component {
     g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
     for(e: Entity <- EnvironmentManager.visibleEntities){
         e.sprite.draw(g2)
+        if(EnvironmentManager.showData) e.sprite.drawText(g2)
     }
   }
 

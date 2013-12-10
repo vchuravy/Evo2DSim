@@ -26,8 +26,6 @@ trait Entity {
   def sim: Simulator
 }
 
-class StaticEntity(s: Sprite, val sim: Simulator) extends Entity{
-  override def sprite = s
-  override def position = s.position
-
+class StaticEntity(val sprite: Sprite, val sim: Simulator) extends Entity{
+  override def position = sprite.position
 }

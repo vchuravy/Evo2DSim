@@ -29,16 +29,16 @@ import org.vastness.evo2dsim.simulator.food.FoodSource
 abstract class BasicEnvironment(timeStep:Int, steps:Int) extends Environment(timeStep, steps) {
 
   // Overwritten in mixins.foodSources
-  val fRadius: Float
-  val f1: FoodSource
-  val f2: FoodSource
+  def fRadius: Float
+  def aRange: Float = fRadius * 1.3f
+  def f1: FoodSource
+  def f2: FoodSource
 
   // Overwritten in mixins.foodPos
   protected def foodPos: IndexedSeq[Vec2]
 
   val origin = new Vec2(1.515f,1.515f)
   val halfSize = 1.5f
-  val aRange: Float = fRadius * 1.3f
 
   val sizes = Array[Vec2](new Vec2(-halfSize,-halfSize), new Vec2(-halfSize,halfSize), new Vec2(halfSize,halfSize), new Vec2(halfSize,-halfSize))
   val edges = for(i <- 0 until sizes.length) yield origin add sizes(i)
@@ -46,8 +46,8 @@ abstract class BasicEnvironment(timeStep:Int, steps:Int) extends Environment(tim
   def initializeStatic() {
     sim.createWorldBoundary(edges.toArray)
 
-    sim.addFoodSource(foodPos(0), activationRange = aRange, f1)
-    sim.addFoodSource(foodPos(1), activationRange = aRange, f2)
+    sim.addFoodSource(foodPos(0), f1)
+    sim.addFoodSource(foodPos(1), f2)
   }
 
   protected def normToOrigin(p: Vec2): Vec2 = {

@@ -57,21 +57,21 @@ class Simulator(seed: Long) {
   def addStaticBox(pos: Vec2, width: Float, height: Float) {
     val shape = new PolygonShape
     shape.setAsBox(width,height)
-    addEntityToManger(new StaticEntity(new BoxSprite(pos, Color.BLACK, width, height), this))
+    addEntityToManger(new StaticEntity(new BoxSprite(width, height)(pos, Color.BLACK, ""), this))
     addStaticWorldObject(pos, shape)
   }
 
   def addStaticCircle(pos: Vec2, radius: Float){
     val shape = new CircleShape
     shape.setRadius(radius)
-    addEntityToManger(new StaticEntity(new CircleSprite(pos, Color.BLACK, radius), this))
+    addEntityToManger(new StaticEntity(new CircleSprite(radius)(pos, Color.BLACK, ""), this))
     addStaticWorldObject(pos, shape)
   }
 
   def createWorldBoundary(edges: Array[Vec2]) {
     val shape = new ChainShape
     shape.createLoop(edges, edges.length)
-    addEntityToManger(new StaticEntity(new  WorldBoundarySprite(origin, Color.BLACK, edges), this))
+    addEntityToManger(new StaticEntity(new  WorldBoundarySprite(edges)(origin, Color.BLACK, ""), this))
     addStaticWorldObject(new Vec2(0,0), shape)
   }
 
@@ -116,7 +116,7 @@ class Simulator(seed: Long) {
     agent
   }
 
-  def addFoodSource(pos: Vec2, activationRange: Float, foodSource: FoodSource){
+  def addFoodSource(pos: Vec2, foodSource: FoodSource){
     val bodyDef = new BodyDef
     bodyDef.position.set(pos)
     bodyDef.`type` = BodyType.STATIC
@@ -125,20 +125,29 @@ class Simulator(seed: Long) {
     shape.setRadius(foodSource.radius)
 
     val sensorShape = new CircleShape
-    sensorShape.setRadius(activationRange)
+    sensorShape.setRadius(foodSource.activationRange)
 
     val body = world.createBody(bodyDef)
     val bodyFixtureDef = new FixtureDef
     bodyFixtureDef.density = 1.0f
     bodyFixtureDef.shape = shape
+    bodyFixtureDef.userData = "Hit Body"
 
-    val e1 = new StaticEntity(new CircleSprite(pos, foodSource.color, foodSource.radius), this)
+    def reward = foodSource.reward
+    def max = foodSource.max
+    def current = foodSource.feeders.size
+
+    def text = "R:%.2f \nM:%d \nC:%d".format(reward, max, current)
+
+    val e1 = new StaticEntity(new CircleSprite(foodSource.radius)(pos, foodSource.color, text), this)
     addEntityToManger(e1)
 
     foodSource.initialize(e1, this)
 
-    val e2 = new StaticEntity(new EmptyCircleSprite(pos, foodSource.color, activationRange), this)
+    println(foodSource.activationRange)
+    val e2 = new StaticEntity(new EmptyCircleSprite(foodSource.activationRange)(pos, foodSource.color, ""), this)
     addEntityToManger(e2)
+
 
     val sensorFixtureDef = new FixtureDef
     sensorFixtureDef.shape = sensorShape

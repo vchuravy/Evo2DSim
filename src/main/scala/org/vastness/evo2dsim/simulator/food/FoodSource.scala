@@ -19,7 +19,6 @@ package org.vastness.evo2dsim.simulator.food
 
 import org.vastness.evo2dsim.simulator.{Simulator, Entity, Agent}
 import org.vastness.evo2dsim.simulator.light.{LightCategory, LightSource}
-import scala.collection.mutable
 import org.vastness.evo2dsim.gui.Color
 
 /**
@@ -27,7 +26,9 @@ import org.vastness.evo2dsim.gui.Color
  * @param c on which color channel the light source is sending
  * @param max maximal numbers of individuals who can feed from this source
  */
-abstract class FoodSource(c: Color, var max: Int, var radius: Float) {
+abstract class FoodSource(c: Color, var max: Int, var radius: Float, var activationRange: Float) {
+  require(radius > 0)
+  require(radius <= activationRange)
   //require(c == Color.BLUE || c == Color.RED)
   protected var light: Option[LightSource] = None
 
@@ -43,7 +44,7 @@ abstract class FoodSource(c: Color, var max: Int, var radius: Float) {
     case None => Color.CYAN // Not initialized
   }
 
-  val feeders = mutable.HashSet[Agent]()
+  var feeders = Set.empty[Agent]
 
   def reward: Double
 

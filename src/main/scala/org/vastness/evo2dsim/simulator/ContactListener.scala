@@ -29,57 +29,43 @@ import org.vastness.evo2dsim.simulator.food.FoodSource
 class ContactListener extends callbacks.ContactListener {
   override def beginContact(contact: Contact) {
     contact.getFixtureA.getUserData match {
-      case food: FoodSource => {
-        if (food.feeders.size >= food.max + 1) {} else{
-          contact.getFixtureB.getBody.getUserData match {
-            case agent: Agent => {
-              food.feeders += agent
-            }
-            case _ => {}
-          }
+      case food: FoodSource if food.feeders.size < food.max =>
+        contact.getFixtureB.getBody.getUserData match {
+          case agent: Agent => food.feeders += agent
+          case _ =>
         }
-      }
-      case _ => {}
+      case _ =>
     }
     contact.getFixtureB.getUserData match {
-      case food: FoodSource => {
-        if (food.feeders.size >= food.max + 1) {} else{
-          contact.getFixtureA.getBody.getUserData match {
-            case agent: Agent => {
-              food.feeders += agent
-            }
-            case _ => {}
-          }
+      case food: FoodSource if food.feeders.size < food.max=>
+        contact.getFixtureA.getBody.getUserData match {
+          case agent: Agent =>  food.feeders += agent
+          case _ =>
         }
-      }
-      case _ => {}
+      case _ =>
     }
   }
 
   override def endContact(contact: Contact) {
     contact.getFixtureA.getUserData match {
-      case food: FoodSource => {
+      case food: FoodSource =>
         contact.getFixtureB.getBody.getUserData match {
-          case agent: Agent => {
+          case agent: Agent =>
             food.feeders -= agent
             agent.currentReward = 0
-          }
-          case _ => {}
+          case _ =>
         }
-      }
-      case _ => {}
+      case _ =>
     }
     contact.getFixtureB.getUserData match {
-      case food: FoodSource => {
+      case food: FoodSource =>
         contact.getFixtureA.getBody.getUserData match {
-          case agent: Agent => {
+          case agent: Agent =>
             food.feeders -= agent
             agent.currentReward = 0
-          }
-          case _ => {}
+          case _ =>
         }
-      }
-      case _ => {}
+      case _ =>
     }
   }
 

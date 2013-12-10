@@ -18,23 +18,39 @@
 package org.vastness.evo2dsim.gui
 
 import org.jbox2d.common.Vec2
-import java.awt.{BasicStroke, Graphics2D}
+import java.awt.{RenderingHints, BasicStroke, Graphics2D}
 import scala.annotation.tailrec
 
 /**
  * Implements all possible Sprites
  * Note: AWT is used to upper-left hand corner for coordinates
- * @param p returns the center position of the sprite
  */
-abstract class Sprite(p: => Vec2, color: => Color) {
+abstract class Sprite(p: => Vec2, color: => Color, text: => String) {
+
     val conversionFactor = 200 // From Meters to Pixel 0.1m in the physical World are 20 pixel
     def position = conversionToPixel(p)
-    def draw(g2: Graphics2D) {g2.setColor(color.underlying)}
+    def draw(g2: Graphics2D) {
+      g2.setColor(color.underlying)
+    }
+
     def conversionToPixel(f: Float) = conversionFactor*f
     def conversionToPixel(v: Vec2) = v.mul(conversionFactor)
+
+    def drawText(g2: Graphics2D) =  {
+      val textColor = color match {
+        case Color.BLACK => Color.RED
+        case _ => Color.BLACK
+      }
+      g2.setColor(textColor.underlying)
+      var verticalOffset = position.y
+      for(line <- text.split("\n")) {
+        g2.drawString(line, position.x, verticalOffset)
+        verticalOffset += g2.getFontMetrics.getHeight
+      }
+    }
 }
 
-class BoxSprite(p: => Vec2, color: => Color, width: Float, height: Float) extends Sprite(p,color) {
+class BoxSprite(width: Float, height: Float)(p: => Vec2, color: => Color, text: => String) extends Sprite(p,color,text) {
   val w = conversionToPixel(width).toInt
   val h = conversionToPixel(height).toInt
   override def draw(g2: Graphics2D){
@@ -43,7 +59,7 @@ class BoxSprite(p: => Vec2, color: => Color, width: Float, height: Float) extend
   }
 }
 
-class CircleSprite(p: => Vec2, color: => Color, radius: Float)  extends Sprite(p,color) {
+class CircleSprite(radius: Float)(p: => Vec2, color: => Color, text: => String)  extends Sprite(p,color,text) {
   val d = 2 * conversionToPixel(radius).toInt
   override def draw(g2: Graphics2D){
     super.draw(g2)
@@ -51,15 +67,15 @@ class CircleSprite(p: => Vec2, color: => Color, radius: Float)  extends Sprite(p
   }
 }
 
-class EmptyCircleSprite(p: => Vec2, color: => Color, radius: Float)  extends Sprite(p,color) {
+class EmptyCircleSprite(radius: Float)(p: => Vec2, color: => Color, text: => String) extends Sprite(p,color,text) {
   val d = 2 * conversionToPixel(radius).toInt
-  override def draw(g2: Graphics2D){
+  override def draw(g2: Graphics2D) {
     super.draw(g2)
     g2.drawOval(position.x.toInt - d/2, position.y.toInt - d/2, d, d)
   }
 }
 
-class WorldBoundarySprite(p: => Vec2,color: => Color, edges: Array[Vec2]) extends Sprite(p,color) {
+class WorldBoundarySprite(edges: Array[Vec2])(p: => Vec2, color: => Color, text: => String) extends Sprite(p,color,text) {
   def vectorsToPoints(v: Array[Vec2])  =  _vectorsToPoints(v.reverse, List[Int](), List[Int]())
 
   @tailrec
