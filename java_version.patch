@@ -1,0 +1,31 @@
+--- target/universal/stage/bin/evo2dsim	2013-12-10 16:05:45.999657805 +0900
++++ target/universal/stage/bin/evo2dsim_new	2013-12-10 16:04:57.671186919 +0900
+@@ -306,28 +306,6 @@
+ 
+ declare -r java_cmd=$(get_java_cmd)
+ 
+-# Now check to see if it's a good enough version
+-# TODO - Check to see if we have a configured default java version, otherwise use 1.6
+-declare -r java_version=$("$java_cmd" -version 2>&1 | awk -F '"' '/version/ {print $2}')
+-if [[ "$java_version" == "" ]]; then
+-  echo
+-  echo No java installations was detected.
+-  echo Please go to http://www.java.com/getjava/ and download
+-  echo
+-  exit 1
+-elif [[ ! "$java_version" > "1.6" ]]; then
+-  echo
+-  echo The java installation you have is not up to date
+-  echo $app_name requires at least version 1.6+, you have
+-  echo version $java_version
+-  echo
+-  echo Please go to http://www.java.com/getjava/ and download
+-  echo a valid Java Runtime and install before running $app_name.
+-  echo
+-  exit 1
+-fi
+-
+-
+ # if configuration files exist, prepend their contents to $@ so it can be processed by this runner
+ [[ -f "$script_conf_file" ]] && set -- $(loadConfigFile "$script_conf_file") "$@"
+ 
