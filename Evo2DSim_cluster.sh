@@ -5,8 +5,8 @@
 #$ -N Evo2DSimVCHURAVY
 #
 # Set all the variables SGE needs to run the job
-#$ -q longP
-#$ -pe openmp 8
+#$ -q long
+#$ -pe openmp 5
 #$ -M valentin-churavy@oist.jp
 #$ -m abe
 #$ -j yes
@@ -17,4 +17,4 @@ JAVA_OPTS="-server"
 CMD=target/universal/stage/bin/evo2dsim
 
 cd /work/DoyaU/v-churavy/Evo2DSim
-$CMD -mem 4096 -g 500
+$CMD -mem 4096 -g 500 -c "0:basic;50:basicSimpleRandom;200:basicRandom;400:dynamicSimpleRandom"
