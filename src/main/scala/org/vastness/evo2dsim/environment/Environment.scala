@@ -27,7 +27,7 @@ import org.jbox2d.common.Vec2
 /**
  * Implements the very basics for an environment
  */
-abstract class  Environment(val timeStep: Int, val steps: Int) {
+abstract class Environment(val timeStep: Int, val steps: Int) {
   def origin: Vec2
   def halfSize: Float
 
@@ -44,8 +44,9 @@ abstract class  Environment(val timeStep: Int, val steps: Int) {
   val p = promise[Environment]()
 
   var running = true
+  var pause = false
 
-  private def updateSimulation() {
+  def updateSimulation() {
     sim.step(timeStep/1000.0f)
     stepCounter += 1
     if(steps == stepCounter) {
@@ -57,7 +58,7 @@ abstract class  Environment(val timeStep: Int, val steps: Int) {
 
   def run(){
     while(running){
-      updateSimulation()
+      if(!pause) updateSimulation()
     }
   }
 

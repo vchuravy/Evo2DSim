@@ -22,6 +22,7 @@ import org.vastness.evo2dsim.simulator.Agent
 import org.vastness.evo2dsim.evolution.Genome
 import scala.collection.Map
 import org.vastness.evo2dsim.simulator.food.FoodSource
+import scala.annotation.tailrec
 
 /**
  * @see Environment
@@ -31,11 +32,10 @@ abstract class BasicEnvironment(timeStep:Int, steps:Int) extends Environment(tim
   // Overwritten in mixins.foodSources
   def fRadius: Float
   def aRange: Float = fRadius * 1.3f
-  def f1: FoodSource
-  def f2: FoodSource
+  protected def foodSources: Seq[FoodSource]
 
   // Overwritten in mixins.foodPos
-  protected def foodPos: IndexedSeq[Vec2]
+  protected def foodPos: Seq[Vec2]
 
   val origin = new Vec2(1.515f,1.515f)
   val halfSize = 1.5f
@@ -46,8 +46,18 @@ abstract class BasicEnvironment(timeStep:Int, steps:Int) extends Environment(tim
   def initializeStatic() {
     sim.createWorldBoundary(edges.toArray)
 
-    sim.addFoodSource(foodPos(0), f1)
-    sim.addFoodSource(foodPos(1), f2)
+    @tailrec
+    def addFood(food: Seq[FoodSource], pos: Seq[Vec2]) {
+      (food, pos) match {
+        case (f :: fs, p :: ps) =>
+          sim.addFoodSource(p,f)
+          addFood(fs, ps)
+        case (Nil, Nil) =>
+        case (fs, Nil) => throw new Exception(s"There are still some Food Source left: $fs")
+        case (Nil, ps) => println("Warning two many positions")
+      }
+    }
+    addFood(foodSources, foodPos)
   }
 
   protected def normToOrigin(p: Vec2): Vec2 = {
@@ -67,7 +77,7 @@ abstract class BasicEnvironment(timeStep:Int, steps:Int) extends Environment(tim
     }
 
     agents = ( for( (id,(_, genome)) <- genomes) yield
-      (id, addWithGenome(id, sim.addAgent(pos, sim.Agents.SBotControllerLinear), genome))
+      (id, addWithGenome(id, sim.addAgent(pos, sim.Agents.SBotControllerLinear, id), genome))
       ).toMap
   }
 }

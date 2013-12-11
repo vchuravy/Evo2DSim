@@ -39,7 +39,6 @@ class Simulator(seed: Long) {
 
   var entities = List[Entity]()
   var agentList = List[Agent]()
-  var agentCounter = 0
 
   private val foodSourceList = new ArrayBuffer[FoodSource]()
 
@@ -84,33 +83,32 @@ class Simulator(seed: Long) {
    * @param agentType  agent type
    * @return the created agent
    */
-  def addAgent(pos: Vec2, agentType: Agents.Value) : Agent = agentType match {
-      case Agents.SBot => addSBot(pos)
-      case Agents.SBotControllerLinear => addSBotWithLinearController(pos)
+  def addAgent(pos: Vec2, agentType: Agents.Value, id: Int) : Agent = agentType match {
+      case Agents.SBot => addSBot(pos, id)
+      case Agents.SBotControllerLinear => addSBotWithLinearController(pos, id)
       case Agents.SBotControllerLinearRandom =>
-        val a = addSBotWithLinearController(pos)
+        val a = addSBotWithLinearController(pos, id)
         a.controller.get.initializeRandom(random.nextDouble)
         a
       case Agents.SBotControllerLinearZero =>
-        val a = addSBotWithLinearController(pos)
+        val a = addSBotWithLinearController(pos, id)
         a.controller.get.initializeZeros()
         a
     }
 
-  private def addSBot(pos: Vec2): Agent = {
-    val a = new SBot(agentCounter, pos, this)
+  private def addSBot(pos: Vec2, id: Int): Agent = {
+    val a = new SBot(id, pos, this)
     addAgent(a)
   }
 
-  private def addSBotWithLinearController(pos: Vec2): Agent = {
-    val a = addSBot(pos)
+  private def addSBotWithLinearController(pos: Vec2, id: Int): Agent = {
+    val a = addSBot(pos, id)
     a.controller = Option(new SBotControllerLinear)
     a.controller.get.attachToAgent(a)
     a
   }
 
   private def addAgent(agent: Agent) : Agent = {
-    agentCounter += 1
     addEntityToManger(agent)
     agentList = agent :: agentList
     agent
@@ -144,7 +142,6 @@ class Simulator(seed: Long) {
 
     foodSource.initialize(e1, this)
 
-    println(foodSource.activationRange)
     val e2 = new StaticEntity(new EmptyCircleSprite(foodSource.activationRange)(pos, foodSource.color, ""), this)
     addEntityToManger(e2)
 

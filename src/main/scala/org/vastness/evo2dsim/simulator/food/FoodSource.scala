@@ -29,7 +29,8 @@ import org.vastness.evo2dsim.gui.Color
 abstract class FoodSource(c: Color, var max: Int, var radius: Float, var activationRange: Float) {
   require(radius > 0)
   require(radius <= activationRange)
-  //require(c == Color.BLUE || c == Color.RED)
+  require(c == Color.BLUE || c == Color.RED)
+
   protected var light: Option[LightSource] = None
 
   def initialize(e: Entity, sim: Simulator) {

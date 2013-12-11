@@ -34,4 +34,6 @@ class LightSource(c: Color, entity: Entity, val category: LightCategory, val rad
   def forced_disable = entity.sim.lightManager.disabledCategories.contains(category)
 
   def color = if(active) c else Color.BLACK
+
+  override def toString = f"$radius"
 }

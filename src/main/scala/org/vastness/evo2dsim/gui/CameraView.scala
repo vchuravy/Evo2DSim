@@ -18,14 +18,16 @@
 package org.vastness.evo2dsim.gui
 
 import org.vastness.evo2dsim.teem.enki.sbot.SBotLightSensor
-import javax.swing.JFrame
-import java.awt.Graphics
 import java.awt
+import scala.swing.{Dimension, Graphics2D, Component}
 
-class CameraView(lightSensor: SBotLightSensor) extends JFrame {
-  val s = 5
+class CameraView(lightSensor: SBotLightSensor) extends Component {
+  val s = 4
+  val x = s / (lightSensor.resolution / 360)
 
-  override def paint(g: Graphics) {
+  override def paintComponent(g: Graphics2D) {
+    super.paintComponent(g)
+    g.setBackground(awt.Color.WHITE)
     var j = 0
     for((color, array) <- lightSensor.getVisionStrip) {
       val c  = color.underlying
@@ -33,12 +35,13 @@ class CameraView(lightSensor: SBotLightSensor) extends JFrame {
       for(v <- array) {
         val (red, blue, green ) = (c.getRed * v, c.getBlue * v, c.getGreen * v)
         g.setColor(new awt.Color(red.toInt, blue.toInt, green.toInt))
-        g.drawRect(i * s, j * s, s, s)
-        i+=1
+        g.fillRect(i * x, j * s, s, s)
+        i += 1
       }
       j += 1
     }
-
   }
 
+  minimumSize = new Dimension(360 * s, lightSensor.getVisionStrip.size * s)
+  preferredSize = minimumSize
 }

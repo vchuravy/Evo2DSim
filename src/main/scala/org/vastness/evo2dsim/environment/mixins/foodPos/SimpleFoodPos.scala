@@ -19,9 +19,7 @@ package org.vastness.evo2dsim.environment.mixins.foodPos
 
 trait SimpleFoodPos extends FoodPos {
 
-  override def foodPos = {
-    val fP = edgeLocations
-    IndexedSeq(fP(0), fP(2))
-  }
-
+  override def foodPos = for(i <- Seq(0,2)) yield {
+      edgeLocations(i)
+    }
 }

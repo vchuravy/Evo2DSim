@@ -46,7 +46,7 @@ abstract class Agent(id: Int, pos: Vec2, val sim: Simulator, val radius: Float, 
   var fitness = 0.0
   var currentReward = 0.0
 
-  def text = "F:%.2f \n CR:%.2f".format(fitness, currentReward)
+  def text = "%d \n F:%.2f \n CR:%.2f".format(id, fitness, currentReward)
 
   def sensorStep() {
     controller match{

@@ -18,5 +18,5 @@
 package org.vastness.evo2dsim.environment.mixins.foodPos
 
 trait RandomFoodPos extends FoodPos {
-  override def foodPos = sim.random.shuffle(edgeLocations)
+  override def foodPos = sim.random.shuffle(edgeLocations).take(2)
 }

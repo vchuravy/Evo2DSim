@@ -24,6 +24,8 @@ import org.apache.commons.math3.util.FastMath
 
 
 class SBotLightSensor(segments: Int, bias: Double) {
+  val resolution = 4*360
+  val fov = 360
   private var agent: Option[SBot] = None
   private val redNeurons = new Array[Neuron](segments)
   private val blueNeurons = new Array[Neuron](segments)
@@ -31,44 +33,44 @@ class SBotLightSensor(segments: Int, bias: Double) {
   createNeurons()
 
 
-  private var visionStrip = Map[Color, Array[Float]]((Color.RED,new Array[Float](360)), (Color.BLUE, new Array[Float](360))) // two colors
+  private var visionStrip = Map.empty[Color, Array[Float]]
   def getVisionStrip = visionStrip
+  def clear() {
+    visionStrip = Map(Color.RED -> new Array[Float](resolution), Color.BLUE -> new Array[Float](resolution))
+  } // clean the last image
+
   /**
    * Fills visionStrip, if light from a source falls onto the area.
    * A point light source (in the center of the object that emits the light) shines light on the surface of an object
    * based upon the distance and relative position to the target.
+   * The code is take from enki
    */
   def calcVision(sBot: SBot) {
-    visionStrip = Map[Color, Array[Float]]((Color.RED,new Array[Float](360)), (Color.BLUE, new Array[Float](360))) // clean the last image
-
-    def clamp(x: Float, max: Float) =
-      if(x > max) max else x
-
-    val radius = sBot.radius
+    clear()
     for(light: LightSource <- sBot.sim.lightManager.lightSources){
       if (light.active && sBot.light != light && light.radius > 0){
         val lightPosition = sBot.body.getLocalPoint(light.position)
-        val distance = lightPosition.length()
+        val distance = lightPosition.normalize() - light.radius
 
-        lightPosition.normalize()
-
-        val aperture = FastMath.atan(light.radius / distance).toFloat
+        val aperture = FastMath.atan(light.radius / distance)
         val bearingRad = FastMath.atan2(lightPosition.x, lightPosition.y) // clockwise angle
-        val bearingDeg = (FastMath.toDegrees(bearingRad)+360) % 360
+        val beginAngle = FastMath.toDegrees(bearingRad - aperture)
+        val endAngle = FastMath.toDegrees(bearingRad + aperture)
 
-        val start: Int = ((bearingDeg-aperture) + 360).round.toInt % 360
+        val start: Int = FastMath.floor((resolution - 1) * 0.5 * (beginAngle / fov + 1)).toInt
+        val end: Int = FastMath.ceil((resolution - 1) * 0.5 * (endAngle / fov + 1)).toInt
+        if(light.color == Color.RED) println(f"B:$bearingRad S:$start E:$end SA:$beginAngle EA:$endAngle A:$aperture L:$light")
 
-        for(i:Int <-  start to (start + 2*aperture).round){
-          visionStrip(light.color)(i % 360) = 1 //TODO: fog, noise, objects standing in sight?
+		  	for(i <- start to end){
+            visionStrip(light.color)(i % resolution) = 1 //TODO: fog, noise, objects standing in sight?
         }
-
       }
     }
   }
 
   private def createNeurons(){
-    assert(360%segments == 0)
-    val pixels = 360/segments
+    assert(resolution%segments == 0)
+    val pixels = resolution/segments
     for( i <- 0 until segments){
       blueNeurons(i) = new SensorNeuron(bias, TransferFunction.THANH, () => visionStrip(Color.BLUE).view(pixels*i,pixels*(i+1)).sum/pixels)
       redNeurons(i) = new SensorNeuron(bias, TransferFunction.THANH, () => visionStrip(Color.RED).view(pixels*i,pixels*(i+1)).sum/pixels)

@@ -27,6 +27,7 @@ import org.vastness.evo2dsim.environment.mixins.foodPos._
 sealed trait EnvironmentBuilder {
   def name: String
   def apply(timeStep:Int, steps:Int): Environment
+  override def toString = name
 }
 
 object EnvironmentBuilder extends Enum[EnvironmentBuilder] {

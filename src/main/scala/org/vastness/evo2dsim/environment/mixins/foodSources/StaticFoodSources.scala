@@ -22,6 +22,7 @@ import org.vastness.evo2dsim.simulator.food.StaticFoodSource
 
 trait StaticFoodSources extends FoodSources {
   override val fRadius: Float = 0.17f
-  val f1 = new StaticFoodSource(color = Color.RED, max = 8, reward = 1, fRadius, aRange)
-  val f2 = new StaticFoodSource(color = Color.RED, max = 8, reward = -1, fRadius, aRange)
+  def foodSources = Seq(
+    new StaticFoodSource(color = Color.RED, max = 8, reward = 1, fRadius, aRange),
+    new StaticFoodSource(color = Color.RED, max = 8, reward = -1, fRadius, aRange))
 }

@@ -32,9 +32,6 @@ class Surface extends Component {
 
   override def paintComponent(g: Graphics2D) {
     super.paintComponent(g)
-    g match {
-      case g2: Graphics2D => draw(g2)
-      case _ => throw new ClassCastException
-    }
+    draw(g)
   }
 }
