@@ -32,7 +32,7 @@ class SBotLightSensor(segments: Int, bias: Double) {
 
 
   private var visionStrip = Map[Color, Array[Float]]((Color.RED,new Array[Float](360)), (Color.BLUE, new Array[Float](360))) // two colors
-
+  def getVisionStrip = visionStrip
   /**
    * Fills visionStrip, if light from a source falls onto the area.
    * A point light source (in the center of the object that emits the light) shines light on the surface of an object
