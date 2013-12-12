@@ -21,6 +21,7 @@ import org.vastness.evo2dsim.neuro.{TransferFunction, SensorNeuron, Neuron}
 import org.vastness.evo2dsim.simulator.light.LightSource
 import org.vastness.evo2dsim.gui.Color
 import org.apache.commons.math3.util.FastMath
+import breeze.linalg.DenseVector
 
 
 class SBotLightSensor(segments: Int, bias: Double) {
@@ -37,13 +38,13 @@ class SBotLightSensor(segments: Int, bias: Double) {
   createNeurons()
 
 
-  private var visionStrip = Map.empty[Color, Array[Float]]
+  private var visionStrip = Map.empty[Color, DenseVector[Float]]
 
   clear()
   def getVisionStrip = visionStrip
 
   def clear() {
-    visionStrip = Map(Color.RED -> new Array[Float](resolution), Color.BLUE -> new Array[Float](resolution))
+    visionStrip = Map(Color.RED -> DenseVector.zeros[Float](resolution), Color.BLUE -> DenseVector.zeros[Float](resolution))
   }
 
   /**
@@ -74,8 +75,9 @@ class SBotLightSensor(segments: Int, bias: Double) {
         val start: Int = FastMath.floor((resolution - 1) * 0.5 * (beginAngle / fov + 1)).toInt
         val end: Int = FastMath.ceil((resolution - 1) * 0.5 * (endAngle / fov + 1)).toInt
 
+
 		  	for(i <- start to end){
-          visionStrip(light.color)(i % resolution) = 1 //TODO: fog, noise, objects standing in sight?
+          visionStrip(light.color)(start to end) := 1.0f //TODO: fog, noise, objects standing in sight?
         }
       }
     }
@@ -89,7 +91,7 @@ class SBotLightSensor(segments: Int, bias: Double) {
   }
 
   @inline
-  def getAverage(c: Color, index: Int)(): Double = visionStrip(c).view(pixels*index, pixels*(index+1)).sum / pixels
+  def getAverage(c: Color, index: Int)(): Double = visionStrip(c)(pixels*index until pixels*(index+1)).sum / pixels
 
   def getNeurons = (blueNeurons ++ redNeurons).toList
 

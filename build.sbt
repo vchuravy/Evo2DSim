@@ -16,7 +16,8 @@ libraryDependencies ++= Seq(
   "com.github.scala-incubator.io" %% "scala-io-file" % "0.4.2",
   "io.spray" %% "spray-json" % "1.2.5",
   "org.scalaz" %% "scalaz-core" % "7.1.0-M3",
-  "org.vastness" %% "utils" % "0.1"
+  "org.vastness" %% "utils" % "0.1",
+  "org.scalanlp" %% "breeze" % "0.5.2"
 )
 
 packageArchetype.java_application
