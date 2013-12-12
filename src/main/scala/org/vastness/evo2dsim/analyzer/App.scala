@@ -32,6 +32,8 @@ object App extends SwingApplication {
 
   private def render() {
     top.worldView.repaint()
+    top.e map (_.updateSimulation())
+    top.renderComponents.foreach(_.repaint())
   }
 
   def loop() {

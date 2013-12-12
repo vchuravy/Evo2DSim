@@ -18,48 +18,25 @@
 package org.vastness.evo2dsim.analyzer.gui
 
 import scala.swing._
+import org.vastness.evo2dsim.gui.RenderManager
 
-class TableDialog(owner: Window, val table: Table) extends Dialog(owner) {
-  private var result = Dialog.Result.Closed
-
+class ComponentDialog(owner: Window, component: Component, manager: RenderManager) extends Dialog(owner) {
   setLocationRelativeTo(owner)
 
   val ok = new Button(Action("Ok") {
-    result = Dialog.Result.Ok
-    peer.setVisible(false)
-  })
-  val cancel = new Button(Action("Cancel") {
-    result = Dialog.Result.Cancel
-    peer.setVisible(false)
+    this.visible = false
+    manager.renderComponents -= component
   })
 
-  def tablePane: Component = new ScrollPane() {
-    contents = table
-  }
-
-  val bP = new BorderPanel {
+  contents = new BorderPanel {
     import BorderPanel._
-
-    val buttonPanel = new BoxPanel(Orientation.Horizontal) {
-      contents += ok
-      contents += cancel
-    }
-
-    add(tablePane, Position.North)
-    add(buttonPanel, Position.South)
+    add(component, Position.Center)
+    add(ok, Position.South)
   }
 
-  contents = bP
-
-  def showTableDialog() = {
-    this.modal = true
+  def showDialog() = {
     this.pack()
+    manager.renderComponents += component
     this.visible = true
-  }
-
-  def selectedValue: Int = {
-    val selected = table.selection.rows
-    // if (selected.tail.nonEmpty) println("Warning: Discarded values from selection")
-    selected.headOption.getOrElse(0)
   }
 }

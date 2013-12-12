@@ -25,16 +25,18 @@ import scalax.file.Path
 import scalax.io.Input
 import java.io.File
 import org.vastness.evo2dsim.evolution.Genome
-import org.vastness.evo2dsim.environment.BasicEnvironment
+import org.vastness.evo2dsim.environment.{Environment, EnvironmentBuilder}
 import scala.concurrent._
 import ExecutionContext.Implicits.global
-import scala.swing.event.{TableRowsSelected, Key, KeyPressed}
+import scala.swing.event.{Key, KeyPressed}
 import org.vastness.evo2dsim.simulator.light.{LightCategory, LightManager}
+import org.vastness.evo2dsim.teem.enki.sbot.{SBotLightSensor, SBotController, SBot}
 
 
-class MainWindow extends MainFrame {
+class MainWindow extends MainFrame with RenderManager {
   val worldView: Surface = new Surface
-  var e: Option[BasicEnvironment] = None
+  var e: Option[Environment] = None
+  var renderComponents = Set.empty[Component]
 
   var timeStep: Int = 50
   var dataDir: Option[File] = None
@@ -43,6 +45,8 @@ class MainWindow extends MainFrame {
   var generation: Map[Int, (Double, Genome)] = Map.empty
 
   def lm: Option[LightManager] = e.map(_.sim.lightManager)
+
+  var envBuilder: EnvironmentBuilder = EnvironmentBuilder.Basic
 
   title = "Evo2DSim Analyzer"
 
@@ -58,7 +62,7 @@ class MainWindow extends MainFrame {
 
       dataDir = fc.showOpenDialog(this) match {
         case FileChooser.Result.Approve if fc.selectedFile.exists() => Some(fc.selectedFile)
-        case _ => None
+        case _ => dataDir
       }
     })
     contents += new MenuItem( Action("Select evaluation run") {
@@ -76,6 +80,12 @@ class MainWindow extends MainFrame {
     contents += new MenuItem( Action("Init") {
       initEnvironment()
     })
+    contents += new MenuItem( Action("Env") {
+      selectEnvironment()
+    })
+    contents += new MenuItem( Action("Agent View") {
+      showAgentView()
+    })
   }
   contents = new BorderPanel {
     import BorderPanel._
@@ -84,6 +94,8 @@ class MainWindow extends MainFrame {
     listenTo(keys)
     reactions += {
       case KeyPressed(_, Key.R, _, _)                     => initEnvironment()
+      case KeyPressed(_, Key.T, _, _)                     => toggleText()
+      case KeyPressed(_, Key.P, _, _)                     => pause()
       case KeyPressed(_, Key.A, Key.Modifier.Control, _)  => lm.map(_.disableCategory(LightCategory.AgentLight))
       case KeyPressed(_, Key.A, Key.Modifier.Shift, _)    => lm.map(_.enableCategory(LightCategory.AgentLight))
       case KeyPressed(_, Key.A, _, _)                     => lm.map(_.toggleCategory(LightCategory.AgentLight))
@@ -98,6 +110,34 @@ class MainWindow extends MainFrame {
 
   size = new Dimension(300, 200)
 
+  def selectEnvironment() {
+    envBuilder = Dialog.showInput[EnvironmentBuilder](message = "Please select an Environment", entries = EnvironmentBuilder.values.toSeq, initial = envBuilder) match {
+      case Some(eBuilder) => eBuilder
+      case None => envBuilder
+    }
+  }
+
+  def showAgentView() {
+    val agent = Dialog.showInput[Int](message = "Please choose Agent",
+      entries = e map { _.agents.map(_._1).toSeq } getOrElse Seq.empty[Int] , initial = 0) match {
+      case Some(a) => e map { _.agents(a)}
+      case None => None
+    }
+    agent flatMap (_.controller map { case sC: SBotController => sC.lightSensor }) map { //TODO: Simplify
+      cam => {
+        val cv = new CameraView(cam)
+        val dialog = new ComponentDialog(this, cv, this)
+        dialog.showDialog()
+      }
+
+    }
+  }
+
+  def pause() = e map {e => e.pause = if (e.pause) false else true}
+
+  def toggleText() {
+    EnvironmentManager.showData = if (EnvironmentManager.showData) false else true
+  }
 
   def loadGeneration(dir: Path, generation: Int): Map[Int, (Double, Genome)] = {
     val genFile = dir resolve "Gen_%04d.json".format(generation)
@@ -168,14 +208,12 @@ class MainWindow extends MainFrame {
       case None => Set.empty[LightCategory]
     }
 
-    val e = new BasicEnvironment(timeStep, 0)
+    val e = envBuilder(timeStep, 0)
     e.initializeStatic()
-    e.initializeAgents(generation.grouped(10).toIndexedSeq(group))
+    val g = generation.grouped(10).toIndexedSeq(group)
+    e.initializeAgents(g)
     EnvironmentManager.addEnvironment(e)
     e.sim.lightManager.disabledCategories = disabledLightSourceCategories
-    future {
-      e.run()
-    }
     this.e = Some(e)
   }
 
