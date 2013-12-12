@@ -31,10 +31,14 @@ class SBotLightSensor(segments: Int, bias: Double) {
   private val redNeurons = new Array[Neuron](segments)
   private val blueNeurons = new Array[Neuron](segments)
 
+  assert(resolution%segments == 0)
+  val pixels = resolution/segments
+
   createNeurons()
 
 
   private var visionStrip = Map.empty[Color, Array[Float]]
+
   clear()
   def getVisionStrip = visionStrip
 
@@ -77,14 +81,15 @@ class SBotLightSensor(segments: Int, bias: Double) {
     }
   }
 
-  private def createNeurons(){
-    assert(resolution%segments == 0)
-    val pixels = resolution/segments
+  private def createNeurons() {
     for( i <- 0 until segments){
-      blueNeurons(i) = new SensorNeuron(bias, TransferFunction.THANH, () => visionStrip(Color.BLUE).view(pixels*i, pixels*(i+1)).sum / pixels)
-      redNeurons(i) = new SensorNeuron(bias, TransferFunction.THANH, () => visionStrip(Color.RED).view(pixels*i, pixels*(i+1)).sum / pixels)
+      blueNeurons(i) = new SensorNeuron(bias, TransferFunction.THANH, getAverage(Color.BLUE, i) )
+      redNeurons(i) = new SensorNeuron(bias, TransferFunction.THANH, getAverage(Color.RED, i))
     }
   }
+
+  @inline
+  def getAverage(c: Color, index: Int)(): Double = visionStrip(c).view(pixels*index, pixels*(index+1)).sum / pixels
 
   def getNeurons = (blueNeurons ++ redNeurons).toList
 
