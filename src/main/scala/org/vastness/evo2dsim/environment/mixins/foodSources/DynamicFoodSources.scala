@@ -39,7 +39,7 @@ import org.vastness.evo2dsim.simulator.food.{StaticFoodSource, DynamicFoodSource
 
 trait DynamicFoodSources extends FoodSources {
    val fRadius: Float = 0.17f
-   def foodSources = Seq(
+   def foodSources = List(
      new DynamicFoodSource(color = Color.RED, max = 8, constant = -2, fRadius, aRange),
      new StaticFoodSource(color = Color.RED, max = 8, reward = -1, fRadius, aRange))
  }

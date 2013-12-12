@@ -32,10 +32,10 @@ abstract class BasicEnvironment(timeStep:Int, steps:Int) extends Environment(tim
   // Overwritten in mixins.foodSources
   def fRadius: Float
   def aRange: Float = fRadius * 1.3f
-  protected def foodSources: Seq[FoodSource]
+  protected def foodSources: List[FoodSource]
 
   // Overwritten in mixins.foodPos
-  protected def foodPos: Seq[Vec2]
+  protected def foodPos: List[Vec2]
 
   val origin = new Vec2(1.515f,1.515f)
   val halfSize = 1.5f
@@ -47,7 +47,7 @@ abstract class BasicEnvironment(timeStep:Int, steps:Int) extends Environment(tim
     sim.createWorldBoundary(edges.toArray)
 
     @tailrec
-    def addFood(food: Seq[FoodSource], pos: Seq[Vec2]) {
+    def addFood(food: List[FoodSource], pos: List[Vec2]) {
       (food, pos) match {
         case (f :: fs, p :: ps) =>
           sim.addFoodSource(p,f)
