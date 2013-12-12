@@ -23,7 +23,9 @@ import scala.swing.{Dimension, Graphics2D, Component}
 
 class CameraView(lightSensor: SBotLightSensor) extends Component {
   val s = 4
-  val x = s / (lightSensor.resolution / 360)
+  val y = 2 * s
+  val x = s / (lightSensor.resolution / lightSensor.fov)
+  lightSensor.debug = true
 
   override def paintComponent(g: Graphics2D) {
     super.paintComponent(g)
@@ -35,13 +37,13 @@ class CameraView(lightSensor: SBotLightSensor) extends Component {
       for(v <- array) {
         val (red, blue, green ) = (c.getRed * v, c.getBlue * v, c.getGreen * v)
         g.setColor(new awt.Color(red.toInt, blue.toInt, green.toInt))
-        g.fillRect(i * x, j * s, s, s)
+        g.fillRect(i * x, j * y, x, y)
         i += 1
       }
       j += 1
     }
   }
 
-  minimumSize = new Dimension(360 * s, lightSensor.getVisionStrip.size * s)
+  minimumSize = new Dimension(360 * s, lightSensor.getVisionStrip.size * y)
   preferredSize = minimumSize
 }

@@ -35,5 +35,5 @@ class LightSource(c: Color, entity: Entity, val category: LightCategory, val rad
 
   def color = if(active) c else Color.BLACK
 
-  override def toString = f"$radius"
+  override def toString = f"Radius: $radius C: $color, E: $entity, Ca: $category, P: $position"
 }

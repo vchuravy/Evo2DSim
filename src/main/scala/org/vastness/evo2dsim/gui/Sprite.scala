@@ -28,7 +28,8 @@ import scala.annotation.tailrec
 abstract class Sprite(p: => Vec2, color: => Color, text: => String) {
 
     val conversionFactor = 200 // From Meters to Pixel 0.1m in the physical World are 20 pixel
-    def position = conversionToPixel(p)
+    def real_position = p
+    def position = conversionToPixel(real_position)
     def draw(g2: Graphics2D) {
       g2.setColor(color.underlying)
     }

@@ -15,17 +15,10 @@
  * along with Evo2DSim.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.vastness.evo2dsim.simulator
+package org.vastness.evo2dsim.gui
 
-import org.vastness.evo2dsim.gui.Sprite
-import org.jbox2d.common.Vec2
+import scala.swing.Component
 
-trait Entity {
-  def sprite: Sprite
-  def position: Vec2
-  def sim: Simulator
-}
-
-class StaticEntity(val sprite: Sprite, val sim: Simulator) extends Entity{
-  override def position = sprite.real_position
+trait RenderManager {
+  var renderComponents: Set[Component]
 }
