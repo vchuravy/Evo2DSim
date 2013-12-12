@@ -49,23 +49,14 @@ abstract class Agent(id: Int, pos: Vec2, val sim: Simulator, val radius: Float, 
   def text = "%d \n F:%.2f \n CR:%.2f".format(id, fitness, currentReward)
 
   def sensorStep() {
-    controller match{
-      case None => {}
-      case Some(c) => c.sensorStep()
-    }
+    controller map { c => c.sensorStep() }
   }
 
   def controllerStep() {
-    controller match{
-      case None => {}
-      case Some(c) => c.controllerStep()
-    }
+    controller map { c => c.controllerStep() }
   }
   def motorStep() {
-    controller match{
-      case None => {}
-      case Some(c) => c.motorStep()
-    }
+    controller map { c => c.motorStep() }
   }
 
   def color: Color = Color.BLACK

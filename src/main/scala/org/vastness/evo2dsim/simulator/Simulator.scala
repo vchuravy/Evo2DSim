@@ -129,7 +129,6 @@ class Simulator(seed: Long) {
     val bodyFixtureDef = new FixtureDef
     bodyFixtureDef.density = 1.0f
     bodyFixtureDef.shape = shape
-    bodyFixtureDef.userData = "Hit Body"
 
     def reward = foodSource.reward
     def max = foodSource.max
@@ -160,13 +159,13 @@ class Simulator(seed: Long) {
   }
 
   def step(timeStep: Float) {
-    agentList.par.foreach(_.sensorStep())
-    agentList.par.foreach(_.controllerStep())
-    agentList.par.foreach(_.motorStep())
+    agentList map { a => a.sensorStep() }
+    agentList map { a => a.controllerStep() }
+    agentList map { a => a.motorStep() }
 
     world.step(timeStep, velocityIteration, positionIteration)
 
-    foodSourceList.par.foreach(_.step())
+    foodSourceList map { f => f.step() }
   }
 
   object Agents extends Enumeration {

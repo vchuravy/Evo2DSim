@@ -21,7 +21,7 @@ import org.vastness.evo2dsim.neuro.{TransferFunction, SensorNeuron, Neuron}
 import org.vastness.evo2dsim.simulator.light.LightSource
 import org.vastness.evo2dsim.gui.Color
 import org.apache.commons.math3.util.FastMath
-import breeze.linalg.{sum, DenseVector}
+import breeze.linalg.{sum, DenseVector, SliceVector}
 
 
 class SBotLightSensor(segments: Int, bias: Double) {
@@ -49,6 +49,7 @@ class SBotLightSensor(segments: Int, bias: Double) {
   private val red = DenseVector.zeros[Double](resolution)
   private val blue = DenseVector.zeros[Double](resolution)
 
+  @inline
   def clear() {
     red := 0.0
     blue := 0.0
@@ -89,13 +90,16 @@ class SBotLightSensor(segments: Int, bias: Double) {
 
   private def createNeurons() {
     for( i <- 0 until segments){
-      blueNeurons(i) = new SensorNeuron(bias, TransferFunction.THANH, getAverage(Color.BLUE, i) )
-      redNeurons(i) = new SensorNeuron(bias, TransferFunction.THANH, getAverage(Color.RED, i))
+      blueNeurons(i) = new SensorNeuron(bias, TransferFunction.THANH, getAverageFunc(Color.BLUE, i) )
+      redNeurons(i) = new SensorNeuron(bias, TransferFunction.THANH, getAverageFunc(Color.RED, i))
     }
   }
 
   @inline
-  def getAverage(c: Color, index: Int)(): Double = sum(visionStrip(c)(pixels*index until pixels*(index+1))) / pixels
+  def getAverageFunc(c: Color, index: Int): () => Double = {
+    val view = new SliceVector(visionStrip(c), pixels * index until pixels * (index + 1))
+    () => sum(view) / pixels
+  }
 
   def getNeurons = (blueNeurons ++ redNeurons).toList
 
@@ -103,10 +107,6 @@ class SBotLightSensor(segments: Int, bias: Double) {
     this.agent = Some(sBot)
   }
   def step() {
-    agent match {
-      case Some(sBot) => calcVision(sBot)
-      case None => {}
-    }
+    agent map calcVision
   }
-
 }

@@ -61,8 +61,8 @@ class NeuronalNetwork {
   def removeNeuron(id: Int) {
     neurons(id) match {
       case n: Neuron => {
-        n.inputSynapses.par.foreach((s: Synapse) => s.input.removeOutput(s))
-        n.outputSynapses.par.foreach((s: Synapse) => s.output.removeInput(s))
+        n.inputSynapses.foreach((s: Synapse) => s.input.removeOutput(s))
+        n.outputSynapses.foreach((s: Synapse) => s.output.removeInput(s))
         synapses --= n.inputSynapses ++ n.outputSynapses
       }
     }
@@ -80,8 +80,8 @@ class NeuronalNetwork {
   }
 
   def step() { //Order matters
-    neurons.par.foreach {case (_, n) => n.step()}
-    synapses.par.foreach {_.step()}
+    neurons.foreach {case (_, n) => n.step()}
+    synapses.foreach {_.step()}
   }
 
   /**
