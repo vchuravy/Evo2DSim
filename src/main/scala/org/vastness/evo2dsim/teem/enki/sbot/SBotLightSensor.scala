@@ -37,14 +37,20 @@ class SBotLightSensor(segments: Int, bias: Double) {
 
   createNeurons()
 
+  @inline
+  def visionStrip(c : Color) = c match {
+    case Color.RED => red
+    case Color.BLUE => blue
+  }
 
-  private var visionStrip = Map.empty[Color, DenseVector[Float]]
+  def getVisionStrip = Map(Color.RED -> red, Color.BLUE -> blue)
 
-  clear()
-  def getVisionStrip = visionStrip
+  private val red = DenseVector.zeros[Float](resolution)
+  private val blue = DenseVector.zeros[Float](resolution)
 
   def clear() {
-    visionStrip = Map(Color.RED -> DenseVector.zeros[Float](resolution), Color.BLUE -> DenseVector.zeros[Float](resolution))
+    red := 0.0f
+    blue := 0.0f
   }
 
   /**
@@ -75,10 +81,7 @@ class SBotLightSensor(segments: Int, bias: Double) {
         val start: Int = FastMath.floor((resolution - 1) * 0.5 * (beginAngle / fov + 1)).toInt
         val end: Int = FastMath.ceil((resolution - 1) * 0.5 * (endAngle / fov + 1)).toInt
 
-
-		  	for(i <- start to end){
-          visionStrip(light.color)(start to end) := 1.0f //TODO: fog, noise, objects standing in sight?
-        }
+        visionStrip(light.color)(start to end) := 1.0f //TODO: fog, noise, objects standing in sight?
       }
     }
   }
