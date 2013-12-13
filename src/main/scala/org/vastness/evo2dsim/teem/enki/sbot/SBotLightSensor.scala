@@ -21,7 +21,7 @@ import org.vastness.evo2dsim.neuro.{TransferFunction, SensorNeuron, Neuron}
 import org.vastness.evo2dsim.simulator.light.LightSource
 import org.vastness.evo2dsim.gui.Color
 import org.apache.commons.math3.util.FastMath
-import breeze.linalg.{sum, DenseVector, SliceVector}
+import breeze.linalg.{sum, DenseMatrix, SliceMatrix}
 
 
 class SBotLightSensor(segments: Int, bias: Double) {
@@ -38,21 +38,28 @@ class SBotLightSensor(segments: Int, bias: Double) {
   createNeurons()
 
   @inline
-  def visionStrip(c : Color) = c match {
-    case Color.RED => red
-    case Color.BLUE => blue
-    case _ => throw new NotImplementedError("No vision strip for this color implemented.")
+  def visionStrip: PartialFunction[Color, DenseMatrix[Double]] = {
+    case c: Color if c2Idx.isDefinedAt(c) => visionStorage(c2Idx(c), ::)
   }
 
-  def getVisionStrip = Map(Color.RED -> red, Color.BLUE -> blue)
+  @inline
+  def c2Idx: PartialFunction[Color, Int] = {
+    case Color.RED => 0
+    case Color.BLUE => 1
+  }
 
-  private val red = DenseVector.zeros[Double](resolution)
-  private val blue = DenseVector.zeros[Double](resolution)
+  def getVisionStrip: Map[Color, DenseMatrix[Double]] = ( Seq(Color.RED, Color.BLUE) collect
+    {case c: Color if visionStrip.isDefinedAt(c) => c -> visionStrip(c)} ).toMap
+
+  private val visionStorage = DenseMatrix.zeros[Double](2,resolution)
+  // private val red = DenseVector.zeros[Double](resolution)
+  // private val blue = DenseVector.zeros[Double](resolution)
 
   @inline
   def clear() {
-    red := 0.0
-    blue := 0.0
+    visionStorage := 0.0
+    // red := 0.0
+    // blue := 0.0
   }
 
   /**
@@ -83,7 +90,7 @@ class SBotLightSensor(segments: Int, bias: Double) {
         val start: Int = FastMath.floor((resolution - 1) * 0.5 * (beginAngle / fov + 1)).toInt
         val end: Int = FastMath.ceil((resolution - 1) * 0.5 * (endAngle / fov + 1)).toInt
 
-        visionStrip(light.color)(start to end) := 1.0 //TODO: fog, noise, objects standing in sight?
+        visionStorage(c2Idx(light.color), start to end) := 1.0 //TODO: fog, noise, objects standing in sight?
       }
     }
   }
@@ -97,7 +104,7 @@ class SBotLightSensor(segments: Int, bias: Double) {
 
   @inline
   def getAverageFunc(c: Color, index: Int): () => Double = {
-    val view = new SliceVector(visionStrip(c), pixels * index until pixels * (index + 1))
+    val view = new SliceMatrix(visionStorage, IndexedSeq(c2Idx(c)), pixels * index until pixels * (index + 1))
     () => sum(view) / pixels
   }
 

@@ -34,7 +34,7 @@ class CameraView(lightSensor: SBotLightSensor) extends Component {
     for((color, array) <- lightSensor.getVisionStrip) {
       val c  = color.underlying
       var i = 0
-      for(v <- array) {
+      for(v <- array.valuesIterator) {
         val (red, blue, green ) = (c.getRed * v, c.getBlue * v, c.getGreen * v)
         g.setColor(new awt.Color(red.toInt, blue.toInt, green.toInt))
         g.fillRect(i * x, j * y, x, y)
