@@ -18,7 +18,7 @@
 package org.vastness.evo2dsim
 
 
-import org.vastness.evo2dsim.evolution.SUSEvolution
+import org.vastness.evo2dsim.evolution.{EvolutionBuilder, SUSEvolution}
 import org.vastness.evo2dsim.environment.EnvironmentBuilder
 
 /**
@@ -42,18 +42,20 @@ object App {
         c.copy(groupSize = x) } text "Group Size"
       opt[String]('c', "evalConf") action { (x, c) =>
         c.copy(envConf = x) } text "Generation:Environment;X:Y..."
+      opt[String]('a', "algorithmn") action { (x, c) =>
+        c.copy(envConf = x) } text "Evolution algorithm: sus (Stochastic Universal Sampling) or elite (Elitism)"
     }
 
     parser.parse(args, Config()) map { config =>
+      println("Using evo algorithm" + config.evolutionAlgorithm)
       val envConf = config.envConf.split(';') map {_.split(':').toList } map {
         case x :: List(y) => (x.toInt ,y)
         case _ => throw new IllegalArgumentException("Could not parse envConf")
       }
       val envs = parse(config.generation, envConf)
       for((r, e) <- envs) println("Running %s from %d until %d".format(e.name, r.start, r.end))
-      val evo = new SUSEvolution(config.numberOfIndiviums, config.groupSize, config.stepsPerEvaluation, config.generation, config.evaluationPerGeneration, config.timeStep)
+      val evo = EvolutionBuilder(config.evolutionAlgorithm)(config.numberOfIndiviums, config.groupSize, config.stepsPerEvaluation, config.generation, config.evaluationPerGeneration, config.timeStep)
       evo.start(envs)
-
     } getOrElse {
       sys.exit(1)
       // arguments are bad, usage message will have been displayed
@@ -71,5 +73,5 @@ object App {
     case None => throw new Exception("Could not find: " + name + " in " + EnvironmentBuilder.values)
   }
 
-  case class Config(timeStep: Int = 50, generation: Int = 500, stepsPerEvaluation: Int = 6000, evaluationPerGeneration:Int = 5,  numberOfIndiviums:Int = 2000, groupSize: Int = 10, envConf: String = "0:basic")
+  case class Config(timeStep: Int = 50, generation: Int = 500, stepsPerEvaluation: Int = 6000, evaluationPerGeneration:Int = 5,  numberOfIndiviums:Int = 2000, groupSize: Int = 10, envConf: String = "0:basic", evolutionAlgorithm: String = "sus")
 }

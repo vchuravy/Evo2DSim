@@ -46,6 +46,7 @@ abstract class Evolution(poolSize: Int, groupSize: Int, evaluationSteps: Int, ge
   val timeStamp = dateFormat.format(now)
 
   val dir = (Path("results") resolve "%s".format(timeStamp)).createDirectory()
+  println("Results are saved in:" + dir)
 
   def nextGeneration(results: Seq[(Int, (Double, Genome))]): Map[Int, (Double, Genome)]
 
