@@ -73,5 +73,5 @@ object App {
     case None => throw new Exception("Could not find: " + name + " in " + EnvironmentBuilder.values)
   }
 
-  case class Config(timeStep: Int = 50, generation: Int = 500, stepsPerEvaluation: Int = 6000, evaluationPerGeneration:Int = 5,  numberOfIndiviums:Int = 2000, groupSize: Int = 10, envConf: String = "0:basic", evolutionAlgorithm: String = "sus")
+  case class Config(timeStep: Int = 50, generation: Int = 500, stepsPerEvaluation: Int = 6000, evaluationPerGeneration:Int = 5,  numberOfIndiviums:Int = 500, groupSize: Int = 10, envConf: String = "0:basic", evolutionAlgorithm: String = "sus")
 }

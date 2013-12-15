@@ -104,8 +104,9 @@ class SBotLightSensor(segments: Int, bias: Double) {
 
   @inline
   def getAverageFunc(c: Color, index: Int): () => Double = {
-    val view = new SliceMatrix(visionStorage, IndexedSeq(c2Idx(c)), pixels * index until pixels * (index + 1))
-    () => sum(view) / pixels
+    () => {
+      sum(visionStorage(c2Idx(c),pixels * index until pixels * (index + 1))) / pixels
+    }
   }
 
   def getNeurons = (blueNeurons ++ redNeurons).toList
@@ -113,6 +114,7 @@ class SBotLightSensor(segments: Int, bias: Double) {
   def attachToAgent(sBot: SBot){
     this.agent = Some(sBot)
   }
+
   def step() {
     agent map calcVision
   }

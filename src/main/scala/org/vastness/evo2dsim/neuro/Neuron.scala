@@ -17,19 +17,16 @@
 
 package org.vastness.evo2dsim.neuro
 
-import scala.collection.mutable.ArrayBuffer
-
 
 class Neuron(var bias: Double, var t_func: TransferFunction ){
   var id = -1
 
-  var inputSynapses =  ArrayBuffer[Synapse]()
-  var outputSynapses = ArrayBuffer[Synapse]()
+  var inputSynapses =  Set.empty[Synapse]
 
-  var activity = 0.0
+  private var activity: Double = 0.0
+  def output: Double = t_func(activity)
 
-  def calcActivity = inputSynapses.par.foldLeft(0.0)( _ + _.value ) + bias
-  def calcOutput = t_func(activity)
+  protected def calcActivity = inputSynapses.foldLeft(0.0){(acc, s) => acc + s.value } + bias
 
   def step() {
     activity = calcActivity
@@ -40,19 +37,10 @@ class Neuron(var bias: Double, var t_func: TransferFunction ){
   }
 
   def removeInput(s: Synapse){
-    inputSynapses = inputSynapses.filterNot(_ == s)
-  }
-
-  def addOutput(s: Synapse){
-    inputSynapses += s
-  }
-
-  def removeOutput(s: Synapse){
-    inputSynapses = inputSynapses.filterNot(_ == s)
+    inputSynapses -= s
   }
 
   override def toString = id.toString
-
 }
 
 

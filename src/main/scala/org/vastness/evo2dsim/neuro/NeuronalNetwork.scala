@@ -17,11 +17,9 @@
 
 package org.vastness.evo2dsim.neuro
 
-import scala.collection.mutable.ArrayBuffer
-
 class NeuronalNetwork {
-  var synapses = ArrayBuffer[Synapse]()
-  var neurons = Map[Int, Neuron]()
+  var synapses = Set.empty[Synapse]
+  var neurons = Map.empty[Int, Neuron]
 
   private var currentID = -1
   def nextID:Int = {
@@ -53,7 +51,6 @@ class NeuronalNetwork {
     val n1 = neurons(id1)
     val n2 = neurons(id2)
     val s = new Synapse(n1, n2, weight)
-    n1.addOutput(s)
     n2.addInput(s)
     synapses += s
   }
@@ -61,27 +58,20 @@ class NeuronalNetwork {
   def removeNeuron(id: Int) {
     neurons(id) match {
       case n: Neuron => {
-        n.inputSynapses.foreach((s: Synapse) => s.input.removeOutput(s))
-        n.outputSynapses.foreach((s: Synapse) => s.output.removeInput(s))
-        synapses --= n.inputSynapses ++ n.outputSynapses
+        synapses --= n.inputSynapses
       }
     }
     neurons -= id
   }
 
-  def removeSynapse(id: Int) {
-    val s = synapses.remove(id)
-    s.input.removeOutput(s)
+  def removeSynapse(s: Synapse) {
+    synapses -= s
     s.output.removeInput(s)
   }
 
-  def removeSynapse(s: Synapse) {
-    removeSynapse(synapses.indexOf(s))
-  }
-
   def step() { //Order matters
-    neurons.foreach {case (_, n) => n.step()}
-    synapses.foreach {_.step()}
+    neurons foreach {case (_, n) => n.step()}
+    synapses foreach { s => s.step() }
   }
 
   /**
@@ -148,7 +138,6 @@ class NeuronalNetwork {
     for(input: Neuron <- inputs){
       for(output: Neuron <- outputs){
         val s = new Synapse(input, output, weights(c))
-        input.addOutput(s)
         output.addInput(s)
         tempSynapses(c) = s
         c += 1

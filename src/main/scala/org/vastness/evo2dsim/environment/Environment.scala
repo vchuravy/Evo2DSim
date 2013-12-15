@@ -19,10 +19,11 @@ package org.vastness.evo2dsim.environment
 
 import org.vastness.evo2dsim.simulator.{Agent, Simulator}
 import org.vastness.evo2dsim.evolution.Genome
-import scala.concurrent.promise
+import scala.concurrent.{Await, Promise, Future, promise}
 import org.vastness.evo2dsim.gui.EnvironmentManager
 import scala.collection.Map
 import org.jbox2d.common.Vec2
+import scala.concurrent.duration.Duration
 
 /**
  * Implements the very basics for an environment
@@ -44,7 +45,17 @@ abstract class Environment(val timeStep: Int, val steps: Int) {
   val p = promise[Environment]()
 
   var running = true
-  var pause = false
+  private var fPause: Promise[Unit] = promise()
+  private var pause = false
+  def toggle_pause() {
+    if (pause) {
+      fPause success {}
+      pause = false
+      fPause = promise()
+    } else {
+      pause = true
+    }
+  }
 
   def updateSimulation() {
     sim.step(timeStep/1000.0f)
@@ -58,7 +69,12 @@ abstract class Environment(val timeStep: Int, val steps: Int) {
 
   def run(){
     while(running){
-      if(!pause) updateSimulation()
+      if(!pause) {
+        updateSimulation()
+      } else {
+        println("Starting Pause!")
+        Await.result(fPause.future, Duration.Inf) // Block till pause is resolved
+      }
     }
   }
 

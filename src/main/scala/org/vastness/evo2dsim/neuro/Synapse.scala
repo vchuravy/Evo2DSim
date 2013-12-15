@@ -19,9 +19,9 @@ package org.vastness.evo2dsim.neuro
 
 
 class Synapse(val input: Neuron, val output:Neuron, var weight: Double){
-  var value = input.calcOutput * weight
+  var value = input.output * weight
   def step() {
-    value = input.calcOutput * weight
+    value = input.output * weight
   }
 
   override def toString = "Synapse from " + input + " to " + output + " weight: " + weight

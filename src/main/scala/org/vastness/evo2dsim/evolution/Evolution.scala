@@ -78,14 +78,17 @@ abstract class Evolution(poolSize: Int, groupSize: Int, evaluationSteps: Int, ge
           scala.util.Random.shuffle(envBuilders).head
         }
       }
-
+      assert(evaluationSteps > 0, "In Simulation mode evaluationSteps has to be bigger than zero.")
       val futureEvaluations =  groupEvaluations(genomes.toList)(envBuilder)
+
       assert(futureEvaluations.size == evaluationPerGeneration*(poolSize / groupSize))
 
       val evaluationFuture = Future sequence futureEvaluations
+
       val environmentSetupTime = System.nanoTime()
 
       val evaluatedEnvironments = Await.result(evaluationFuture, Duration.Inf)
+
       val simulationFinishedTime = System.nanoTime()
 
       val extractedFitnessValues =
