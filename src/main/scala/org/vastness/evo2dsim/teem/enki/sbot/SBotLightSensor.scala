@@ -76,10 +76,6 @@ class SBotLightSensor(segments: Int, bias: Double) extends LinearMapping {
     for(light: LightSource <- sBot.sim.lightManager.lightSources){
       if (light.active && sBot.light != light && light.radius > 0){
         val radius = light.radius
-        // Alternative way to compute the same thing.
-        // val vec = light.position sub sBot.position // From body to light
-        // val distance = vec.normalize() // returns length of vector and normalizes it
-        // val lightPosition = sBot.body.getLocalVector(vec)
         val lightPosition = sBot.body.getLocalPoint(light.position)
         val distance = lightPosition.length() - radius
         lightPosition.normalize()
@@ -106,10 +102,8 @@ class SBotLightSensor(segments: Int, bias: Double) extends LinearMapping {
   }
 
   @inline
-  def getAverageFunc(c: Color, index: Int): () => Future[Double] = {
-    () => future {
-      transform(visionStorage(c2Idx(c),pixels * index until pixels * (index + 1)).sum)
-    }
+  def getAverageFunc(c: Color, index: Int): () => Double = {
+    () => transform(visionStorage(c2Idx(c),pixels * index until pixels * (index + 1)).sum)
   }
 
   def getNeurons = (blueNeurons ++ redNeurons).toList

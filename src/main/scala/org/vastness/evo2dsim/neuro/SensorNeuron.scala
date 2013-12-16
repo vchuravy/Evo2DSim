@@ -17,9 +17,6 @@
 
 package org.vastness.evo2dsim.neuro
 
-import scala.concurrent._
-import ExecutionContext.Implicits.global
-
-class SensorNeuron(v_bias: Double, t_func: TransferFunction, var s_func: () => Future[Double] = () => future{0.0} ) extends Neuron(v_bias, t_func) {
-  override def calcActivity: Future[Double] = Future sequence Seq(super.calcActivity, s_func()) map (_.sum)
+class SensorNeuron(v_bias: Double, t_func: TransferFunction, var s_func: () => Double = () => 0.0 ) extends Neuron(v_bias, t_func) {
+  override def calcActivity: Double = super.calcActivity + s_func()
 }
