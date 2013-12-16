@@ -20,6 +20,7 @@ package org.vastness.evo2dsim.teem.enki.sbot
 import org.vastness.evo2dsim.simulator.{Agent, Motor, Controller}
 import org.vastness.evo2dsim.neuro.{SensorNeuron, MotorNeuron, TransferFunction}
 import org.vastness.evo2dsim.evolution.Genome
+import scala.concurrent._, ExecutionContext.Implicits.global
 
 
 abstract class SBotController extends Controller {
@@ -43,7 +44,7 @@ abstract class SBotController extends Controller {
 
   override def attachToAgent(agent: Agent) = {
     motor.attachToAgent(agent)
-    foodSensorNeuron.s_func = () => agent.currentReward
+    foodSensorNeuron.s_func = () => future{agent.currentReward}
 
     agent match {
       case sBot: SBot => {

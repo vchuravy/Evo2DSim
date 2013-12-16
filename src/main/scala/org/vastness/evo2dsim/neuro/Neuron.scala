@@ -17,16 +17,23 @@
 
 package org.vastness.evo2dsim.neuro
 
+import scala.concurrent._
+import duration.Duration
+import ExecutionContext.Implicits.global
+
 
 class Neuron(var bias: Double, var t_func: TransferFunction ){
   var id = -1
 
   var inputSynapses =  Set.empty[Synapse]
 
-  private var activity: Double = 0.0
-  def output: Double = t_func(activity)
+  private var activity: Future[Double] = future{0.0}
+  private def result = Await.result(activity, Duration.Inf)
+  def output: Double = t_func(result)
 
-  protected def calcActivity = inputSynapses.foldLeft(0.0){(acc, s) => acc + s.value } + bias
+  protected def calcActivity: Future[Double] = future {
+    inputSynapses.foldLeft(0.0){(acc, s) => acc + s.value } + bias
+  }
 
   def step() {
     activity = calcActivity

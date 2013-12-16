@@ -15,11 +15,22 @@
  * along with Evo2DSim.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.vastness.evo2dsim.neuro
+package org.vastness.evo2dsim.utils
 
-import scala.concurrent._
-import ExecutionContext.Implicits.global
+trait LinearMapping {
+  def UPPER_OUTPUT_LIMIT: Double
+  def LOWER_OUTPUT_LIMIT: Double
 
-class SensorNeuron(v_bias: Double, t_func: TransferFunction, var s_func: () => Future[Double] = () => future{0.0} ) extends Neuron(v_bias, t_func) {
-  override def calcActivity: Future[Double] = Future sequence Seq(super.calcActivity, s_func()) map (_.sum)
+  def UPPER_INPUT_LIMIT: Double
+  def LOWER_INPUT_LIMIT: Double
+
+  @inline
+  def a = (UPPER_OUTPUT_LIMIT-LOWER_OUTPUT_LIMIT) / (UPPER_INPUT_LIMIT-LOWER_INPUT_LIMIT)
+
+  @inline
+  def b = UPPER_OUTPUT_LIMIT - UPPER_INPUT_LIMIT*(UPPER_OUTPUT_LIMIT-LOWER_OUTPUT_LIMIT) / (UPPER_INPUT_LIMIT-LOWER_INPUT_LIMIT)
+
+  @inline
+  def transform(x: Double) = (a * x)  + b //Linear transformation
+
 }

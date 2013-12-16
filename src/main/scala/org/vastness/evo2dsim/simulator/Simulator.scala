@@ -159,13 +159,13 @@ class Simulator(seed: Long) {
   }
 
   def step(timeStep: Float) {
-    agentList map { a => a.sensorStep() }
-    agentList map { a => a.controllerStep() }
-    agentList map { a => a.motorStep() }
+    agentList foreach { a => a.sensorStep() }
+    agentList foreach { a => a.controllerStep() }
+    agentList foreach { a => a.motorStep() }
 
     world.step(timeStep, velocityIteration, positionIteration)
 
-    foodSourceList map { f => f.step() }
+    foodSourceList foreach { f => f.step() }
   }
 
   object Agents extends Enumeration {

@@ -21,12 +21,14 @@ import org.vastness.evo2dsim.neuro.{TransferFunction, SensorNeuron, Neuron}
 import org.vastness.evo2dsim.simulator.light.LightSource
 import org.vastness.evo2dsim.gui.Color
 import org.apache.commons.math3.util.FastMath
-import breeze.linalg.{sum, DenseMatrix, SliceMatrix}
+import breeze.linalg.{sum, DenseMatrix}
+import scala.concurrent._
+import org.vastness.evo2dsim.utils.LinearMapping
+import ExecutionContext.Implicits.global
 
-
-class SBotLightSensor(segments: Int, bias: Double) {
+class SBotLightSensor(segments: Int, bias: Double) extends LinearMapping {
   val fov = 360
-  val resolution = 4 * fov
+  val resolution = fov
   var debug = false
   private var agent: Option[SBot] = None
   private val redNeurons = new Array[Neuron](segments)
@@ -35,10 +37,15 @@ class SBotLightSensor(segments: Int, bias: Double) {
   assert(resolution%segments == 0)
   val pixels = resolution/segments
 
+  val UPPER_OUTPUT_LIMIT = 1.0
+  val LOWER_OUTPUT_LIMIT = -1.0
+  val UPPER_INPUT_LIMIT = pixels.toDouble
+  val LOWER_INPUT_LIMIT = 0.0
+
   createNeurons()
 
   @inline
-  def visionStrip: PartialFunction[Color, DenseMatrix[Double]] = {
+  def visionStrip: PartialFunction[Color, DenseMatrix[Int]] = {
     case c: Color if c2Idx.isDefinedAt(c) => visionStorage(c2Idx(c), ::)
   }
 
@@ -48,18 +55,14 @@ class SBotLightSensor(segments: Int, bias: Double) {
     case Color.BLUE => 1
   }
 
-  def getVisionStrip: Map[Color, DenseMatrix[Double]] = ( Seq(Color.RED, Color.BLUE) collect
+  def getVisionStrip: Map[Color, DenseMatrix[Int]] = ( Seq(Color.RED, Color.BLUE) collect
     {case c: Color if visionStrip.isDefinedAt(c) => c -> visionStrip(c)} ).toMap
 
-  private val visionStorage = DenseMatrix.zeros[Double](2,resolution)
-  // private val red = DenseVector.zeros[Double](resolution)
-  // private val blue = DenseVector.zeros[Double](resolution)
+  private val visionStorage = DenseMatrix.zeros[Int](2,resolution)
 
   @inline
   def clear() {
-    visionStorage := 0.0
-    // red := 0.0
-    // blue := 0.0
+    visionStorage := 0
   }
 
   /**
@@ -90,7 +93,7 @@ class SBotLightSensor(segments: Int, bias: Double) {
         val start: Int = FastMath.floor((resolution - 1) * 0.5 * (beginAngle / fov + 1)).toInt
         val end: Int = FastMath.ceil((resolution - 1) * 0.5 * (endAngle / fov + 1)).toInt
 
-        visionStorage(c2Idx(light.color), start to end) := 1.0 //TODO: fog, noise, objects standing in sight?
+        visionStorage(c2Idx(light.color), start to end) := 1 //TODO: fog, noise, objects standing in sight?
       }
     }
   }
@@ -103,9 +106,9 @@ class SBotLightSensor(segments: Int, bias: Double) {
   }
 
   @inline
-  def getAverageFunc(c: Color, index: Int): () => Double = {
-    () => {
-      sum(visionStorage(c2Idx(c),pixels * index until pixels * (index + 1))) / pixels
+  def getAverageFunc(c: Color, index: Int): () => Future[Double] = {
+    () => future {
+      transform(visionStorage(c2Idx(c),pixels * index until pixels * (index + 1)).sum)
     }
   }
 
