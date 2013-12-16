@@ -21,10 +21,9 @@ import org.vastness.evo2dsim.neuro.{TransferFunction, SensorNeuron, Neuron}
 import org.vastness.evo2dsim.simulator.light.LightSource
 import org.vastness.evo2dsim.gui.Color
 import org.apache.commons.math3.util.FastMath
-import breeze.linalg.{sum, DenseMatrix}
-import scala.concurrent._
+import breeze.linalg.DenseMatrix
 import org.vastness.evo2dsim.utils.LinearMapping
-import ExecutionContext.Implicits.global
+import breeze.generic.URFunc
 
 class SBotLightSensor(segments: Int, bias: Double) extends LinearMapping {
   val fov = 360
@@ -103,7 +102,16 @@ class SBotLightSensor(segments: Int, bias: Double) extends LinearMapping {
 
   @inline
   def getAverageFunc(c: Color, index: Int): () => Double = {
-    () => transform(visionStorage(c2Idx(c),pixels * index until pixels * (index + 1)).sum)
+    () => transform(sum(visionStorage(c2Idx(c),pixels * index until pixels * (index + 1))))
+  }
+
+  /**
+   * Breeze only has this sum function for doubles
+   */
+  private val sum:URFunc[Int, Int] = new URFunc[Int, Int] {
+    def apply(cc: TraversableOnce[Int]) =  {
+      cc.sum
+    }
   }
 
   def getNeurons = (blueNeurons ++ redNeurons).toList
