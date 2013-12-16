@@ -17,4 +17,5 @@ JAVA_OPTS="-server"
 CMD=target/universal/stage/bin/evo2dsim
 
 cd /work/DoyaU/v-churavy/Evo2DSim
-$CMD -mem 4096 -g 500 -c "0:basic;50:basicSimpleRandom;200:basicRandom;400:dynamicSimpleRandom"
+# -mem 4096 -g 500 -c "0:basic;50:basicSimpleRandom;200:basicRandom;400:dynamicSimpleRandom"
+$CMD -mem 4096 -g $1 -z $2 -c $3 -a $4
