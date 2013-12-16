@@ -20,7 +20,9 @@ libraryDependencies ++= Seq(
   "org.vastness" %% "utils" % "0.1",
   "org.scalanlp" %% "breeze" % "0.6-SNAPSHOT",
   "org.spire-math" %% "spire" % "0.6.1",
-  "com.typesafe" %% "scalalogging-slf4j" % "1.0.1"
+  "com.typesafe" %% "scalalogging-log4j" % "1.0.1",
+  "org.apache.logging.log4j" % "log4j-api" % "2.0-beta9",
+  "org.apache.logging.log4j" % "log4j-core" % "2.0-beta9"
 )
 
 packageArchetype.java_application

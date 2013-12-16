@@ -18,9 +18,9 @@
 package org.vastness.evo2dsim.evolution
 
 object EvolutionBuilder {
-  def apply(name: String)(poolSize: Int, groupSize: Int, evaluationSteps: Int, generations:Int, evaluationPerGeneration: Int, timeStep: Int): Evolution = name match {
-    case "sus" => new SUSEvolution(poolSize, groupSize, evaluationSteps, generations, evaluationPerGeneration, timeStep)
-    case "elite" => new ElitistEvolution(0.2, poolSize, groupSize, evaluationSteps, generations, evaluationPerGeneration, timeStep)
+  def apply(name: String)(poolSize: Int): Evolution = name match {
+    case "sus" => new SUSEvolution(poolSize)
+    case "elite" => new ElitistEvolution(0.2, poolSize)
   }
 
 }
