@@ -18,6 +18,7 @@ do
     for env in ${ENVS[@]}
     do
         ${CMD} "${env}" "${algo}"
+        sleep 1
     done
 done
 
