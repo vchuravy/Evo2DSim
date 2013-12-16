@@ -47,7 +47,7 @@ object App {
     }
 
     parser.parse(args, Config()) map { config =>
-      println("Using evo algorithm" + config.evolutionAlgorithm)
+      println("Using evo algorithm: " + config.evolutionAlgorithm)
       val envConf = config.envConf.split(';') map {_.split(':').toList } map {
         case x :: List(y) => (x.toInt ,y)
         case _ => throw new IllegalArgumentException(s"Could not parse envConf: ${config.envConf}")
