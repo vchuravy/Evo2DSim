@@ -23,18 +23,17 @@ import scala.util.Random
 /**
  * Implements stochastic universal sampling
  */
-class SUSEvolution (poolSize: Int, groupSize: Int, evaluationSteps: Int, generations:Int, evaluationPerGeneration: Int, timeStep: Int)
-  extends Evolution(poolSize, groupSize, evaluationSteps, generations, evaluationPerGeneration, timeStep) {
+class SUSEvolution (val poolSize: Int)
+  extends Evolution {
 
-  override def nextGeneration(results: Seq[(Int, (Double, Genome))]): Map[Int, (Double, Genome)] = {
-    val line = numberLine(normalizeResults(results))
+  override def nextGeneration(results: Genomes): Genomes = {
+    val line = numberLine(normalizeResults(results.toSeq))
     assert(line.size == poolSize)
 
     def select(x: Double) = {
       line.filter(_._1 <= x).maxBy(_._1)._2
     }
 
-    val rMap = results.toMap
     val stepSize = 1.0/poolSize
     val startingPoint = Random.nextDouble * stepSize
     //Generate a newId from 0 until poolSize
@@ -44,7 +43,7 @@ class SUSEvolution (poolSize: Int, groupSize: Int, evaluationSteps: Int, generat
       counter
     }
 
-    ( for(x <- startingPoint to 1.0 by stepSize; id = select(x)) yield nextId(x) -> (0.0, rMap(id)._2.mutate) ).toMap
+    ( for(x <- startingPoint to 1.0 by stepSize; id = select(x)) yield nextId(x) -> (0.0, results(id)._2.mutate) ).toMap
   }
 
   /**

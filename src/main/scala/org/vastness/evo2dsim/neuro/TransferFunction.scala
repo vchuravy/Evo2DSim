@@ -36,7 +36,7 @@ object TransferFunction extends Enum[TransferFunction] {
   }
   case object SIG extends TransferFunction {
     val name = "sig"
-    def apply(activity: Rational) =   1 / exp(activity.toBigDecimal)
+    def apply(activity: Rational) =   1 / (1 + exp(-activity.toBigDecimal))
   }
   case object BINARY extends TransferFunction {
     val name = "binary"
