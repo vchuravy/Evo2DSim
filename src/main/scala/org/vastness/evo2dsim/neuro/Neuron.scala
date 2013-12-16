@@ -26,7 +26,7 @@ class Neuron(var bias: Double, var t_func: TransferFunction ){
   def output: Double = t_func(activity)
 
   protected def calcActivity: Double =
-    inputSynapses.foldLeft(0.0){(acc, s) => acc + s.value } + bias
+    inputSynapses.collect{ case s => s.value }.sum + bias
 
   def step() {
     activity = calcActivity
