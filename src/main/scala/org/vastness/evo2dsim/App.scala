@@ -18,7 +18,7 @@
 package org.vastness.evo2dsim
 
 
-import org.vastness.evo2dsim.evolution.{EvolutionBuilder, SUSEvolution}
+import org.vastness.evo2dsim.evolution.{EvolutionRunner, EvolutionBuilder, SUSEvolution}
 import org.vastness.evo2dsim.environment.EnvironmentBuilder
 
 /**
@@ -54,7 +54,7 @@ object App {
       }
       val envs = parse(config.generation, envConf)
       for((r, e) <- envs) println("Running %s from %d until %d".format(e.name, r.start, r.end))
-      val evo = EvolutionBuilder(config.evolutionAlgorithm)(config.numberOfIndiviums, config.groupSize, config.stepsPerEvaluation, config.generation, config.evaluationPerGeneration, config.timeStep)
+      val evo = new EvolutionRunner(config.evolutionAlgorithm,config.numberOfIndiviums, config.groupSize, config.stepsPerEvaluation, config.generation, config.evaluationPerGeneration, config.timeStep)
       evo.start(envs)
     } getOrElse {
       sys.exit(1)
