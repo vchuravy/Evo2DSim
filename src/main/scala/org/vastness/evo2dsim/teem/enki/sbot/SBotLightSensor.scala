@@ -96,8 +96,8 @@ class SBotLightSensor(segments: Int, bias: Double) extends LinearMapping {
 
   private def createNeurons() {
     for( i <- 0 until segments){
-      blueNeurons(i) = new SensorNeuron(bias, TransferFunction.THANH, getAverageFunc(Color.BLUE, i) )
-      redNeurons(i) = new SensorNeuron(bias, TransferFunction.THANH, getAverageFunc(Color.RED, i))
+      blueNeurons(i) = new SensorNeuron(bias, TransferFunction.SIG, getAverageFunc(Color.BLUE, i) )
+      redNeurons(i) = new SensorNeuron(bias, TransferFunction.SIG, getAverageFunc(Color.RED, i))
     }
   }
 
