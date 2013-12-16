@@ -39,8 +39,8 @@ class SBotLightSensor(segments: Int, bias: Double) extends LinearMapping {
   assert(resolution%segments == 0)
   val pixels = resolution/segments
 
-  val UPPER_OUTPUT_LIMIT = Rational(1.0)
-  val LOWER_OUTPUT_LIMIT = Rational(-1.0)
+  val UPPER_OUTPUT_LIMIT = Rational(4.0)
+  val LOWER_OUTPUT_LIMIT = Rational(-4.0)
   val UPPER_INPUT_LIMIT = Rational(pixels)
   val LOWER_INPUT_LIMIT = Rational(0.0)
 
@@ -79,8 +79,8 @@ class SBotLightSensor(segments: Int, bias: Double) extends LinearMapping {
       if (light.active && sBot.light != light && light.radius > 0){
         val radius = light.radius
         val lightPosition = sBot.body.getLocalPoint(light.position)
-        val distance = lightPosition.length() - radius
-        lightPosition.normalize()
+        val distance = lightPosition.normalize() - radius
+
 
         val aperture    = FastMath.atan(radius / distance)
         val bearingRad  = FastMath.atan2(lightPosition.x, lightPosition.y) // clockwise angle
@@ -105,7 +105,9 @@ class SBotLightSensor(segments: Int, bias: Double) extends LinearMapping {
 
   @inline
   def getAverageFunc(c: Color, index: Int): () => Rational = {
-    () => transform(sum(visionStorage(c2Idx(c),pixels * index until pixels * (index + 1))))
+    () => {
+      transform(sum(visionStorage(c2Idx(c),pixels * index until pixels * (index + 1))))
+    }
   }
 
   /**
