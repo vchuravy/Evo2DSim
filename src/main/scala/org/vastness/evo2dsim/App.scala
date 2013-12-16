@@ -43,7 +43,7 @@ object App {
       opt[String]('c', "evalConf") action { (x, c) =>
         c.copy(envConf = x) } text "Generation:Environment;X:Y..."
       opt[String]('a', "algorithmn") action { (x, c) =>
-        c.copy(envConf = x) } text "Evolution algorithm: sus (Stochastic Universal Sampling) or elite (Elitism)"
+        c.copy(evolutionAlgorithm = x) } text "Evolution algorithm: sus (Stochastic Universal Sampling) or elite (Elitism)"
     }
 
     parser.parse(args, Config()) map { config =>
