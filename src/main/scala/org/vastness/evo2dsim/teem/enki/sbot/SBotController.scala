@@ -20,6 +20,8 @@ package org.vastness.evo2dsim.teem.enki.sbot
 import org.vastness.evo2dsim.simulator.{Agent, Motor, Controller}
 import org.vastness.evo2dsim.neuro.{SensorNeuron, MotorNeuron, TransferFunction}
 import org.vastness.evo2dsim.evolution.Genome
+import spire.implicits._
+import spire.math._
 
 
 abstract class SBotController extends Controller {
@@ -47,7 +49,7 @@ abstract class SBotController extends Controller {
 
     agent match {
       case sBot: SBot => {
-        lightSwitch.m_func = (x: Double) => sBot.light.active_ = x == 1
+        lightSwitch.m_func = (x: Rational) => sBot.light.active_ = x == 1.0
         lightSensor.attachToAgent(sBot)
       }
       case _ => println("Warning you just attached a SBotController to an agent that is not of type SBot")

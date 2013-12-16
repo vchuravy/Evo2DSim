@@ -20,23 +20,25 @@ package org.vastness.evo2dsim.simulator
 import org.jbox2d.common.Vec2
 import org.apache.commons.math3.util.FastMath
 import org.vastness.evo2dsim.utils.LinearMapping
+import spire.implicits._
+import spire.math._
 
 class Motor extends LinearMapping {
   var agentOption: Option[Agent] = None
-  val UPPER_OUTPUT_LIMIT = 0.15 // m/s  taken from Cooperative Hole Avoidance in a Swarm-bot
-  val LOWER_OUTPUT_LIMIT = -0.15
+  val UPPER_OUTPUT_LIMIT = Rational(0.15) // m/s  taken from Cooperative Hole Avoidance in a Swarm-bot
+  val LOWER_OUTPUT_LIMIT = Rational(-0.15)
 
-  val UPPER_INPUT_LIMIT = 1.0
-  val LOWER_INPUT_LIMIT = -1.0
+  val UPPER_INPUT_LIMIT = Rational(1.0)
+  val LOWER_INPUT_LIMIT = Rational(-1.0)
 
-  private var leftMotorVelocity = 0.0
-  private var rightMotorVelocity = 0.0
+  private var leftMotorVelocity: Rational = 0.0
+  private var rightMotorVelocity: Rational = 0.0
 
-  def setLeftMotorVelocity(x: Double) {
+  def setLeftMotorVelocity(x: Rational) {
     leftMotorVelocity = transform(x)
   }
 
-  def setRightMotorVelocity(x: Double) {
+  def setRightMotorVelocity(x: Rational) {
     rightMotorVelocity = transform(x)
   }
 

@@ -17,12 +17,15 @@
 
 package org.vastness.evo2dsim.utils
 
-trait LinearMapping {
-  def UPPER_OUTPUT_LIMIT: Double
-  def LOWER_OUTPUT_LIMIT: Double
+import spire.implicits._
+import spire.math._
 
-  def UPPER_INPUT_LIMIT: Double
-  def LOWER_INPUT_LIMIT: Double
+trait LinearMapping {
+  def UPPER_OUTPUT_LIMIT: Rational
+  def LOWER_OUTPUT_LIMIT: Rational
+
+  def UPPER_INPUT_LIMIT: Rational
+  def LOWER_INPUT_LIMIT: Rational
 
   @inline
   def a = (UPPER_OUTPUT_LIMIT-LOWER_OUTPUT_LIMIT) / (UPPER_INPUT_LIMIT-LOWER_INPUT_LIMIT)
@@ -31,6 +34,6 @@ trait LinearMapping {
   def b = UPPER_OUTPUT_LIMIT - UPPER_INPUT_LIMIT*(UPPER_OUTPUT_LIMIT-LOWER_OUTPUT_LIMIT) / (UPPER_INPUT_LIMIT-LOWER_INPUT_LIMIT)
 
   @inline
-  def transform(x: Double) = (a * x)  + b //Linear transformation
+  def transform(x: Rational) = (a * x)  + b //Linear transformation
 
 }

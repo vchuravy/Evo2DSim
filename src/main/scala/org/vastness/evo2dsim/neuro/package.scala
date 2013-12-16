@@ -15,15 +15,12 @@
  * along with Evo2DSim.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.vastness.evo2dsim.neuro
+package org.vastness.evo2dsim
 
-import spire.math._
+import spire.math.Rational
 
-
-class MotorNeuron(v_bias: Double, t_func: TransferFunction, var m_func: (Rational) => Unit = (_) => {} ) extends Neuron(v_bias, t_func){
-  override def step() {
-    super.step()
-    m_func(output)
-  }
+package object neuro {
+  type Neurons = Iterable[(Int, Rational, TransferFunction)]
+  type Synapses = Iterable[(Int,Int,Rational)]
 
 }

@@ -17,28 +17,29 @@
 
 package org.vastness.evo2dsim.neuro
 
-import org.apache.commons.math3.util.FastMath
 import org.vastness.utils.Enum
+import spire.math._
+import spire.implicits._
+import spire.algebra._
+import java.math.MathContext
 
 sealed trait TransferFunction {
   def name: String
-  def apply(x: Double): Double
+  def apply(x: Rational): Rational
 }
 
 object TransferFunction extends Enum[TransferFunction] {
+  implicit val mc = new MathContext(10)
   case object THANH extends TransferFunction {
     val name = "thanh"
-    def apply(activity: Double) = FastMath.tanh(activity)
+    def apply(activity: Rational) = tanh(activity.toBigDecimal)
   }
   case object SIG extends TransferFunction {
     val name = "sig"
-    def apply(activity: Double) =  1/FastMath.pow(math.E, activity)
+    def apply(activity: Rational) =   1 / exp(activity.toBigDecimal)
   }
   case object BINARY extends TransferFunction {
     val name = "binary"
-    def apply(activity: Double) = activity match {
-      case n if n >= 0 => 1
-      case n if n < 0 => 0
-    }
+    def apply(activity: Rational) = if (activity >= 0) 1 else 0
   }
 }

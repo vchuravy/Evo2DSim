@@ -17,6 +17,9 @@
 
 package org.vastness.evo2dsim.neuro
 
-class SensorNeuron(v_bias: Double, t_func: TransferFunction, var s_func: () => Double = () => 0.0 ) extends Neuron(v_bias, t_func) {
-  override def calcActivity: Double = super.calcActivity + s_func()
+import spire.math._
+import spire.implicits._
+
+class SensorNeuron(v_bias: Double, t_func: TransferFunction, var s_func: () => Rational = () => 0.0 ) extends Neuron(v_bias, t_func) {
+  override def calcActivity: Rational = super.calcActivity + s_func()
 }

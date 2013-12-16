@@ -24,6 +24,9 @@ import org.apache.commons.math3.util.FastMath
 import breeze.linalg.DenseMatrix
 import org.vastness.evo2dsim.utils.LinearMapping
 import breeze.generic.URFunc
+import spire.implicits._
+import spire.math._
+import scala.Some
 
 class SBotLightSensor(segments: Int, bias: Double) extends LinearMapping {
   val fov = 360
@@ -36,10 +39,10 @@ class SBotLightSensor(segments: Int, bias: Double) extends LinearMapping {
   assert(resolution%segments == 0)
   val pixels = resolution/segments
 
-  val UPPER_OUTPUT_LIMIT = 1.0
-  val LOWER_OUTPUT_LIMIT = -1.0
-  val UPPER_INPUT_LIMIT = pixels.toDouble
-  val LOWER_INPUT_LIMIT = 0.0
+  val UPPER_OUTPUT_LIMIT = Rational(1.0)
+  val LOWER_OUTPUT_LIMIT = Rational(-1.0)
+  val UPPER_INPUT_LIMIT = Rational(pixels)
+  val LOWER_INPUT_LIMIT = Rational(0.0)
 
   createNeurons()
 
@@ -101,7 +104,7 @@ class SBotLightSensor(segments: Int, bias: Double) extends LinearMapping {
   }
 
   @inline
-  def getAverageFunc(c: Color, index: Int): () => Double = {
+  def getAverageFunc(c: Color, index: Int): () => Rational = {
     () => transform(sum(visionStorage(c2Idx(c),pixels * index until pixels * (index + 1))))
   }
 

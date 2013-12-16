@@ -17,6 +17,8 @@
 
 package org.vastness.evo2dsim.neuro
 
+import spire.math.Rational
+
 class NeuronalNetwork {
   var synapses = Set.empty[Synapse]
   var neurons = Map.empty[Int, Neuron]
@@ -46,7 +48,7 @@ class NeuronalNetwork {
     neurons ++= nsHash
   }
 
-  def addSynapse(id1: Int, id2: Int, weight:Double) {
+  def addSynapse(id1: Int, id2: Int, weight: Rational) {
     require(id1 != -1 && id2 != -1)
     val n1 = neurons(id1)
     val n2 = neurons(id2)
@@ -78,20 +80,20 @@ class NeuronalNetwork {
    * Serializes synapses
    * @return (From.ID,To.ID,Weight)
    */
-  private def serializeSynapses: Iterable[(Int,Int,Double)] =
+  private def serializeSynapses: Synapses =
     ( for (s <- synapses) yield (s.input.id,s.output.id,s.weight) ).to[Iterable]
 
   /**
    * Serializes neurons
    * @return (ID, bias)
    */
-  private def serializeNeurons: Iterable[(Int, Double, TransferFunction)] =
+  private def serializeNeurons: Neurons =
     ( for ((nID, n) <- neurons) yield (nID, n.bias, n.t_func) ).to[Iterable]
 
   def serializeNetwork() =
     (currentID, serializeNeurons, serializeSynapses)
 
-  private def initializeSynapses(synapses: Iterable[(Int,Int,Double)]){
+  private def initializeSynapses(synapses: Synapses){
     synapses.foreach(elem => addSynapse(elem._1,elem._2,elem._3))
   }
 
@@ -99,7 +101,7 @@ class NeuronalNetwork {
    * Initialize neurons
    * WARNING: Sensors and motors have to be initialized
    */
-  private def initializeNeurons(neurons: Iterable[(Int, Double, TransferFunction)] ){
+  private def initializeNeurons(neurons: Neurons ){
     if(currentID == -1) println("Warning: It might be that you forgot to initialize motors and sensors.")
     for((id, bias, t_func) <- neurons){
       if(this.neurons.contains(id)) {
@@ -117,8 +119,8 @@ class NeuronalNetwork {
    * Initializes neurons and synapses. Warning: Motors and sensors have to be initialized first.
    */
   def initializeNetwork(currentID: Int,
-                        neurons: Iterable[(Int, Double, TransferFunction)],
-                        synapses: Iterable[(Int,Int,Double)]) {
+                        neurons: Neurons,
+                        synapses: Synapses) {
     initializeNeurons(neurons)
     initializeSynapses(synapses)
     this.currentID = currentID

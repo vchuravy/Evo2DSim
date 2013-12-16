@@ -19,6 +19,7 @@ package org.vastness.evo2dsim.evolution
 
 import org.vastness.evo2dsim.neuro.{TransferFunction, NeuronalNetwork}
 import scala.util.Random
+import spire.math.Rational
 
 /**
  * Implements a binary genome in the following format.
@@ -43,8 +44,8 @@ case class BinaryGenome
   def history = "G%d_%d".format(ancestors.size, id) :: ancestors
 
   override def toSerializedNN:(Int,
-    Iterable[(Int, Double, TransferFunction)],
-    Iterable[(Int,Int,Double)]) = {
+    Iterable[(Int, Rational, TransferFunction)],
+    Iterable[(Int,Int,Rational)]) = {
       val n = for((id, bias) <- biasBytes.mapValues(mapToDouble)) yield (id, bias, t_funcs(id))
       val s = for(((id1, id2), w) <- weightBytes.mapValues(mapToDouble)) yield (id1, id2, w)
       (currentID, n, s)

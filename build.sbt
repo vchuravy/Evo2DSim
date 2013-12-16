@@ -19,7 +19,7 @@ libraryDependencies ++= Seq(
   "org.scalaz" %% "scalaz-core" % "7.1.0-M3",
   "org.vastness" %% "utils" % "0.1",
   "org.scalanlp" %% "breeze" % "0.6-SNAPSHOT",
-  "org.encog" % "encog-core" % "3.2.0-SNAPSHOT"
+  "org.spire-math" %% "spire" % "0.6.1"
 )
 
 packageArchetype.java_application

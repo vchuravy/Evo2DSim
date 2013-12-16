@@ -17,9 +17,10 @@
 
 package org.vastness.evo2dsim.neuro
 
+import spire.math._
 
-class Synapse(val input: Neuron, val output:Neuron, var weight: Double){
-  var value = input.output * weight
+class Synapse(val input: Neuron, val output:Neuron, var weight: Rational){
+  var value: Rational = input.output * weight
   def step() {
     value = input.output * weight
   }

@@ -17,16 +17,19 @@
 
 package org.vastness.evo2dsim.neuro
 
-class Neuron(var bias: Double, var t_func: TransferFunction ){
+import spire.implicits._
+import spire.math._
+
+class Neuron(var bias: Rational, var t_func: TransferFunction) {
   var id = -1
 
   var inputSynapses =  Set.empty[Synapse]
 
-  private var activity: Double = 0.0
-  def output: Double = t_func(activity)
+  private var activity: Rational = 0.0
+  def output: Rational = t_func(activity)
 
-  protected def calcActivity: Double =
-    inputSynapses.collect{ case s => s.value }.sum + bias
+  protected def calcActivity: Rational =
+    inputSynapses.map(_.value).qsum + bias
 
   def step() {
     activity = calcActivity
