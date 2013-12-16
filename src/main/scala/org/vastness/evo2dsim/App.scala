@@ -50,7 +50,7 @@ object App {
       println("Using evo algorithm" + config.evolutionAlgorithm)
       val envConf = config.envConf.split(';') map {_.split(':').toList } map {
         case x :: List(y) => (x.toInt ,y)
-        case _ => throw new IllegalArgumentException("Could not parse envConf")
+        case _ => throw new IllegalArgumentException(s"Could not parse envConf: ${config.envConf}")
       }
       val envs = parse(config.generation, envConf)
       for((r, e) <- envs) println("Running %s from %d until %d".format(e.name, r.start, r.end))
