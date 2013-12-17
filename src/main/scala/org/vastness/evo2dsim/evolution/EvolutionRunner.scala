@@ -27,7 +27,6 @@ import java.util.Calendar
 
 import scalax.file._
 import scalaz.{TreeLoc, Tree}
-import com.typesafe.scalalogging.log4j.Logging
 import spray.json._
 
 import org.vastness.evo2dsim.gui.EnvironmentManager
