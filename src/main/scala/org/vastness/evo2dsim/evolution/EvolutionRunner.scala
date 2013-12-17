@@ -35,7 +35,7 @@ import org.vastness.evo2dsim.environment.{EnvironmentBuilder, Environment}
 import org.vastness.evo2dsim.teem.enki.sbot.SBotControllerLinear
 import org.vastness.evo2dsim.utils.MyJsonProtocol._
 
-class EvolutionRunner(name: String, poolSize: Int, groupSize: Int, evaluationSteps: Int, generations:Int, evaluationPerGeneration: Int, timeStep: Int) extends Logging {
+class EvolutionRunner(name: String, poolSize: Int, groupSize: Int, evaluationSteps: Int, generations:Int, evaluationPerGeneration: Int, timeStep: Int) {
   val now = Calendar.getInstance().getTime
   val dateFormat = new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss")
   val timeStamp = dateFormat.format(now)
@@ -47,7 +47,7 @@ class EvolutionRunner(name: String, poolSize: Int, groupSize: Int, evaluationSte
   val evo: Evolution = EvolutionBuilder(name)(poolSize)
 
   val dir = (Path("results") resolve "%s".format(timeStamp)).createDirectory()
-  logger.info(s"Results are saved in: $dir")
+  println(s"Results are saved in: $dir")
 
   private def run(startGenomes: Map[Int, (Double, Genome)], envSetup: Seq[(Range,EnvironmentBuilder)]): Map[Int, (Double, Genome)] = {
     val outputStats =  dir resolve "Stats.csv"
@@ -67,26 +67,26 @@ class EvolutionRunner(name: String, poolSize: Int, groupSize: Int, evaluationSte
         case 0 => throw new Exception(s"Could not find an environment for generation $generation.")
         case 1 => envBuilders.head
         case 2 =>
-          logger.warn(s"Warning: Two possible environment for generation $generation")
-          logger.warn("Selecting the last.")
+          println(s"Warning: Two possible environment for generation $generation")
+          println("Selecting the last.")
           envBuilders.tail.head
         case _ =>
-          logger.warn(s"Warning: Multiple possible environment for generation $generation")
-          logger.warn("Selecting randomly.")
+          println(s"Warning: Multiple possible environment for generation $generation")
+          println("Selecting randomly.")
           scala.util.Random.shuffle(envBuilders).head
       }
 
-      logger.debug("Found envBuilder")
+      println("Found envBuilder")
       assert(evaluationSteps > 0, "In Simulation mode evaluationSteps has to be bigger than zero.")
       val futureEvaluations =  groupEvaluations(genomes.toList)(envBuilder)
-      logger.debug("Started Evaluations")
+      println("Started Evaluations")
       assert(futureEvaluations.size == evaluationPerGeneration*(poolSize / groupSize))
 
       val evaluationFuture = Future sequence futureEvaluations
       val environmentSetupTime = System.nanoTime()
 
       val evaluatedEnvironments = Await.result(evaluationFuture, Duration.Inf)
-      logger.debug("Finished Simulations")
+      println("Finished Simulations")
       val simulationFinishedTime = System.nanoTime()
 
       val extractedFitnessValues =
@@ -112,7 +112,7 @@ class EvolutionRunner(name: String, poolSize: Int, groupSize: Int, evaluationSte
       def timeSpent(t1: Long, t2: Long) = {
         TimeUnit.SECONDS.convert(t2 - t1, TimeUnit.NANOSECONDS)
       }
-      def logTime(s: String, t: Long) = logger.info(s.format(t/ 60, t % 60))
+      def logTime(s: String, t: Long) = println(s.format(t/ 60, t % 60))
 
       val timeTotalSpent = timeSpent(generationStartTime, generationFinishedTime)
       val timeSetupSpent = timeSpent(generationStartTime, environmentSetupTime)
@@ -120,14 +120,14 @@ class EvolutionRunner(name: String, poolSize: Int, groupSize: Int, evaluationSte
       val timeEvalSpent = timeSpent(simulationFinishedTime, evaluationFinishedTime)
       val timeNextGenSpent = timeSpent(evaluationFinishedTime, generationFinishedTime)
 
-      logger.info(s"Generation $generation done")
+      println(s"Generation $generation done")
       logTime("Generation took %d min %d sec in total",timeTotalSpent)
       logTime("Setup of the simulation took %d min %d sec",timeSetupSpent)
       logTime("Simulation took %d min %d sec", timeSimSpent)
       logTime("Evaluation took %d min %d sec", timeEvalSpent)
       logTime("Preparing the next Generation took %d min %d sec", timeNextGenSpent)
-      if(generation < generations) logger.info("Starting next generation.")
-      else logger.info("We are done here :)")
+      if(generation < generations) println("Starting next generation.")
+      else println("We are done here :)")
     }
     genomes
   }
@@ -160,8 +160,8 @@ class EvolutionRunner(name: String, poolSize: Int, groupSize: Int, evaluationSte
     writeGraphViz(result)
     writeNewickTree(result)
     val timeSpent = TimeUnit.SECONDS.convert(System.nanoTime() - time, TimeUnit.NANOSECONDS)
-    logger.info("We are done here:")
-    logger.info("Running for: %d min %s sec".format(timeSpent / 60, timeSpent % 60))
+    println("We are done here:")
+    println("Running for: %d min %s sec".format(timeSpent / 60, timeSpent % 60))
     sys.exit()
   }
 
