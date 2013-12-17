@@ -18,4 +18,13 @@ CMD=target/universal/stage/bin/evo2dsim
 
 cd /work/DoyaU/v-churavy/Evo2DSim
 # -mem 4096 -g 500 -c "0:basic;50:basicSimpleRandom;200:basicRandom;400:dynamicSimpleRandom"
-$CMD -mem 4096 -g $1 -z $2 -c $3 -a $4
+# -t => timeStep default=50
+# -g => generations default=500
+# -s => steps per Evaluation default=6000
+# -e => Evaluation per Generation default=5
+# -n => Pool size default=2000
+# -z => Group Size default=10
+# -c => Evaluation config default="0:basic"
+# -a => Evolution algorithm default="sus"
+
+$CMD -mem 4096 -g $1 -n $2 -c $3 -a $4
