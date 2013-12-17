@@ -20,7 +20,7 @@ package org.vastness.evo2dsim
 import spire.math.Number
 
 package object neuro {
-  type NumberT = Double
+  @inline type NumberT = Double
   type Neurons = Iterable[(Int, NumberT, TransferFunction)]
   type Synapses = Iterable[(Int,Int, NumberT)]
 }

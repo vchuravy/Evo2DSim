@@ -19,6 +19,7 @@ package org.vastness.evo2dsim.neuro
 
 import spire.implicits._
 import spire.math._
+import spire.algebra.{Rig, Semigroup}
 
 class Neuron(var bias: NumberT, var t_func: TransferFunction) {
   var id = -1
@@ -28,8 +29,15 @@ class Neuron(var bias: NumberT, var t_func: TransferFunction) {
   private var activity: NumberT = 0.0
   def output: NumberT = t_func(activity)
 
-  protected def calcActivity: NumberT =
-    inputSynapses.map(_.value).qsum + bias
+  protected def calcActivity: NumberT = sumInputs(inputSynapses) + bias
+
+  private def sumInputs(inputs: TraversableOnce[Synapse])(implicit ev: Rig[NumberT]): NumberT = {
+    var sum = ev.zero
+    val f: Synapse => Unit = (a: Synapse) => sum = ev.plus(sum, a.value)
+    inputs.foreach(f)
+    sum
+  }
+
 
   def step() {
     activity = calcActivity

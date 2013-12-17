@@ -18,9 +18,7 @@
 package org.vastness.evo2dsim.neuro
 
 import org.vastness.utils.Enum
-import spire.math._
-import spire.implicits._
-import spire.algebra._
+import org.apache.commons.math3.util.FastMath
 
 sealed trait TransferFunction {
   def name: String
@@ -28,14 +26,13 @@ sealed trait TransferFunction {
 }
 
 object TransferFunction extends Enum[TransferFunction] {
-  implicit val NumberTTrig = Trig[NumberT]
   case object THANH extends TransferFunction {
     val name = "thanh"
-    def apply(activity: NumberT) = tanh(activity)
+    def apply(activity: NumberT) = FastMath.tanh(activity)
   }
   case object SIG extends TransferFunction {
     val name = "sig"
-    def apply(activity: NumberT) =   1 / (1 + exp(-activity))
+    def apply(activity: NumberT) =   1 / (1 + FastMath.exp(-activity))
   }
   case object BINARY extends TransferFunction {
     val name = "binary"
