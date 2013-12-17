@@ -23,9 +23,6 @@ import org.vastness.evo2dsim.gui.Color
 import org.apache.commons.math3.util.FastMath
 import org.vastness.evo2dsim.utils.LinearMapping
 import spire.implicits._
-import spire.algebra._
-import spire.math._
-import scala.collection.parallel.mutable.ParArray
 
 class SBotLightSensor(segments: Int, bias: Double) extends LinearMapping {
   val fov = 360
@@ -54,6 +51,15 @@ class SBotLightSensor(segments: Int, bias: Double) extends LinearMapping {
 
   private var red:  Array[Int] = Array.empty
   private var blue: Array[Int] = Array.empty
+
+  @inline
+  def sensorValue: PartialFunction[Color, Array[NumberT]] = {
+    case Color.RED => redSensorValues
+    case Color.BLUE => blueSensorValues
+  }
+
+  var redSensorValues = new Array[NumberT](segments)
+  var blueSensorValues = new Array[NumberT](segments)
 
 
   def getVisionStrip: Map[Color, Array[Int]] = ( Seq(Color.RED, Color.BLUE) collect
@@ -96,28 +102,22 @@ class SBotLightSensor(segments: Int, bias: Double) extends LinearMapping {
         }
       }
     }
-    updateSensorValues(redT, blueT)
+    redSensorValues = calculateSensorValues(redT)
+    blueSensorValues = calculateSensorValues(blueT)
     red = redT
     blue = blueT
   }
 
-  val redSensorValues = new Array[NumberT](segments)
-  val blueSensorValues = new Array[NumberT](segments)
-
   @inline
-  def sensorValue: PartialFunction[Color, Array[NumberT]] = {
-    case Color.RED => redSensorValues
-    case Color.BLUE => blueSensorValues
-  }
-
-  def updateSensorValues(red: Array[Int], blue: Array[Int]) {
+  def calculateSensorValues(array: Array[Int]): Array[NumberT] = {
+    val t = new Array[NumberT](segments)
     cfor(0)( _ < segments, _ + 1) { i =>
       val start = pixels * i
       val end = pixels * (i + 1)
 
-      redSensorValues(i) = transform(sum(red, start, end))
-      blueSensorValues(i) = transform(sum(blue, start, end))
+      t(i) = transform(sum(array, start, end))
     }
+    t
   }
 
   private def createNeurons() {
@@ -135,7 +135,7 @@ class SBotLightSensor(segments: Int, bias: Double) extends LinearMapping {
   }
 
   @inline
-  private def sum(array: IndexedSeq[Int], start: Int, end: Int): Int = {
+  private def sum(array: Array[Int], start: Int, end: Int): Int = {
     var sum = 0
     cfor(start)(_ < end, _ + 1) { i =>
       sum += array(i)
