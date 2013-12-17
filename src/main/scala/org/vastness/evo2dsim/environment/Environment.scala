@@ -76,6 +76,7 @@ abstract class Environment(val timeStep: Int, val steps: Int) {
         Await.result(fPause.future, Duration.Inf) // Block till pause is resolved
       }
     }
+    p failure(throw new Exception)
   }
 
   def initializeStatic()

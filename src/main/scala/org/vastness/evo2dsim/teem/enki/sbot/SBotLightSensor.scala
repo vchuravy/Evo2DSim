@@ -17,16 +17,15 @@
 
 package org.vastness.evo2dsim.teem.enki.sbot
 
-import org.vastness.evo2dsim.neuro.{NumberT, TransferFunction, SensorNeuron, Neuron}
+import org.vastness.evo2dsim.neuro._
 import org.vastness.evo2dsim.simulator.light.LightSource
 import org.vastness.evo2dsim.gui.Color
 import org.apache.commons.math3.util.FastMath
-import breeze.linalg.DenseMatrix
 import org.vastness.evo2dsim.utils.LinearMapping
-import breeze.generic.URFunc
-import spire.math._
 import spire.implicits._
 import spire.algebra._
+import spire.math._
+import scala.collection.parallel.mutable.ParArray
 
 class SBotLightSensor(segments: Int, bias: Double) extends LinearMapping {
   val fov = 360
@@ -47,25 +46,18 @@ class SBotLightSensor(segments: Int, bias: Double) extends LinearMapping {
   createNeurons()
 
   @inline
-  def visionStrip: PartialFunction[Color, DenseMatrix[Int]] = {
-    case c: Color if c2Idx.isDefinedAt(c) => visionStorage(c2Idx(c), ::)
+  def visionStrip: PartialFunction[Color, Array[Int]] = {
+    case Color.RED => red
+    case Color.BLUE => blue
   }
 
-  @inline
-  def c2Idx: PartialFunction[Color, Int] = {
-    case Color.RED => 0
-    case Color.BLUE => 1
-  }
 
-  def getVisionStrip: Map[Color, DenseMatrix[Int]] = ( Seq(Color.RED, Color.BLUE) collect
+  private var red:  Array[Int] = Array.empty
+  private var blue: Array[Int] = Array.empty
+
+
+  def getVisionStrip: Map[Color, Array[Int]] = ( Seq(Color.RED, Color.BLUE) collect
     {case c: Color if visionStrip.isDefinedAt(c) => c -> visionStrip(c)} ).toMap
-
-  private val visionStorage = DenseMatrix.zeros[Int](2,resolution)
-
-  @inline
-  def clear() {
-    visionStorage := 0
-  }
 
   /**
    * Fills visionStrip, if light from a source falls onto the area.
@@ -74,7 +66,14 @@ class SBotLightSensor(segments: Int, bias: Double) extends LinearMapping {
    * The code is take from enki
    */
   def calcVision(sBot: SBot) {
-    clear()
+    val redT: Array[Int]   = new Array(resolution)
+    val blueT: Array[Int]  = new Array(resolution)
+
+    @inline val visionStripT: PartialFunction[Color, Array[Int]] = {
+      case Color.RED => redT
+      case Color.BLUE => blueT
+    }
+
     for(light: LightSource <- sBot.sim.lightManager.lightSources){
       if (light.active && sBot.light != light && light.radius > 0){
         val radius = light.radius
@@ -91,32 +90,57 @@ class SBotLightSensor(segments: Int, bias: Double) extends LinearMapping {
         val start: Int = FastMath.floor((resolution - 1) * 0.5 * (beginAngle / fov + 1)).toInt
         val end: Int = FastMath.ceil((resolution - 1) * 0.5 * (endAngle / fov + 1)).toInt
 
-        visionStorage(c2Idx(light.color), start to end) := 1 //TODO: fog, noise, objects standing in sight?
+        //visionStrip(light.color).view(start, end) := 1 //TODO: fog, noise, objects standing in sight?
+        cfor(start)(_ <= end, _ + 1) { i =>
+          visionStripT(light.color)(i) = 1
+        }
       }
+    }
+    updateSensorValues(redT, blueT)
+    red = redT
+    blue = blueT
+  }
+
+  val redSensorValues = new Array[NumberT](segments)
+  val blueSensorValues = new Array[NumberT](segments)
+
+  @inline
+  def sensorValue: PartialFunction[Color, Array[NumberT]] = {
+    case Color.RED => redSensorValues
+    case Color.BLUE => blueSensorValues
+  }
+
+  def updateSensorValues(red: Array[Int], blue: Array[Int]) {
+    cfor(0)( _ < segments, _ + 1) { i =>
+      val start = pixels * i
+      val end = pixels * (i + 1)
+
+      redSensorValues(i) = transform(sum(red, start, end))
+      blueSensorValues(i) = transform(sum(blue, start, end))
     }
   }
 
   private def createNeurons() {
     for( i <- 0 until segments){
-      blueNeurons(i) = new SensorNeuron(bias, TransferFunction.SIG, getAverageFunc(Color.BLUE, i) )
-      redNeurons(i) = new SensorNeuron(bias, TransferFunction.SIG, getAverageFunc(Color.RED, i))
+      blueNeurons(i) = new SensorNeuron(bias, TransferFunction.SIG, getSensorFunc(Color.BLUE, i) )
+      redNeurons(i) = new SensorNeuron(bias, TransferFunction.SIG, getSensorFunc(Color.RED, i))
     }
   }
 
   @inline
-  def getAverageFunc(c: Color, index: Int): () => NumberT = {
+  def getSensorFunc(c: Color, index: Int): () => NumberT = {
     () => {
-      transform(sum(visionStorage(c2Idx(c),pixels * index until pixels * (index + 1))))
+      sensorValue(c)(index)
     }
   }
 
-  /**
-   * Breeze only has this sum function for doubles
-   */
-  private val sum:URFunc[Int, Int] = new URFunc[Int, Int] {
-    def apply(cc: TraversableOnce[Int]) =  {
-      cc.sum
+  @inline
+  private def sum(array: IndexedSeq[Int], start: Int, end: Int): Int = {
+    var sum = 0
+    cfor(start)(_ < end, _ + 1) { i =>
+      sum += array(i)
     }
+    sum
   }
 
   def getNeurons = (blueNeurons ++ redNeurons).toList
