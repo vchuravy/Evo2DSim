@@ -31,15 +31,15 @@ class Motor extends LinearMapping {
   val UPPER_INPUT_LIMIT = Rational(1.0)
   val LOWER_INPUT_LIMIT = Rational(-1.0)
 
-  private var leftMotorVelocity: Rational = 0.0
-  private var rightMotorVelocity: Rational = 0.0
+  private var leftMotorVelocity: Float = 0.0f
+  private var rightMotorVelocity: Float = 0.0f
 
   def setLeftMotorVelocity(x: Rational) {
-    leftMotorVelocity = transform(x)
+    leftMotorVelocity = transform(x).toFloat
   }
 
   def setRightMotorVelocity(x: Rational) {
-    rightMotorVelocity = transform(x)
+    rightMotorVelocity = transform(x).toFloat
   }
 
   //taken from enki speed control
