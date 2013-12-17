@@ -17,15 +17,14 @@
 
 package org.vastness.evo2dsim.utils
 
-import spire.implicits._
-import spire.math._
+import org.vastness.evo2dsim.neuro.NumberT
 
 trait LinearMapping {
-  def UPPER_OUTPUT_LIMIT: Rational
-  def LOWER_OUTPUT_LIMIT: Rational
+  def UPPER_OUTPUT_LIMIT: NumberT
+  def LOWER_OUTPUT_LIMIT: NumberT
 
-  def UPPER_INPUT_LIMIT: Rational
-  def LOWER_INPUT_LIMIT: Rational
+  def UPPER_INPUT_LIMIT: NumberT
+  def LOWER_INPUT_LIMIT: NumberT
 
   @inline
   def a = (UPPER_OUTPUT_LIMIT-LOWER_OUTPUT_LIMIT) / (UPPER_INPUT_LIMIT-LOWER_INPUT_LIMIT)
@@ -34,6 +33,6 @@ trait LinearMapping {
   def b = UPPER_OUTPUT_LIMIT - UPPER_INPUT_LIMIT*(UPPER_OUTPUT_LIMIT-LOWER_OUTPUT_LIMIT) / (UPPER_INPUT_LIMIT-LOWER_INPUT_LIMIT)
 
   @inline
-  def transform(x: Rational) = (a * x)  + b //Linear transformation
+  def transform(x: NumberT) = (a * x)  + b //Linear transformation
 
 }

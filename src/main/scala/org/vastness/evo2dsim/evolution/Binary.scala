@@ -20,6 +20,7 @@ package org.vastness.evo2dsim.evolution
 import scala.util.Random
 import spire.math._
 import spire.implicits._
+import org.vastness.evo2dsim.neuro.NumberT
 
 
 trait Binary {
@@ -28,7 +29,7 @@ trait Binary {
    * @param value must be in the range of -1 to 1
    * @return signed byte
    */
-  def mapToByte(value: Rational): Byte = {
+  def mapToByte(value: NumberT): Byte = {
     assert(value.abs <= 1, "Our values are out of range.")
     if (0 <= value) (value * 127).toByte else (value * 128).toByte
   }
@@ -38,7 +39,7 @@ trait Binary {
    * @param value signed Byte
    * @return Double ortedMapin the range of -1 to 1
    */
-  def mapToDouble(value: Byte): Rational =
+  def mapToDouble(value: Byte): NumberT =
     if (0 <= value) value / 127.0 else value / 128.0
 
   /**

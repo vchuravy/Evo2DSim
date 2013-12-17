@@ -17,7 +17,7 @@
 
 package org.vastness.evo2dsim.neuro
 
-import spire.math.Rational
+import spire.math.{Real, Rational}
 
 class NeuronalNetwork {
   var synapses = Set.empty[Synapse]
@@ -48,7 +48,7 @@ class NeuronalNetwork {
     neurons ++= nsHash
   }
 
-  def addSynapse(id1: Int, id2: Int, weight: Rational) {
+  def addSynapse(id1: Int, id2: Int, weight: NumberT) {
     require(id1 != -1 && id2 != -1)
     val n1 = neurons(id1)
     val n2 = neurons(id2)

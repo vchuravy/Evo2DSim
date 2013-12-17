@@ -22,30 +22,32 @@ import org.apache.commons.math3.util.FastMath
 import org.vastness.evo2dsim.utils.LinearMapping
 import spire.implicits._
 import spire.math._
+import org.vastness.evo2dsim.neuro._
+import scala.Some
 
 class Motor extends LinearMapping {
   var agentOption: Option[Agent] = None
-  val UPPER_OUTPUT_LIMIT = Rational(0.15) // m/s  taken from Cooperative Hole Avoidance in a Swarm-bot
-  val LOWER_OUTPUT_LIMIT = Rational(-0.15)
+  val UPPER_OUTPUT_LIMIT = 0.15 // m/s  taken from Cooperative Hole Avoidance in a Swarm-bot
+  val LOWER_OUTPUT_LIMIT = -0.15
 
-  val UPPER_INPUT_LIMIT = Rational(1.0)
-  val LOWER_INPUT_LIMIT = Rational(-1.0)
+  val UPPER_INPUT_LIMIT = 1.0
+  val LOWER_INPUT_LIMIT = -1.0
 
   private var leftMotorVelocity: Float = 0.0f
   private var rightMotorVelocity: Float = 0.0f
 
-  def setLeftMotorVelocity(x: Rational) {
+  def setLeftMotorVelocity(x: NumberT) {
     leftMotorVelocity = transform(x).toFloat
   }
 
-  def setRightMotorVelocity(x: Rational) {
+  def setRightMotorVelocity(x: NumberT) {
     rightMotorVelocity = transform(x).toFloat
   }
 
   //taken from enki speed control
   def forwardVelocity = (rightMotorVelocity + leftMotorVelocity) / 2
   def velocity(agent: Agent) = new Vec2((forwardVelocity * FastMath.cos(agent.body.getAngle)).toFloat, (forwardVelocity * FastMath.sin(agent.body.getAngle)).toFloat)
-  def angularVelocity(agent: Agent) = (rightMotorVelocity-leftMotorVelocity)/(4*agent.radius) // 2* wheel distants
+  def angularVelocity(agent: Agent): Float = (rightMotorVelocity-leftMotorVelocity)/(4*agent.radius) // 2* wheel distants
 
   def attachToAgent(agent: Agent) {
     agentOption = Some(agent)
@@ -56,7 +58,7 @@ class Motor extends LinearMapping {
     agentOption match {
       case Some(agent) => {
         agent.setLinearVelocity(velocity(agent))
-        agent.setAngularVelocity(angularVelocity(agent).toFloat)
+        agent.setAngularVelocity(angularVelocity(agent))
       }
       case None => {}
     }

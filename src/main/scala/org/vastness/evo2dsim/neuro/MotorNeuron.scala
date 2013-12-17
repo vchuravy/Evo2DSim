@@ -17,10 +17,7 @@
 
 package org.vastness.evo2dsim.neuro
 
-import spire.math._
-
-
-class MotorNeuron(v_bias: Double, t_func: TransferFunction, var m_func: (Rational) => Unit = (_) => {} ) extends Neuron(v_bias, t_func){
+class MotorNeuron(bias: NumberT, t_func: TransferFunction, var m_func: (NumberT) => Unit = (_) => {} ) extends Neuron(bias, t_func){
   override def step() {
     super.step()
     m_func(output)
