@@ -16,11 +16,15 @@
  */
 
 package org.vastness.evo2dsim
-
-import spire.math.Number
-
 package object neuro {
+  import spire.algebra._
+  import spire.implicits._
+
   @inline type NumberT = Double
+  val ev = Ring[NumberT]
+  val zero: NumberT = ev.zero
+  val one: NumberT = ev.one
+
   type Neurons = Iterable[(Int, NumberT, TransferFunction)]
   type Synapses = Iterable[(Int,Int, NumberT)]
 }

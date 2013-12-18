@@ -17,9 +17,6 @@
 
 package org.vastness.evo2dsim.neuro
 
-import spire.math._
-import spire.implicits._
-
-class SensorNeuron(bias: NumberT, t_func: TransferFunction, var s_func: () => NumberT = () => 0.0 ) extends Neuron(bias, t_func) {
+class SensorNeuron(bias: NumberT, t_func: TransferFunction, var s_func: () => NumberT = () => zero ) extends Neuron(bias, t_func) {
   override def calcActivity: NumberT = super.calcActivity + s_func()
 }

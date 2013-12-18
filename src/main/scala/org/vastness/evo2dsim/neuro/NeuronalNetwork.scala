@@ -17,8 +17,6 @@
 
 package org.vastness.evo2dsim.neuro
 
-import spire.math.{Real, Rational}
-
 class NeuronalNetwork {
   var synapses = Set.empty[Synapse]
   var neurons = Map.empty[Int, Neuron]

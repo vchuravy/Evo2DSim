@@ -36,6 +36,6 @@ object TransferFunction extends Enum[TransferFunction] {
   }
   case object BINARY extends TransferFunction {
     val name = "binary"
-    def apply(activity: NumberT) = if (activity >= 0) 1 else 0
+    def apply(activity: NumberT) = if (activity >= zero) one else zero
   }
 }

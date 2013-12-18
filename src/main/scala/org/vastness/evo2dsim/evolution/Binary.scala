@@ -18,9 +18,7 @@
 package org.vastness.evo2dsim.evolution
 
 import scala.util.Random
-import spire.math._
-import spire.implicits._
-import org.vastness.evo2dsim.neuro.NumberT
+import org.vastness.evo2dsim.neuro._
 
 
 trait Binary {
@@ -30,7 +28,7 @@ trait Binary {
    * @return signed byte
    */
   def mapToByte(value: NumberT): Byte = {
-    assert(value.abs <= 1, "Our values are out of range.")
+    assert(value.abs <= one, "Our values are out of range.")
     if (0 <= value) (value * 127).toByte else (value * 128).toByte
   }
 
@@ -40,7 +38,7 @@ trait Binary {
    * @return Double ortedMapin the range of -1 to 1
    */
   def mapToDouble(value: Byte): NumberT =
-    if (0 <= value) value / 127.0 else value / 128.0
+    if (zero <= value) value / 127.0 else value / 128.0
 
   /**
    * Creates a byte that indicates on which point on should flip a byte
