@@ -215,6 +215,9 @@ class MainWindow extends MainFrame with RenderManager {
     EnvironmentManager.addEnvironment(e)
     e.sim.lightManager.disabledCategories = disabledLightSourceCategories
     this.e = Some(e)
+    future {
+      e.run()
+    }
   }
 
   private def mapToAny[A <: Any](array: Array[Array[A]]) = array map { _ map { _.asInstanceOf[Any] }}
