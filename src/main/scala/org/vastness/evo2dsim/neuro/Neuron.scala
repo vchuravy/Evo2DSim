@@ -17,20 +17,23 @@
 
 package org.vastness.evo2dsim.neuro
 
+import spire.syntax.cfor._
+
 class Neuron(var bias: NumberT, var t_func: TransferFunction) {
   var id = -1
 
-  var inputSynapses =  Set.empty[Synapse]
+  var inputSynapses = Vector.empty[Synapse]
 
   private var activity: NumberT = zero
   def output: NumberT = t_func(activity)
 
   protected def calcActivity: NumberT = sumInputs(inputSynapses) + bias
 
-  private def sumInputs(inputs: TraversableOnce[Synapse]): NumberT = {
+  private def sumInputs(inputs: IndexedSeq[Synapse]): NumberT = {
     var sum = zero
-    val f: Synapse => Unit = (a: Synapse) => sum = sum + a.value
-    inputs.foreach(f)
+    cfor(0)(_ < inputSynapses.length, _ +1) { i =>
+      sum += inputSynapses(i).value
+    }
     sum
   }
 
@@ -40,12 +43,12 @@ class Neuron(var bias: NumberT, var t_func: TransferFunction) {
   }
 
   def addInput(s: Synapse){
-    inputSynapses += s
+    inputSynapses :+= s
   }
 
-  def removeInput(s: Synapse){
-    inputSynapses -= s
-  }
+  //def removeInput(s: Synapse){
+  //  inputSynapses :-= s
+  //}
 
   override def toString = id.toString
 }
