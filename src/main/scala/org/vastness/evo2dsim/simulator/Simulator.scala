@@ -67,10 +67,10 @@ class Simulator(seed: Long) {
     addStaticWorldObject(pos, shape)
   }
 
-  def createWorldBoundary(edges: Array[Vec2]) {
+  def createWorldBoundary(edges: Array[Vec2], text: => String = "") {
     val shape = new ChainShape
     shape.createLoop(edges, edges.length)
-    addEntityToManger(new StaticEntity(new  WorldBoundarySprite(edges)(origin, Color.BLACK, ""), this))
+    addEntityToManger(new StaticEntity(new  WorldBoundarySprite(edges)(origin, Color.BLACK, text), this))
     addStaticWorldObject(new Vec2(0,0), shape)
   }
 

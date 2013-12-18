@@ -43,8 +43,9 @@ abstract class BasicEnvironment(timeStep:Int, steps:Int) extends Environment(tim
   val sizes = Array[Vec2](new Vec2(-halfSize,-halfSize), new Vec2(-halfSize,halfSize), new Vec2(halfSize,halfSize), new Vec2(halfSize,-halfSize))
   val edges = for(i <- 0 until sizes.length) yield origin add sizes(i)
 
+  def text: String = "" + stepCounter
   def initializeStatic() {
-    sim.createWorldBoundary(edges.toArray)
+    sim.createWorldBoundary(edges.toArray, text)
 
     @tailrec
     def addFood(food: List[FoodSource], pos: List[Vec2]) {
