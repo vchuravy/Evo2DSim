@@ -133,7 +133,7 @@ class MainWindow extends MainFrame with RenderManager {
     }
   }
 
-  def pause() = e map {e => e.pause = if (e.pause) false else true}
+  def pause() = e map {e => e.toggle_pause()}
 
   def toggleText() {
     EnvironmentManager.showData = if (EnvironmentManager.showData) false else true
