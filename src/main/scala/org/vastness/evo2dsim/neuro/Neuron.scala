@@ -46,9 +46,9 @@ class Neuron(var bias: NumberT, var t_func: TransferFunction) {
     inputSynapses :+= s
   }
 
-  //def removeInput(s: Synapse){
-  //  inputSynapses :-= s
-  //}
+  def removeInput(s: Synapse){
+    inputSynapses = inputSynapses.filterNot(_ == s)
+  }
 
   override def toString = id.toString
 }

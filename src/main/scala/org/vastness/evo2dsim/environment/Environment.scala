@@ -45,17 +45,7 @@ abstract class Environment(val timeStep: Int, val steps: Int) {
   val p = promise[Environment]()
 
   var running = true
-  private var fPause: Promise[Unit] = promise()
-  private var pause = false
-  def toggle_pause() {
-    if (pause) {
-      fPause success {}
-      pause = false
-      fPause = promise()
-    } else {
-      pause = true
-    }
-  }
+
 
   def updateSimulation() {
     sim.step(timeStep/1000.0f)
@@ -69,12 +59,7 @@ abstract class Environment(val timeStep: Int, val steps: Int) {
 
   def run(){
     while(running){
-      if(!pause) {
         updateSimulation()
-      } else {
-        println("Starting Pause!")
-        Await.result(fPause.future, Duration.Inf) // Block till pause is resolved
-      }
     }
     p failure(throw new Exception)
   }
