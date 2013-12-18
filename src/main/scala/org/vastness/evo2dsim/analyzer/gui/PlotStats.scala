@@ -22,6 +22,7 @@ import breeze.plot._
 import scala.concurrent._
 import ExecutionContext.Implicits.global
 import scala.util.{Failure, Success}
+import java.net.URL
 
 
 class PlotStats(val base: Path){
@@ -32,8 +33,11 @@ class PlotStats(val base: Path){
   loadGPLFile()
 
   private def loadGPLFile() {
-    val resource = getClass.getClassLoader.getResource("Evo2DSim.gpl")
-    Path(resource.toURI) match {
+    val resource = getClass.getClassLoader.getResource("Evo2DSim.gpl") match {
+      case null => None
+      case u: URL => Path(u.toURI)
+    }
+    resource match {
       case Some(path) => path.copyTo(gplFile, replaceExisting = true)
       case None => println("Could not resolve resource")
     }
