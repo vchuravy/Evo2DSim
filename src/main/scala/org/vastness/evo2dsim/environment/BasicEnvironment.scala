@@ -40,8 +40,8 @@ abstract class BasicEnvironment(timeStep:Int, steps:Int) extends Environment(tim
   // Overwritten in mixins.foodPos
   protected def foodPos: List[Vec2]
 
-  val sizes = Array[Vec2](new Vec2(-halfSize,-halfSize), new Vec2(-halfSize,halfSize), new Vec2(halfSize,halfSize), new Vec2(halfSize,-halfSize))
-  val edges = for(i <- 0 until sizes.length) yield origin add sizes(i)
+  def sizes = Array[Vec2](new Vec2(-halfSize,-halfSize), new Vec2(-halfSize,halfSize), new Vec2(halfSize,halfSize), new Vec2(halfSize,-halfSize))
+  def edges = for(i <- 0 until sizes.length) yield origin add sizes(i)
 
   def text: String = "" + stepCounter
   def initializeStatic() {
