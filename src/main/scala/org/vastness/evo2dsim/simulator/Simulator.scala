@@ -122,8 +122,11 @@ class Simulator(seed: Long) {
     val shape = new CircleShape
     shape.setRadius(foodSource.radius)
 
-    val sensorShape = new CircleShape
-    sensorShape.setRadius(foodSource.activationRange)
+    val feedingSensorShape = new CircleShape
+    feedingSensorShape.setRadius(foodSource.activationRange)
+
+    val smellSensorShape = new CircleShape
+    smellSensorShape.setRadius(foodSource.smellRange)
 
     val body = world.createBody(bodyDef)
     val bodyFixtureDef = new FixtureDef
@@ -144,15 +147,25 @@ class Simulator(seed: Long) {
     val e2 = new StaticEntity(new EmptyCircleSprite(foodSource.activationRange)(pos, foodSource.color, ""), this)
     addEntityToManger(e2)
 
+    val e3 = new StaticEntity(new EmptyCircleSprite(foodSource.smellRange)(pos, Color.CYAN, ""), this)
+    addEntityToManger(e3)
 
-    val sensorFixtureDef = new FixtureDef
-    sensorFixtureDef.shape = sensorShape
-    sensorFixtureDef.isSensor = true
-    sensorFixtureDef.density = 0.0f
-    sensorFixtureDef.userData = foodSource
+
+    val feedingSensorFixtureDef = new FixtureDef
+    feedingSensorFixtureDef.shape = feedingSensorShape
+    feedingSensorFixtureDef.isSensor = true
+    feedingSensorFixtureDef.density = 0.0f
+    feedingSensorFixtureDef.userData = (true, foodSource)
+
+    val smellSensorFixtureDef = new FixtureDef
+    smellSensorFixtureDef.shape = smellSensorShape
+    smellSensorFixtureDef.isSensor = true
+    smellSensorFixtureDef.density = 0.0f
+    smellSensorFixtureDef.userData = (false, foodSource)
 
     body.createFixture(bodyFixtureDef)
-    body.createFixture(sensorFixtureDef)
+    body.createFixture(feedingSensorFixtureDef)
+    body.createFixture(smellSensorFixtureDef)
 
 
     foodSourceList += foodSource

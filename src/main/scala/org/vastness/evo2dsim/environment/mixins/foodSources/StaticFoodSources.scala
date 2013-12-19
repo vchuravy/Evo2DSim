@@ -22,6 +22,6 @@ import org.vastness.evo2dsim.simulator.food.StaticFoodSource
 
 trait StaticFoodSources extends FoodSources {
   def foodSources = List(
-    new StaticFoodSource(color = Color.RED, max = 8, reward = 1, fRadius, aRange),
-    new StaticFoodSource(color = Color.RED, max = 8, reward = -1, fRadius, aRange))
+    new StaticFoodSource(color = Color.RED, max = 8, reward = 1, foodRadius, activationRange, smellRange),
+    new StaticFoodSource(color = Color.RED, max = 8, reward = -1, foodRadius, activationRange, smellRange))
 }

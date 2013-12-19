@@ -31,7 +31,8 @@ class DependentDynamicFoodSource(color: Color,
                                  constant: Double,
                                  other: FoodSource,
                                  radius: Float,
-                                  activationRange: Float) extends DynamicFoodSource(color, max, constant, radius, activationRange) {
+                                 activationRange: Float,
+                                 smellRange: Float) extends DynamicFoodSource(color, max, constant, radius, activationRange, smellRange) {
 
   override def reward = super.reward - other.feeders.size
 }

@@ -23,5 +23,6 @@ class StaticFoodSource(color: Color,
                        max: Int,
                        override val reward: Double,
                        radius: Float,
-                       activationRange: Float) extends FoodSource(color,max,radius, activationRange) {
+                       activationRange: Float,
+                       smellRange: Float) extends FoodSource(color,max,radius, activationRange, smellRange) {
 }

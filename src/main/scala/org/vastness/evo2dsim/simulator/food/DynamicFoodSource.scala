@@ -29,7 +29,8 @@ class DynamicFoodSource(color: Color,
                         max: Int,
                         constant: Double,
                         radius: Float,
-                        activationRange: Float) extends FoodSource(color, max, radius, activationRange) {
+                        activationRange: Float,
+                        smellRange: Float) extends FoodSource(color, max, radius, activationRange, smellRange) {
 
   override def reward = feeders.size - constant
 }

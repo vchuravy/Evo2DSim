@@ -20,5 +20,5 @@ package org.vastness.evo2dsim.environment.mixins.foodSources
 import org.vastness.evo2dsim.environment.BasicEnvironment
 
 trait FoodSources extends BasicEnvironment {
-  override val fRadius: Float = 0.17f
+  override val foodRadius: Float = 0.17f
 }

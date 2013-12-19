@@ -26,10 +26,11 @@ import org.vastness.evo2dsim.gui.Color
  * @param c on which color channel the light source is sending
  * @param max maximal numbers of individuals who can feed from this source
  */
-abstract class FoodSource(c: Color, var max: Int, var radius: Float, var activationRange: Float) {
+abstract class FoodSource(c: Color, var max: Int, var radius: Float, var activationRange: Float, var smellRange: Float) {
   require(radius > 0)
   require(radius <= activationRange)
   require(c == Color.BLUE || c == Color.RED)
+  require(smellRange >= activationRange)
 
   protected var light: Option[LightSource] = None
 
@@ -46,14 +47,13 @@ abstract class FoodSource(c: Color, var max: Int, var radius: Float, var activat
   }
 
   var feeders = Set.empty[Agent]
+  var listeners = Set.empty[Agent]
 
   def reward: Double
 
   def step(){
     val r = reward
-    for(a <- feeders){
-      a.fitness += r
-      a.currentReward = r
-    }
+    feeders foreach (_.fitness += r)
+    listeners foreach (_.currentReward = r)
   }
 }
