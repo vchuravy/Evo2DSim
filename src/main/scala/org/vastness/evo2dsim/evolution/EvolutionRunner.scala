@@ -77,17 +77,14 @@ class EvolutionRunner(name: String, poolSize: Int, groupSize: Int, evaluationSte
           scala.util.Random.shuffle(envBuilders).head
       }
 
-      println("Found envBuilder")
       assert(evaluationSteps > 0, "In Simulation mode evaluationSteps has to be bigger than zero.")
       val futureEvaluations =  groupEvaluations(genomes.toList)(envBuilder)
-      println("Started Evaluations")
       assert(futureEvaluations.size == evaluationPerGeneration*(poolSize / groupSize))
 
       val evaluationFuture = Future sequence futureEvaluations
       val environmentSetupTime = System.nanoTime()
 
       val evaluatedEnvironments = Await.result(evaluationFuture, Duration.Inf)
-      println("Finished Simulations")
       val simulationFinishedTime = System.nanoTime()
 
       val extractedFitnessValues =
