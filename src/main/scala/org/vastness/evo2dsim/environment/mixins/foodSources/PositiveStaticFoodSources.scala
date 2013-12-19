@@ -17,11 +17,11 @@
 
 package org.vastness.evo2dsim.environment.mixins.foodSources
 
-import org.vastness.evo2dsim.gui.Color
 import org.vastness.evo2dsim.simulator.food.StaticFoodSource
+import org.vastness.evo2dsim.gui.Color
 
-trait StaticFoodSources extends FoodSources {
+trait PositiveStaticFoodSources extends FoodSources{
   def foodSources = List(
     new StaticFoodSource(color = Color.RED, max = 8, reward = 1, fRadius, aRange),
-    new StaticFoodSource(color = Color.RED, max = 8, reward = -1, fRadius, aRange))
+    new StaticFoodSource(color = Color.RED, max = 8, reward = 1, fRadius, aRange))
 }

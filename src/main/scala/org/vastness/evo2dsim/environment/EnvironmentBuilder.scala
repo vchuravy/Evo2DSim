@@ -60,4 +60,14 @@ object EnvironmentBuilder extends Enum[EnvironmentBuilder] {
     val name = "dynamicRandom"
     def apply(t: Int, s: Int)   = new BasicEnvironment(t,s) with RandomFoodPos with DynamicFoodSources
   }
+
+  case object Positive extends EnvironmentBuilder {
+    val name = "positive"
+    def apply(t: Int, s: Int) = new BasicEnvironment(t,s) with SimpleFoodPos with PositiveStaticFoodSources
+  }
+
+  case object PositiveRandom extends EnvironmentBuilder {
+    val name = "positiveRandom"
+    def apply(t: Int, s:Int) = new BasicEnvironment(t, s) with RandomFoodPos with PositiveStaticFoodSources
+  }
 }
