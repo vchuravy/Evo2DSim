@@ -21,7 +21,7 @@ import org.jbox2d.dynamics.contacts.Contact
 import org.jbox2d.collision.Manifold
 import org.jbox2d.callbacks.ContactImpulse
 import org.vastness.evo2dsim.simulator.food.FoodSource
-import org.jbox2d.dynamics.Body
+import org.jbox2d.dynamics.{Fixture, Body}
 
 /**
  * Listens for contacts between FoodSources and Agents
@@ -29,45 +29,49 @@ import org.jbox2d.dynamics.Body
  */
 class ContactListener extends callbacks.ContactListener {
   override def beginContact(contact: Contact) {
-    val body1 = contact.getFixtureA.getBody
-    val body2 = contact.getFixtureB.getBody
+    val fixtureA = contact.getFixtureA
+    val fixtureB = contact.getFixtureB
 
-    extractFoodAgentInteraction(body1, body2) match {
-      case None =>
-      case Some((flag, food, agent)) => flag match {
-        case true => food.feeders += agent
-        case false => food.listeners += agent
-      }
-    }
-  }
-
-  override def endContact(contact: Contact) {
-    val body1 = contact.getFixtureA.getBody
-    val body2 = contact.getFixtureB.getBody
-
-    extractFoodAgentInteraction(body1, body2) match {
-      case None =>
-      case Some((flag, food, agent)) => flag match {
-        case true => food.feeders -= agent
-        case false => {
-          food.listeners -= agent
-          agent.currentReward = 0
+    extractFoodAgentInteraction(fixtureA, fixtureB) map {
+      case (flag, food, agent) => {
+        println(s"$flag, $food, $agent")
+        flag match {
+          case true => food.feeders += agent
+          case false => food.listeners += agent
         }
       }
     }
   }
 
-  private def extractFoodAgentInteraction(body1: Body, body2: Body): Option[(Boolean, FoodSource, Agent)] = {
-    body1.getUserData match {
-      case (f: Boolean, food: FoodSource) => body2.getUserData match {
+  override def endContact(contact: Contact) {
+    val fixtureA = contact.getFixtureA
+    val fixtureB = contact.getFixtureB
+
+    extractFoodAgentInteraction(fixtureA, fixtureB) map {
+      case (flag, food, agent) => {
+        flag match {
+          case true => food.feeders -= agent
+          case false => {
+            food.listeners -= agent
+            agent.currentReward = 0
+          }
+        }
+      }
+    }
+  }
+
+  private def extractFoodAgentInteraction(fixtureA: Fixture, fixtureB: Fixture): Option[(Boolean, FoodSource, Agent)] = {
+    fixtureA.getUserData match {
+      case (f: Boolean, food: FoodSource) => fixtureB.getUserData match {
         case a: Agent => Some((f, food, a))
-        case _ => None
+        case e => None
       }
-      case a: Agent => body2.getUserData match {
+      case a: Agent => fixtureB.getUserData match {
         case (f: Boolean, food: FoodSource) => Some((f, food, a))
-        case _ => None
+        case a2: Agent => None
+        case e => None
       }
-      case _ => None
+      case e => None
     }
   }
 

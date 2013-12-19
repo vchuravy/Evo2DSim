@@ -37,7 +37,8 @@ abstract class Agent(id: Int, pos: Vec2, angle: Float, val sim: Simulator, val r
 
   val body = sim.world.createBody(bodyDef)
   val density = (mass / (Math.PI * radius * radius)).toFloat // Density is influenced by the volume and the mass
-  body.createFixture(shape, density)
+  val agentFixture = body.createFixture(shape, density)
+  agentFixture.setUserData(this)
 
   var controller:Option[Controller] = None
 

@@ -167,7 +167,6 @@ class Simulator(seed: Long) {
     body.createFixture(feedingSensorFixtureDef)
     body.createFixture(smellSensorFixtureDef)
 
-
     foodSourceList += foodSource
   }
 
