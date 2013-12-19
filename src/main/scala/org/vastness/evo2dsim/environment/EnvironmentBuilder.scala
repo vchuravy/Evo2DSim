@@ -32,43 +32,52 @@ sealed trait EnvironmentBuilder {
 }
 
 object EnvironmentBuilder extends Enum[EnvironmentBuilder] {
+  abstract class Default(t: Int, s: Int) extends BasicEnvironment(t,s) with DefaultSettings
+  abstract class DefaultStatic(t: Int, s: Int) extends Default(t,s) with StaticFoodSources
+  abstract class DefaultDynamic(t: Int, s: Int) extends Default(t,s) with DynamicFoodSources
+
   case object Basic extends EnvironmentBuilder {
     val name = "basic"
-    def apply(t: Int, s: Int) = new BasicEnvironment(t,s) with DefaultSettings with SimpleFoodPos with StaticFoodSources
+    def apply(t: Int, s: Int) = new DefaultStatic(t,s) with SimpleFoodPos
   }
 
   case object BasicSimpleRandom extends EnvironmentBuilder {
     val name = "basicSimpleRandom"
-    def apply(t: Int, s:Int) = new BasicEnvironment(t, s) with DefaultSettings with SimpleRandomFoodPos with StaticFoodSources
+    def apply(t: Int, s:Int) = new DefaultStatic(t, s)  with SimpleRandomFoodPos
   }
 
   case object BasicRandom extends EnvironmentBuilder {
     val name = "basicRandom"
-    def apply(t: Int, s:Int) = new BasicEnvironment(t, s) with DefaultSettings with RandomFoodPos with StaticFoodSources
+    def apply(t: Int, s:Int) = new DefaultStatic(t, s) with RandomFoodPos
   }
 
   case object Dynamic extends EnvironmentBuilder {
     val name = "dynamic"
-    def apply(t: Int, s: Int)   = new BasicEnvironment(t,s) with DefaultSettings with SimpleFoodPos with DynamicFoodSources
+    def apply(t: Int, s: Int) = new DefaultDynamic(t,s)  with SimpleFoodPos
   }
 
   case object DynamicSimpleRandom extends EnvironmentBuilder {
     val name = "dynamicSimpleRandom"
-    def apply(t: Int, s: Int)   = new BasicEnvironment(t,s) with DefaultSettings with SimpleRandomFoodPos with DynamicFoodSources
+    def apply(t: Int, s: Int)   = new DefaultDynamic(t,s) with SimpleRandomFoodPos
   }
 
   case object DynamicRandom extends EnvironmentBuilder {
     val name = "dynamicRandom"
-    def apply(t: Int, s: Int)   = new BasicEnvironment(t,s) with DefaultSettings with RandomFoodPos with DynamicFoodSources
+    def apply(t: Int, s: Int)   = new DefaultDynamic(t,s)  with RandomFoodPos
   }
 
   case object Positive extends EnvironmentBuilder {
     val name = "positive"
-    def apply(t: Int, s: Int) = new BasicEnvironment(t,s) with DefaultSettings with SimpleFoodPos with PositiveStaticFoodSources
+    def apply(t: Int, s: Int) = new Default(t,s)  with SimpleFoodPos with PositiveStaticFoodSources
   }
 
   case object PositiveRandom extends EnvironmentBuilder {
     val name = "positiveRandom"
-    def apply(t: Int, s:Int) = new BasicEnvironment(t, s) with DefaultSettings with RandomFoodPos with PositiveStaticFoodSources
+    def apply(t: Int, s:Int) = new Default(t, s)  with RandomFoodPos with PositiveStaticFoodSources
+  }
+
+  case object ECECR extends EnvironmentBuilder {
+    val name = "ECECR"
+    def apply(t: Int, s:Int) = new BasicEnvironment(t,s) with ECECRSettings with StaticFoodSources with RandomFoodPos
   }
 }
