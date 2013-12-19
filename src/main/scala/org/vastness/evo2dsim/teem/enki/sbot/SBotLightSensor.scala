@@ -65,6 +65,40 @@ class SBotLightSensor(segments: Int, bias: Double) extends LinearMapping {
   def getVisionStrip: Map[Color, Array[Int]] = ( Seq(Color.RED, Color.BLUE) collect
     {case c: Color if visionStrip.isDefinedAt(c) => c -> visionStrip(c)} ).toMap
 
+  @inline def fillStrip(data: PartialFunction[Color, Array[Int]])(c:Color)(s:Int, e:Int) {
+    cfor(s)(_ <= e, _ + 1) { i =>
+      data(c)(i) = 1
+    }
+  }
+
+  val max = resolution - 1
+  @inline def safeFillStrip(f: (Int, Int) => Unit)(s: Int, e: Int) {
+    var start = s
+    var end = e
+    val negativeStart = if(start < 0) {
+      start += max
+      true
+    } else false
+
+    val endExceedingMax = if(end > max) {
+      end -= resolution
+      true
+    } else false
+
+    if(negativeStart && !endExceedingMax){
+      f(0, end)
+      f(start, max)
+    } else if ( endExceedingMax && !negativeStart) {
+      f(start, max)
+      f(0, end)
+    } else if (negativeStart && endExceedingMax){
+      f(0, max)
+      println("WARNING: We just filled the whole strip, probably because we got weird input.")
+    } else {
+      f(start, end)
+    }
+  }
+
   /**
    * Fills visionStrip, if light from a source falls onto the area.
    * A point light source (in the center of the object that emits the light) shines light on the surface of an object
@@ -80,6 +114,8 @@ class SBotLightSensor(segments: Int, bias: Double) extends LinearMapping {
       case Color.BLUE => blueT
     }
 
+    @inline val fillStripT = fillStrip(visionStripT) _
+
     for(light: LightSource <- sBot.sim.lightManager.lightSources){
       if (light.active && sBot.light != light && light.radius > 0){
         val radius = light.radius
@@ -92,14 +128,10 @@ class SBotLightSensor(segments: Int, bias: Double) extends LinearMapping {
         val beginAngle  = FastMath.toDegrees(bearingRad - aperture)
         val endAngle    = FastMath.toDegrees(bearingRad + aperture)
 
-        // Calculation taken from Enki
-        val start: Int = FastMath.floor((resolution - 1) * 0.5 * (beginAngle / fov + 1)).toInt
-        val end: Int = FastMath.ceil((resolution - 1) * 0.5 * (endAngle / fov + 1)).toInt
+        val start:Int = FastMath.floor((resolution - 1) * ( (beginAngle+180) / fov )).toInt
+        val end: Int = FastMath.ceil((resolution - 1) * ((endAngle+180) / fov )).toInt
 
-        //visionStrip(light.color).view(start, end) := 1 //TODO: fog, noise, objects standing in sight?
-        cfor(start)(_ <= end, _ + 1) { i =>
-          visionStripT(light.color)(i) = 1
-        }
+        safeFillStrip(fillStripT(light.color))(start, end)
       }
     }
     redSensorValues = calculateSensorValues(redT)
