@@ -34,7 +34,6 @@ class ContactListener extends callbacks.ContactListener {
 
     extractFoodAgentInteraction(fixtureA, fixtureB) map {
       case (flag, food, agent) => {
-        println(s"$flag, $food, $agent")
         flag match {
           case true => food.feeders += agent
           case false => food.listeners += agent
