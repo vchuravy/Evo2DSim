@@ -22,10 +22,11 @@ import org.jbox2d.dynamics.{BodyType, BodyDef}
 import org.jbox2d.collision.shapes.CircleShape
 import org.vastness.evo2dsim.gui.{Color, CircleSprite}
 
-abstract class Agent(id: Int, pos: Vec2, val sim: Simulator, val radius: Float, mass: Float) extends Entity{
+abstract class Agent(id: Int, pos: Vec2, angle: Float, val sim: Simulator, val radius: Float, mass: Float) extends Entity{
   //Defines BodyDef
   val bodyDef = new BodyDef
   bodyDef.position.set(pos)
+  bodyDef.angle = angle
   bodyDef.`type` = BodyType.DYNAMIC
   bodyDef.userData = this
   bodyDef.angularDamping = 0.01f

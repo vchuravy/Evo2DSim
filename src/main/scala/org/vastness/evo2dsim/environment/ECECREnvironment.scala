@@ -15,23 +15,13 @@
  * along with Evo2DSim.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.vastness.evo2dsim.teem.enki.sbot
-
-import org.jbox2d.common.Vec2
-import org.vastness.evo2dsim.simulator.{Simulator, Agent}
-import org.vastness.evo2dsim.simulator.light.{LightCategory, LightSource}
-import org.vastness.evo2dsim.gui.Color
+package org.vastness.evo2dsim.environment
 
 /**
- * Implements an S-Bot agent similar to the enki simulator.
- *   val radius = 0.06f  S-Bot size 6cm
- *   val mass = 0.66f S-Bot weight 660g
+ * Implements the Environment from Evolutionary Conditions for the Emergence of Communication in Robots
+ * by D. Floreano, S. Mitri, S. Magnenat, L. Keller in Current Biology 17, 514-519 2007
+ * DOI 10.1016/j.cub.2007.01.058
  */
-class SBot(id: Int, pos: Vec2, angle: Float, sim: Simulator)
-  extends Agent(id, pos, angle, sim, radius = 0.06f, mass = 0.66f) {
-  val light = new LightSource(Color.BLUE, this, LightCategory.AgentLight, radius)
-  sim.lightManager.addLight(light)
-
-  override def color = light.color
+abstract class ECECREnvironment(timeSteps: Int, steps: Int) extends BasicEnvironment(timeSteps, steps) {
 
 }

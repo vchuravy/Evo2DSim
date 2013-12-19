@@ -83,26 +83,26 @@ class Simulator(seed: Long) {
    * @param agentType  agent type
    * @return the created agent
    */
-  def addAgent(pos: Vec2, agentType: Agents.Value, id: Int) : Agent = agentType match {
-      case Agents.SBot => addSBot(pos, id)
-      case Agents.SBotControllerLinear => addSBotWithLinearController(pos, id)
+  def addAgent(pos: Vec2, angle:Float, agentType: Agents.Value, id: Int) : Agent = agentType match {
+      case Agents.SBot => addSBot(pos, angle, id)
+      case Agents.SBotControllerLinear => addSBotWithLinearController(pos, angle, id)
       case Agents.SBotControllerLinearRandom =>
-        val a = addSBotWithLinearController(pos, id)
+        val a = addSBotWithLinearController(pos, angle, id)
         a.controller.get.initializeRandom(random.nextDouble)
         a
       case Agents.SBotControllerLinearZero =>
-        val a = addSBotWithLinearController(pos, id)
+        val a = addSBotWithLinearController(pos, angle, id)
         a.controller.get.initializeZeros()
         a
     }
 
-  private def addSBot(pos: Vec2, id: Int): Agent = {
-    val a = new SBot(id, pos, this)
+  private def addSBot(pos: Vec2, angle:Float, id: Int): Agent = {
+    val a = new SBot(id, pos, angle, this)
     addAgent(a)
   }
 
-  private def addSBotWithLinearController(pos: Vec2, id: Int): Agent = {
-    val a = addSBot(pos, id)
+  private def addSBotWithLinearController(pos: Vec2, angle:Float, id: Int): Agent = {
+    val a = addSBot(pos, angle, id)
     a.controller = Option(new SBotControllerLinear)
     a.controller.get.attachToAgent(a)
     a

@@ -71,6 +71,7 @@ abstract class BasicEnvironment(timeStep:Int, steps:Int) extends Environment(tim
 
   def initializeAgents(genomes: Map[Int, (Double, Genome)]){
     def pos = newRandomPosition
+    def angle = sim.random.nextFloat()
     def addWithGenome(id: Int, a: Agent, g: Genome): Agent = {
       g.addId(id)
       a.controller.get.fromGenome(g)
@@ -78,7 +79,7 @@ abstract class BasicEnvironment(timeStep:Int, steps:Int) extends Environment(tim
     }
 
     agents = ( for( (id,(_, genome)) <- genomes) yield
-      (id, addWithGenome(id, sim.addAgent(pos, sim.Agents.SBotControllerLinear, id), genome))
+      (id, addWithGenome(id, sim.addAgent(pos, angle, sim.Agents.SBotControllerLinear, id), genome))
       ).toMap
   }
 }
