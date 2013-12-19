@@ -54,8 +54,8 @@ object App {
       }
       val envs = parse(config.generation, envConf)
       for((r, e) <- envs) println("Running %s from %d until %d".format(e.name, r.start, r.end))
-      val evo = new EvolutionRunner(config.evolutionAlgorithm,config.numberOfIndiviums, config.groupSize, config.stepsPerEvaluation, config.generation, config.evaluationPerGeneration, config.timeStep)
-      evo.start(envs)
+      val evo = new EvolutionRunner(config.evolutionAlgorithm,config.numberOfIndiviums, config.groupSize, config.stepsPerEvaluation, config.generation, config.evaluationPerGeneration, config.timeStep, envs)
+      evo.start()
     } getOrElse {
       sys.exit(1)
       // arguments are bad, usage message will have been displayed

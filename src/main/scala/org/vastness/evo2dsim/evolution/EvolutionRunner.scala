@@ -34,7 +34,7 @@ import org.vastness.evo2dsim.environment.{EnvironmentBuilder, Environment}
 import org.vastness.evo2dsim.teem.enki.sbot.SBotControllerLinear
 import org.vastness.evo2dsim.utils.MyJsonProtocol._
 
-class EvolutionRunner(name: String, poolSize: Int, groupSize: Int, evaluationSteps: Int, generations:Int, evaluationPerGeneration: Int, timeStep: Int) {
+class EvolutionRunner(name: String, poolSize: Int, groupSize: Int, evaluationSteps: Int, generations:Int, evaluationPerGeneration: Int, timeStep: Int, envSetup: Seq[(Range,EnvironmentBuilder)]) {
   val now = Calendar.getInstance().getTime
   val dateFormat = new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss")
   val timeStamp = dateFormat.format(now)
@@ -45,10 +45,12 @@ class EvolutionRunner(name: String, poolSize: Int, groupSize: Int, evaluationSte
 
   val evo: Evolution = EvolutionBuilder(name)(poolSize)
 
-  val dir = (Path("results") resolve "%s".format(timeStamp)).createDirectory()
+  val envString = envSetup.sortBy(_._1.start).map(_._2.name).mkString("-")
+  val dir = (Path("results") resolve s"${timeStamp}_${name}_$envString").createDirectory()
   println(s"Results are saved in: $dir")
 
-  private def run(startGenomes: Map[Int, (Double, Genome)], envSetup: Seq[(Range,EnvironmentBuilder)]): Map[Int, (Double, Genome)] = {
+
+  private def run(startGenomes: Map[Int, (Double, Genome)]): Map[Int, (Double, Genome)] = {
     val outputStats =  dir resolve "Stats.csv"
     outputStats.createFile()
     outputStats.append("Generation, Max, Min, Mean, Variance \n")
@@ -148,14 +150,14 @@ class EvolutionRunner(name: String, poolSize: Int, groupSize: Int, evaluationSte
     } ).flatten.seq
   }
 
-  def start(envs: Seq[(Range, EnvironmentBuilder)] = Seq((0 to generations, EnvironmentBuilder.BasicRandom))) {
+  def start() {
     val time = System.nanoTime()
     val genomes = for(id <- (0 until poolSize).par) yield {
       val c = new SBotControllerLinear()
       c.initializeRandom(Random.nextDouble)
       (id, (0.0, c.toGenome))
     }
-    val result = run(Map(genomes.seq: _*), envs)
+    val result = run(Map(genomes.seq: _*))
     writeGraphViz(result)
     writeNewickTree(result)
     val timeSpent = TimeUnit.SECONDS.convert(System.nanoTime() - time, TimeUnit.NANOSECONDS)
