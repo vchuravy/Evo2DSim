@@ -31,8 +31,7 @@ import scala.concurrent.duration.Duration
 abstract class Environment(val timeStep: Int, val steps: Int) {
   def origin: Vec2
   def halfSize: Float
-
-  def spawnSize: Float = halfSize*0.8f
+  def spawnSize: Float
 
   def newRandomPosition: Vec2 = {
     def randomFloat: Float = (sim.random.nextFloat * 2) - 1

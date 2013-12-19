@@ -15,13 +15,8 @@
  * along with Evo2DSim.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.vastness.evo2dsim.environment
+package org.vastness.evo2dsim.environment.mixins.settings
 
-/**
- * Implements the Environment from Evolutionary Conditions for the Emergence of Communication in Robots
- * by D. Floreano, S. Mitri, S. Magnenat, L. Keller in Current Biology 17, 514-519 2007
- * DOI 10.1016/j.cub.2007.01.058
- */
-abstract class ECECREnvironment(timeSteps: Int, steps: Int) extends BasicEnvironment(timeSteps, steps) {
+import org.vastness.evo2dsim.environment.BasicEnvironment
 
-}
+trait Settings extends BasicEnvironment

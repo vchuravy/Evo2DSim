@@ -20,6 +20,7 @@ package org.vastness.evo2dsim.environment
 import org.vastness.utils.Enum
 import org.vastness.evo2dsim.environment.mixins.foodSources._
 import org.vastness.evo2dsim.environment.mixins.foodPos._
+import org.vastness.evo2dsim.environment.mixins.settings._
 
 /**
  * Builder functions for Environment.
@@ -33,41 +34,41 @@ sealed trait EnvironmentBuilder {
 object EnvironmentBuilder extends Enum[EnvironmentBuilder] {
   case object Basic extends EnvironmentBuilder {
     val name = "basic"
-    def apply(t: Int, s: Int) = new BasicEnvironment(t,s) with SimpleFoodPos with StaticFoodSources
+    def apply(t: Int, s: Int) = new BasicEnvironment(t,s) with DefaultSettings with SimpleFoodPos with StaticFoodSources
   }
 
   case object BasicSimpleRandom extends EnvironmentBuilder {
     val name = "basicSimpleRandom"
-    def apply(t: Int, s:Int) = new BasicEnvironment(t, s) with SimpleRandomFoodPos with StaticFoodSources
+    def apply(t: Int, s:Int) = new BasicEnvironment(t, s) with DefaultSettings with SimpleRandomFoodPos with StaticFoodSources
   }
 
   case object BasicRandom extends EnvironmentBuilder {
     val name = "basicRandom"
-    def apply(t: Int, s:Int) = new BasicEnvironment(t, s) with RandomFoodPos with StaticFoodSources
+    def apply(t: Int, s:Int) = new BasicEnvironment(t, s) with DefaultSettings with RandomFoodPos with StaticFoodSources
   }
 
   case object Dynamic extends EnvironmentBuilder {
     val name = "dynamic"
-    def apply(t: Int, s: Int)   = new BasicEnvironment(t,s) with SimpleFoodPos with DynamicFoodSources
+    def apply(t: Int, s: Int)   = new BasicEnvironment(t,s) with DefaultSettings with SimpleFoodPos with DynamicFoodSources
   }
 
   case object DynamicSimpleRandom extends EnvironmentBuilder {
     val name = "dynamicSimpleRandom"
-    def apply(t: Int, s: Int)   = new BasicEnvironment(t,s) with SimpleRandomFoodPos with DynamicFoodSources
+    def apply(t: Int, s: Int)   = new BasicEnvironment(t,s) with DefaultSettings with SimpleRandomFoodPos with DynamicFoodSources
   }
 
   case object DynamicRandom extends EnvironmentBuilder {
     val name = "dynamicRandom"
-    def apply(t: Int, s: Int)   = new BasicEnvironment(t,s) with RandomFoodPos with DynamicFoodSources
+    def apply(t: Int, s: Int)   = new BasicEnvironment(t,s) with DefaultSettings with RandomFoodPos with DynamicFoodSources
   }
 
   case object Positive extends EnvironmentBuilder {
     val name = "positive"
-    def apply(t: Int, s: Int) = new BasicEnvironment(t,s) with SimpleFoodPos with PositiveStaticFoodSources
+    def apply(t: Int, s: Int) = new BasicEnvironment(t,s) with DefaultSettings with SimpleFoodPos with PositiveStaticFoodSources
   }
 
   case object PositiveRandom extends EnvironmentBuilder {
     val name = "positiveRandom"
-    def apply(t: Int, s:Int) = new BasicEnvironment(t, s) with RandomFoodPos with PositiveStaticFoodSources
+    def apply(t: Int, s:Int) = new BasicEnvironment(t, s) with DefaultSettings with RandomFoodPos with PositiveStaticFoodSources
   }
 }

@@ -28,18 +28,17 @@ import scala.annotation.tailrec
  * @see Environment
  */
 abstract class BasicEnvironment(timeStep:Int, steps:Int) extends Environment(timeStep, steps) {
+  // Overwritten in  mixins.settings
+  def foodRadius: Float
+  def foodOffset: Float
+  def activationRange: Float
+  def smellRange: Float
 
   // Overwritten in mixins.foodSources
-  def foodRadius: Float
-  def activationRange: Float = foodRadius * 1.3f
-  def smellRange: Float = activationRange * 1.3f
   protected def foodSources: List[FoodSource]
 
   // Overwritten in mixins.foodPos
   protected def foodPos: List[Vec2]
-
-  val origin = new Vec2(1.515f,1.515f)
-  val halfSize = 1.5f
 
   val sizes = Array[Vec2](new Vec2(-halfSize,-halfSize), new Vec2(-halfSize,halfSize), new Vec2(halfSize,halfSize), new Vec2(halfSize,-halfSize))
   val edges = for(i <- 0 until sizes.length) yield origin add sizes(i)
@@ -68,7 +67,7 @@ abstract class BasicEnvironment(timeStep:Int, steps:Int) extends Environment(tim
       v
   }
 
-  protected def edgeLocations = edges map {e => e sub (normToOrigin(e) mul 2f*foodRadius)}
+  protected def edgeLocations = edges map {e => e sub (normToOrigin(e) mul foodOffset)}
 
   def initializeAgents(genomes: Map[Int, (Double, Genome)]){
     def pos = newRandomPosition
