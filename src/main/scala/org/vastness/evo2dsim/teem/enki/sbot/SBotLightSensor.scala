@@ -24,10 +24,16 @@ import org.apache.commons.math3.util.FastMath
 import org.vastness.evo2dsim.utils.LinearMapping
 import spire.implicits._
 
+/**
+ * Implements a two channel 360 Degree camera
+ * @param segments In how many segments should we split up the Camera
+ * @param bias default bias for connected neurons
+ */
 class SBotLightSensor(segments: Int, bias: Double) extends LinearMapping {
   val fov = 360
-  val resolution = fov
-  var debug = false
+  require(fov <= 360, "A FOV higher then 360 Degree doesn't make any sense")
+  val resolution = fov // If you need a higher resolution than 1 Grad = 1 Px
+
   private var agent: Option[SBot] = None
   private val redNeurons = new Array[Neuron](segments)
   private val blueNeurons = new Array[Neuron](segments)
@@ -40,39 +46,65 @@ class SBotLightSensor(segments: Int, bias: Double) extends LinearMapping {
   val UPPER_INPUT_LIMIT = pixels.toDouble
   val LOWER_INPUT_LIMIT = 0.0
 
+  // Create the Neurons that are attached to this sensor
   createNeurons()
 
-  @inline
-  def visionStrip: PartialFunction[Color, Array[Int]] = {
+  /**
+   * Returns the visionStrip belong to the color, think of this as a manual map
+   * @return
+   */
+  @inline def visionStrip: PartialFunction[Color, Array[Int]] = {
     case Color.RED => red
     case Color.BLUE => blue
   }
 
-
+  // After each step we store the results in these arrays
   private var red:  Array[Int] = Array.empty
   private var blue: Array[Int] = Array.empty
 
-  @inline
-  def sensorValue: PartialFunction[Color, Array[NumberT]] = {
+  /**
+   * @see visionStrip a manual map the gives you the correct sensorValues for a given color.
+   * @return
+   */
+  @inline def sensorValue: PartialFunction[Color, Array[NumberT]] = {
     case Color.RED => redSensorValues
     case Color.BLUE => blueSensorValues
   }
 
-  var redSensorValues = new Array[NumberT](segments)
-  var blueSensorValues = new Array[NumberT](segments)
+  // We store the sensorValue for each color.
+  private var redSensorValues = new Array[NumberT](segments)
+  private var blueSensorValues = new Array[NumberT](segments)
 
-
+  /**
+   *
+   * @return the VisionStrip as a real Map
+   */
   def getVisionStrip: Map[Color, Array[Int]] = ( Seq(Color.RED, Color.BLUE) collect
     {case c: Color if visionStrip.isDefinedAt(c) => c -> visionStrip(c)} ).toMap
 
-  @inline def fillStrip(data: PartialFunction[Color, Array[Int]])(c:Color)(s:Int, e:Int) {
+  /**
+   * Optimized function to fill the visionStrip
+   * @param data to work upon
+   * @param s where to start
+   * @param e where to end
+   * @return
+   */
+  @inline private def fillStrip(data :Array[Int])(s:Int, e:Int) {
     cfor(s)(_ <= e, _ + 1) { i =>
-      data(c)(i) = 1
+      data(i) = 1
     }
   }
 
-  val max = resolution - 1
-  @inline def safeFillStrip(f: (Int, Int) => Unit)(s: Int, e: Int) {
+  private val max = resolution - 1
+
+  /**
+   * Safely fill the vision Strip an take underfill and overfill into account
+   * @param f The function to work with
+   * @param s start
+   * @param e end
+   * @return
+   */
+  private def safeFillStrip(f: (Int, Int) => Unit)(s: Int, e: Int) {
     var start = s
     var end = e
     val negativeStart = if(start < 0) {
@@ -88,7 +120,7 @@ class SBotLightSensor(segments: Int, bias: Double) extends LinearMapping {
     if(negativeStart && !endExceedingMax){
       f(0, end)
       f(start, max)
-    } else if ( endExceedingMax && !negativeStart) {
+    } else if (endExceedingMax && !negativeStart) {
       f(start, max)
       f(0, end)
     } else if (negativeStart && endExceedingMax){
@@ -103,25 +135,27 @@ class SBotLightSensor(segments: Int, bias: Double) extends LinearMapping {
    * Fills visionStrip, if light from a source falls onto the area.
    * A point light source (in the center of the object that emits the light) shines light on the surface of an object
    * based upon the distance and relative position to the target.
-   * The code is take from enki
+   * The code is inspired by the enki
    */
   def calcVision(sBot: SBot) {
+    // Temp storage
     val redT: Array[Int]   = new Array(resolution)
     val blueT: Array[Int]  = new Array(resolution)
 
+    //Tmp access function
     @inline val visionStripT: PartialFunction[Color, Array[Int]] = {
       case Color.RED => redT
       case Color.BLUE => blueT
     }
 
-    @inline val fillStripT = fillStrip(visionStripT) _
+    // Fill function to work on the temp data
+    @inline def fillStripT(c: Color) = fillStrip(visionStripT(c)) _
 
     for(light: LightSource <- sBot.sim.lightManager.lightSources){
       if (light.active && sBot.light != light && light.radius > 0){
         val radius = light.radius
         val lightPosition = sBot.body.getLocalPoint(light.position)
-        val distance = lightPosition.normalize() - radius
-
+        val distance = lightPosition.normalize() - radius // Subtract the light radius, because the SBots have the light strip around their body
 
         val aperture    = FastMath.atan(radius / distance)
         val bearingRad  = FastMath.atan2(lightPosition.x, lightPosition.y) // clockwise angle
@@ -134,6 +168,7 @@ class SBotLightSensor(segments: Int, bias: Double) extends LinearMapping {
         safeFillStrip(fillStripT(light.color))(start, end)
       }
     }
+
     redSensorValues = calculateSensorValues(redT)
     blueSensorValues = calculateSensorValues(blueT)
     red = redT

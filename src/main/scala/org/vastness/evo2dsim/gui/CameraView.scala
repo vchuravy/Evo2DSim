@@ -25,7 +25,6 @@ class CameraView(lightSensor: SBotLightSensor) extends Component {
   val s = 4
   val y = 2 * s
   val x = s / (lightSensor.resolution / lightSensor.fov)
-  lightSensor.debug = true
 
   override def paintComponent(g: Graphics2D) {
     super.paintComponent(g)
