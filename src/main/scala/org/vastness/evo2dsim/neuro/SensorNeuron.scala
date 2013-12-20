@@ -18,5 +18,17 @@
 package org.vastness.evo2dsim.neuro
 
 class SensorNeuron(bias: NumberT, t_func: TransferFunction, var s_func: () => NumberT = () => zero ) extends Neuron(bias, t_func) {
-  override def calcActivity: NumberT = super.calcActivity + s_func()
+  var memory: Boolean = false
+  val decay: NumberT = 0.95
+  private var lastSensoryInput: NumberT = zero
+  override def calcActivity: NumberT = {
+    var sensorInput = s_func()
+    if(memory) {
+      if(sensorInput == zero) {
+        sensorInput = lastSensoryInput * decay
+      }
+      lastSensoryInput = sensorInput
+    }
+    super.calcActivity + sensorInput
+  }
 }

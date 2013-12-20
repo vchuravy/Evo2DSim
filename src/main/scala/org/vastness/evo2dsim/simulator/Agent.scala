@@ -68,4 +68,8 @@ abstract class Agent(id: Int, pos: Vec2, angle: Float, val sim: Simulator, val r
   // def applyTorque(torque: Float) = body.applyTorque(torque)
   // def applyForce(force: Vec2) = body.applyForceToCenter(force)
   // def applyForceAtLocalPoint(force: Vec2, point: Vec2) = body.applyForce(force, body.getWorldPoint(point))
+
+  def activateArtificialSmellMemory() {
+    controller map { c => c.activateArtificialSmellMemory()}
+  }
 }

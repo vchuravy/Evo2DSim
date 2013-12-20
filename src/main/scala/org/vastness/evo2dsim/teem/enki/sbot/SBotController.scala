@@ -43,6 +43,10 @@ abstract class SBotController extends Controller {
     sensorNeurons.size * motorNeurons.size
   }
 
+  override def activateArtificialSmellMemory() {
+    foodSensorNeuron.memory = true
+  }
+
   override def attachToAgent(agent: Agent) = {
     motor.attachToAgent(agent)
     foodSensorNeuron.s_func = () => agent.currentReward

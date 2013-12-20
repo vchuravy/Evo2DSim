@@ -23,4 +23,5 @@ trait ECECRSettings extends DefaultSettings {
   override val foodRadius: Float = 0.10f
   override def foodOffset: Float = 1.0f
   override def smellRange: Float = 0.25f
+  override def artificialSmellMemory: Boolean = true
 }

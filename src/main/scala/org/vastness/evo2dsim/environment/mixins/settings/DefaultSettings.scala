@@ -28,4 +28,5 @@ trait DefaultSettings extends Settings{
   override def foodOffset: Float = 2f*foodRadius
   override def activationRange: Float = foodRadius * 1.3f
   override def smellRange: Float = activationRange * 1.3f
+  override def artificialSmellMemory: Boolean = false
 }

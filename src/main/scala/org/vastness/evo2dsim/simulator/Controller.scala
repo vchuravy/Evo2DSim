@@ -33,12 +33,14 @@ abstract class Controller() {
   def initializeRandom(random: () => Double)
   def initializeZeros()
 
-  def sensorStep()
+  def activateArtificialSmellMemory(): Unit
+
+  def sensorStep(): Unit
 
   def controllerStep(){
     nn.step()
   }
 
-  def motorStep()
+  def motorStep(): Unit
 
 }

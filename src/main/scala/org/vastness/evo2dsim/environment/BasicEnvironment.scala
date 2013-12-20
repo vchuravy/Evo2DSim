@@ -33,6 +33,7 @@ abstract class BasicEnvironment(timeStep:Int, steps:Int) extends Environment(tim
   def foodOffset: Float
   def activationRange: Float
   def smellRange: Float
+  def artificialSmellMemory: Boolean
 
   // Overwritten in mixins.foodSources
   protected def foodSources: List[FoodSource]
@@ -75,6 +76,7 @@ abstract class BasicEnvironment(timeStep:Int, steps:Int) extends Environment(tim
     def addWithGenome(id: Int, a: Agent, g: Genome): Agent = {
       g.addId(id)
       a.controller.get.fromGenome(g)
+      if(artificialSmellMemory) a.activateArtificialSmellMemory()
       a
     }
 
