@@ -1,3 +1,4 @@
+#!/bin/bash
 # This is a simple SGE batch script you can run at OIST
 #
 # request Bash shell as shell for job
@@ -27,4 +28,4 @@ cd /work/DoyaU/v-churavy/Evo2DSim
 # -c => Evaluation config default="0:basic"
 # -a => Evolution algorithm default="sus"
 
-$CMD -mem 4096 -g $1 -n $2 -c $3 -a $4
+$CMD -mem 4096 -s 1200 -g $1 -n $2 -c $3 -a $4
