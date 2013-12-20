@@ -19,6 +19,7 @@ package org.vastness.evo2dsim.evolution
 
 import scala.annotation.tailrec
 import scala.util.Random
+import org.vastness.evo2dsim.evolution.genomes.Genome
 
 /**
  * Implements stochastic universal sampling
@@ -43,7 +44,7 @@ class SUSEvolution (val poolSize: Int)
       counter
     }
 
-    ( for(x <- startingPoint to 1.0 by stepSize; id = select(x)) yield nextId(x) -> (0.0, results(id)._2.mutate) ).toMap
+    ( for(x <- startingPoint to 1.0 by stepSize; id = select(x)) yield nextId(x) -> (0.0, results(id)._2.mutate) ).toMap //Todo: Use crossover
   }
 
   /**

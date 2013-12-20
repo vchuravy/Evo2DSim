@@ -15,19 +15,16 @@
  * along with Evo2DSim.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.vastness.evo2dsim.neuro
+package org.vastness.evo2dsim.evolution.genomes
 
-import org.vastness.evo2dsim.evolution.genomes.{Node, NodeTag}
+import org.vastness.evo2dsim.neuro.NumberT
+import org.vastness.evo2dsim.evolution.genomes.byte.{ByteNode, Binary, ByteConnection}
+import org.vastness.evo2dsim.evolution.genomes.neat.{NEATNode, NEATConnection}
 
-case class MotorNeuron(id: Int, bias: NumberT, t_func: TransferFunction, data: String)(var m_func: (NumberT) => Unit = (_) => {}) extends Neuron {
-  override val tag = NodeTag.Motor
-  override def step() {
-    super.step()
-    m_func(output)
-  }
-}
 
-object MotorNeuron {
-  def apply(n: Node): ((NumberT) => Unit) => MotorNeuron = MotorNeuron(n.id, n.bias, n.transferFunction, n.data)
-  def apply(n: Node, o: MotorNeuron): MotorNeuron = MotorNeuron(n)(o.m_func)
+trait Connection extends Product with Serializable {
+  def mutate: Connection
+  def from: Node
+  def to: Node
+  def weight: NumberT
 }

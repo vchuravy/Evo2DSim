@@ -40,7 +40,7 @@ abstract class Agent(id: Int, pos: Vec2, angle: Float, val sim: Simulator, val r
   val agentFixture = body.createFixture(shape, density)
   agentFixture.setUserData(this)
 
-  var controller:Option[Controller] = None
+  def controller: Controller
 
   override def sprite = new CircleSprite(radius)(body.getPosition, color, text)
   override def position = body.getPosition
@@ -51,14 +51,14 @@ abstract class Agent(id: Int, pos: Vec2, angle: Float, val sim: Simulator, val r
   def text = "%d \n F:%.2f \n CR:%.2f".format(id, fitness, currentReward)
 
   def sensorStep() {
-    controller map { c => c.sensorStep() }
+    controller.sensorStep()
   }
 
   def controllerStep() {
-    controller map { c => c.controllerStep() }
+    controller.controllerStep()
   }
   def motorStep() {
-    controller map { c => c.motorStep() }
+    controller.motorStep()
   }
 
   def color: Color = Color.BLACK
@@ -70,6 +70,6 @@ abstract class Agent(id: Int, pos: Vec2, angle: Float, val sim: Simulator, val r
   // def applyForceAtLocalPoint(force: Vec2, point: Vec2) = body.applyForce(force, body.getWorldPoint(point))
 
   def activateArtificialSmellMemory() {
-    controller map { c => c.activateArtificialSmellMemory()}
+    controller.activateArtificialSmellMemory()
   }
 }

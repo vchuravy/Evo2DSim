@@ -15,18 +15,12 @@
  * along with Evo2DSim.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.vastness.evo2dsim.evolution
+package org.vastness.evo2dsim.evolution.genomes.byte
 
-import org.vastness.evo2dsim.neuro._
+import org.vastness.evo2dsim.evolution.genomes.EvolutionManager
+import org.vastness.evo2dsim.neuro.TransferFunction
 
-trait Genome {
-  def toSerializedNN:
-  (Int,
-    Neurons,
-    Synapses)
+class ByteEvolutionManager(val probability: Double = 0.1,
+val standardTransferFunction: TransferFunction = TransferFunction.THANH) extends EvolutionManager{
 
-  def mutate: Genome
-  def crossover(g: Genome): Genome
-  def history: List[String]
-  def addId(id: Int)
 }

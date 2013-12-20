@@ -19,10 +19,10 @@ package org.vastness.evo2dsim.environment
 
 import org.jbox2d.common.Vec2
 import org.vastness.evo2dsim.simulator.Agent
-import org.vastness.evo2dsim.evolution.Genome
 import scala.collection.Map
 import org.vastness.evo2dsim.simulator.food.FoodSource
 import scala.annotation.tailrec
+import org.vastness.evo2dsim.evolution.genomes.{Genome}
 
 /**
  * @see Environment
@@ -74,14 +74,13 @@ abstract class BasicEnvironment(timeStep:Int, steps:Int) extends Environment(tim
     def pos = newRandomPosition
     def angle = sim.random.nextFloat()
     def addWithGenome(id: Int, a: Agent, g: Genome): Agent = {
-      g.addId(id)
-      a.controller.get.fromGenome(g)
+      a.controller.init(g)
       if(artificialSmellMemory) a.activateArtificialSmellMemory()
       a
     }
 
     agents = ( for( (id,(_, genome)) <- genomes) yield
-      (id, addWithGenome(id, sim.addAgent(pos, angle, sim.Agents.SBotControllerLinear, id), genome))
+      (id, addWithGenome(id, sim.addAgent(pos, angle, sim.Agents.SBot, id), genome))
       ).toMap
   }
 }

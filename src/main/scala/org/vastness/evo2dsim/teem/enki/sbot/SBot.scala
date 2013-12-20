@@ -32,6 +32,9 @@ class SBot(id: Int, pos: Vec2, angle: Float, sim: Simulator)
   val light = new LightSource(Color.BLUE, this, LightCategory.AgentLight, radius)
   sim.lightManager.addLight(light)
 
+  override val controller = new SBotController
+  controller.attachToAgent(this)
+
   override def color = light.color
 
 }

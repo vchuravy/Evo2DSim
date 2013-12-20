@@ -18,12 +18,12 @@
 package org.vastness.evo2dsim.environment
 
 import org.vastness.evo2dsim.simulator.{Agent, Simulator}
-import org.vastness.evo2dsim.evolution.Genome
 import scala.concurrent.{Await, Promise, Future, promise}
 import org.vastness.evo2dsim.gui.EnvironmentManager
 import scala.collection.Map
 import org.jbox2d.common.Vec2
 import scala.concurrent.duration.Duration
+import org.vastness.evo2dsim.evolution.genomes.Genome
 
 /**
  * Implements the very basics for an environment

@@ -15,19 +15,12 @@
  * along with Evo2DSim.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.vastness.evo2dsim.neuro
+package org.vastness.evo2dsim.evolution.genomes.byte
 
-import org.vastness.evo2dsim.evolution.genomes.{Node, NodeTag}
 
-case class MotorNeuron(id: Int, bias: NumberT, t_func: TransferFunction, data: String)(var m_func: (NumberT) => Unit = (_) => {}) extends Neuron {
-  override val tag = NodeTag.Motor
-  override def step() {
-    super.step()
-    m_func(output)
-  }
-}
+import org.vastness.evo2dsim.evolution.genomes.Connection
 
-object MotorNeuron {
-  def apply(n: Node): ((NumberT) => Unit) => MotorNeuron = MotorNeuron(n.id, n.bias, n.transferFunction, n.data)
-  def apply(n: Node, o: MotorNeuron): MotorNeuron = MotorNeuron(n)(o.m_func)
+case class ByteConnection(from: ByteNode, to: ByteNode, v_weight: Byte) extends Connection with Binary {
+  def mutate: ByteConnection = ByteConnection(from, to, xor(v_weight, 0.1)) //TODO: get proper p
+  def weight = mapToDouble(v_weight)
 }

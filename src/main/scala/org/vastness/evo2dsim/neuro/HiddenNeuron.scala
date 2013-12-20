@@ -17,17 +17,15 @@
 
 package org.vastness.evo2dsim.neuro
 
+
 import org.vastness.evo2dsim.evolution.genomes.{Node, NodeTag}
 
-case class MotorNeuron(id: Int, bias: NumberT, t_func: TransferFunction, data: String)(var m_func: (NumberT) => Unit = (_) => {}) extends Neuron {
-  override val tag = NodeTag.Motor
-  override def step() {
-    super.step()
-    m_func(output)
-  }
+case class HiddenNeuron(id: Int,bias: NumberT, t_func: TransferFunction, data: String) extends Neuron {
+  def tag = NodeTag.Hidden
 }
 
-object MotorNeuron {
-  def apply(n: Node): ((NumberT) => Unit) => MotorNeuron = MotorNeuron(n.id, n.bias, n.transferFunction, n.data)
-  def apply(n: Node, o: MotorNeuron): MotorNeuron = MotorNeuron(n)(o.m_func)
+object HiddenNeuron {
+  def apply(node: Node): HiddenNeuron = HiddenNeuron(node.id, node.bias, node.transferFunction, node.data)
 }
+
+

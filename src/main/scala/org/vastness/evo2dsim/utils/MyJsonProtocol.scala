@@ -19,7 +19,10 @@ package org.vastness.evo2dsim.utils
 
 import spray.json._
 import org.vastness.evo2dsim.neuro.TransferFunction
-import org.vastness.evo2dsim.evolution.{BinaryGenome, Genome}
+import org.vastness.evo2dsim.evolution.genomes.{NodeTag, Genome}
+import org.vastness.evo2dsim.evolution.genomes.byte.{ByteEvolutionManager, ByteNode, ByteConnection, ByteGenome}
+import org.vastness.evo2dsim.evolution.genomes.neat.{NEATEvolutionManager, NEATConnection, NEATNode, NEATGenome}
+
 
 object MyJsonProtocol extends DefaultJsonProtocol {
   implicit object transferFunctionFormat extends JsonFormat[TransferFunction] {
@@ -29,55 +32,72 @@ object MyJsonProtocol extends DefaultJsonProtocol {
       case _ => deserializationError("Got: " + value + " expected JsString")
     }
   }
-  implicit object genomeFormat extends JsonFormat[Genome] {
-    def write(g: Genome): JsValue = g match {
-      case bG: BinaryGenome => binaryGenomeFormat.write(bG)
-      case _ => serializationError("Unknown Genome")
-    }
 
-    def read(value: JsValue): Genome = value.asJsObject.getFields("name") match {
-      case Seq(JsString(name)) if name == "BinaryGenome" =>  binaryGenomeFormat.read(value)
-      case _ => deserializationError("Unknown Genome")
+  implicit object nodeTagFormat extends JsonFormat[NodeTag] {
+    def write(nT: NodeTag) = JsString(nT.name)
+    def read(value: JsValue) = value match {
+      case JsString(name) => NodeTag.values.find(_.name == name).get
+      case _ => deserializationError("Got: " + value + " expected JsString")
     }
   }
-  implicit object binaryGenomeFormat extends JsonFormat[BinaryGenome]{
-    def write(bG: BinaryGenome) = JsObject(
-      "name" -> JsString(bG.name),
-      "currentId" -> JsNumber(bG.currentID),
-      "weights" -> bG.weightBytes.map(x => x._1.toString -> (x._1, x._2)).toJson,
-      "biases" -> bG.biasBytes.map(x => x._1.toString -> x._2).toJson,
-      "t_funcs" -> bG.t_funcs.map(x => x._1.toString -> x._2).toJson,
-      "mutateBiases" -> JsBoolean(bG.mutateBiases),
-      "mutateWeights" -> JsBoolean(bG.mutateWeights),
-      "mutateProbability" -> JsNumber(bG.mutateProbability),
-      "crossoverProbability" -> JsNumber(bG.crossoverProbability),
-      "ancestors" -> JsArray(bG.ancestors.map(JsString(_)))
+
+  implicit val neatNodeFormat = jsonFormat5(NEATNode)
+  implicit val neatConnectionFormat = jsonFormat5(NEATConnection)
+  implicit object neatGenomeFormat extends JsonFormat[NEATGenome] {
+    def write(nG: NEATGenome) = JsObject(
+      "nodes" -> nG.nodes.toJson,
+      "connections" -> nG.connections.toJson,
+      "stdTFunc" -> nG.nm.standardTransferFunction.toJson,
+      "p" -> JsNumber(nG.nm.probability)
     )
-    def read(value: JsValue) = {
-      value.asJsObject.getFields("currentId", "weights",
-        "biases", "t_funcs", "mutateBiases",
-        "mutateWeights", "mutateProbability",
-        "crossoverProbability", "ancestors" ,"name") match {
-          case Seq(JsNumber(currentId), weights, biases,
-                    t_funcs, JsBoolean(mutateBiases),
-                    JsBoolean(mutateWeights), JsNumber(mutateProbability),
-                    JsNumber(crossoverProbability), JsArray(ancestors), JsString(name)) =>
-          BinaryGenome(
-            currentId.toInt,
-            weights.convertTo[Map[String, ((Int, Int), Byte)]].map(x => x._2),
-            biases.convertTo[Map[String, Byte]].map(x => x._1.toInt -> x._2),
-            t_funcs.convertTo[Map[String, TransferFunction]].map(x => x._1.toInt -> x._2),
-            mutateBiases,
-            mutateWeights,
-            mutateProbability.toDouble,
-            crossoverProbability.toDouble,
-            ancestors.map{
-              case JsString(v) => v
-              case _ => ""},
-            name
-          )
-          case _ => deserializationError("BinaryGenome expected")
+
+    def read(value: JsValue) =
+      value.asJsObject.getFields("nodes", "connections", "stdTFunc", "p") match {
+        case Seq(nodes, connections, stdTFunc, JsNumber(p)) =>
+          val n = nodes.convertTo[Set[NEATNode]]
+          val c = connections.convertTo[Set[NEATConnection]]
+          val sTF = stdTFunc.convertTo[TransferFunction]
+          val nm = new NEATEvolutionManager(p.toDouble, sTF)
+          NEATGenome(n,c,nm)
+        case _ => deserializationError("Got: " + value + " expected NEATGenome")
       }
+  }
+
+  implicit val byteNodeFormat = jsonFormat5(ByteNode)
+  implicit val byteConnectionFormat = jsonFormat3(ByteConnection)
+  implicit object byteGenomeFormat extends JsonFormat[ByteGenome] {
+    def write(bG: ByteGenome) = JsObject(
+      "nodes" -> bG.nodes.toJson,
+      "connections" -> bG.connections.toJson,
+      "stdTFunc" -> bG.em.standardTransferFunction.toJson,
+      "p" -> JsNumber(bG.em.probability)
+    )
+
+    def read(value: JsValue) =
+      value.asJsObject.getFields("nodes", "connections", "stdTFunc", "p") match {
+        case Seq(nodes, connections, stdTFunc, JsNumber(p)) =>
+          val n = nodes.convertTo[Set[ByteNode]]
+          val c = connections.convertTo[Set[ByteConnection]]
+          val sTF = stdTFunc.convertTo[TransferFunction]
+          val em = new ByteEvolutionManager(p.toDouble, sTF)
+          ByteGenome(n,c,em)
+        case _ => deserializationError("Got: " + value + " expected ByteGenome")
+      }
+  }
+
+  implicit object genomeFormat extends JsonFormat[Genome] {
+    def write(g: Genome) = {
+      val jsG = g match {
+        case bG: ByteGenome => bG.toJson
+        case nG: NEATGenome => nG.toJson
+      }
+      JsObject("name" -> JsString(g.name), "data" -> jsG)
+    }
+
+    def read(value: JsValue) = value.asJsObject.getFields("name", "data") match {
+      case Seq(JsString("ByteGenome"), data) => data.convertTo[ByteGenome]
+      case Seq(JsString("NEATGenome"), data) => data.convertTo[NEATGenome]
+      case _ => deserializationError("Got: " + value + " expected Genome")
     }
   }
 

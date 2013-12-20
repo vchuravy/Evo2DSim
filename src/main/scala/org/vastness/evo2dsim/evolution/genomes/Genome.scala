@@ -15,25 +15,22 @@
  * along with Evo2DSim.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.vastness.evo2dsim.teem.enki.sbot
+package org.vastness.evo2dsim.evolution.genomes
 
-import org.vastness.evo2dsim.evolution.{BinaryGenome, Genome}
+import org.vastness.evo2dsim.evolution.genomes.byte.ByteGenome
+import org.vastness.evo2dsim.evolution.genomes.neat.NEATGenome
 
-class SBotControllerLinear() extends SBotController() {
 
-  override def toGenome:Genome = BinaryGenome.initialize(nn, mutateBiases = false)
+trait Genome {
+  type Self <: Genome
+  type SelfNode <: Node
+  type SelfConnection <: Connection
 
-  override def initialize(weights: Array[Double]) {
-    nn.generateLinearNetwork(sensorNeurons, motorNeurons, weights)
-  }
+  def name: String
 
-  override def initializeRandom(random: () => Double){
-    val weights = Array.fill(size){random() *2-1}
-    initialize(weights)
-  }
+  def mutate: Self
+  def crossover(other: Self): Self
 
-  override def initializeZeros(){
-    val weights = Array.fill(size){0.0}
-    initialize(weights)
-  }
+  def nodes: Set[SelfNode]
+  def connections: Set[SelfConnection]
 }

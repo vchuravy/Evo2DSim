@@ -15,7 +15,7 @@
  * along with Evo2DSim.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.vastness.evo2dsim.evolution
+package org.vastness.evo2dsim.evolution.genomes.byte
 
 import scala.util.Random
 import org.vastness.evo2dsim.neuro._

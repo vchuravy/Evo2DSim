@@ -17,30 +17,42 @@
 
 package org.vastness.evo2dsim.simulator
 
-import org.vastness.evo2dsim.neuro.NeuronalNetwork
-import org.vastness.evo2dsim.evolution.Genome
+import org.vastness.evo2dsim.neuro._
+import org.vastness.evo2dsim.evolution.genomes._
+import org.vastness.evo2dsim.evolution.genomes.byte.{ByteGenome, ByteEvolutionManager}
+import org.vastness.evo2dsim.evolution.genomes.neat.{NEATGenome, NEATEvolutionManager}
 
-abstract class Controller() {
-  val nn = new NeuronalNetwork()
+abstract class Controller {
+  var nn: Option[NeuronalNetwork] = None
+  var genome: Option[Genome] = None
 
-  def toGenome: Genome
+  def sensorNeurons: Set[SensorNeuron]
+  def motorNeurons: Set[MotorNeuron]
 
-  def fromGenome(genome: Genome): Unit
+  def init(g: Genome){
+    genome = Some(g)
+    nn = Some(NeuronalNetwork(sensorNeurons, motorNeurons, g))
+  }
+
+  def getBasicRandomGenome(genomeName: String, ev: EvolutionManager): Genome = {
+    val neurons = sensorNeurons ++ motorNeurons
+    (genomeName, ev) match {
+      case ("ByteGenome", em: ByteEvolutionManager) => ByteGenome.basicRandomGenome(neurons, em)
+      case ("NEATGenome", em: NEATEvolutionManager) => NEATGenome.basicRandomGenome(neurons, em)
+    }
+  }
+
+
 
   def attachToAgent(agent: Agent): Unit
-
-  def initialize(weights: Array[Double])
-  def initializeRandom(random: () => Double)
-  def initializeZeros()
 
   def activateArtificialSmellMemory(): Unit
 
   def sensorStep(): Unit
 
   def controllerStep(){
-    nn.step()
+    nn map (_.step())
   }
 
   def motorStep(): Unit
-
 }

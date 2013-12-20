@@ -17,6 +17,8 @@
 
 package org.vastness.evo2dsim.evolution
 
+import org.vastness.evo2dsim.evolution.genomes.Genome
+
 trait Evolution {
   type Genomes = Map[Int, (Double, Genome)]
   def poolSize: Int

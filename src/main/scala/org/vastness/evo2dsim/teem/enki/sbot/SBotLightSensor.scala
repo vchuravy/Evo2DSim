@@ -35,8 +35,8 @@ class SBotLightSensor(segments: Int, bias: Double) extends LinearMapping {
   val resolution = fov // If you need a higher resolution than 1 Grad = 1 Px
 
   private var agent: Option[SBot] = None
-  private val redNeurons = new Array[Neuron](segments)
-  private val blueNeurons = new Array[Neuron](segments)
+  private val redNeurons = new Array[SensorNeuron](segments)
+  private val blueNeurons = new Array[SensorNeuron](segments)
 
   assert(resolution%segments == 0)
   val pixels = resolution/segments
@@ -189,8 +189,8 @@ class SBotLightSensor(segments: Int, bias: Double) extends LinearMapping {
 
   private def createNeurons() {
     for( i <- 0 until segments){
-      blueNeurons(i) = new SensorNeuron(bias, TransferFunction.SIG, getSensorFunc(Color.BLUE, i) )
-      redNeurons(i) = new SensorNeuron(bias, TransferFunction.SIG, getSensorFunc(Color.RED, i))
+      blueNeurons(i) = new SensorNeuron(-1, bias, TransferFunction.SIG, s"VisionBlue$i")(getSensorFunc(Color.BLUE, i))
+      redNeurons(i) = new SensorNeuron(-1, bias, TransferFunction.SIG, s"VisionRed$i")(getSensorFunc(Color.RED, i))
     }
   }
 
@@ -210,7 +210,7 @@ class SBotLightSensor(segments: Int, bias: Double) extends LinearMapping {
     sum
   }
 
-  def getNeurons = (blueNeurons ++ redNeurons).toList
+  def getNeurons = (blueNeurons ++ redNeurons).toSet
 
   def attachToAgent(sBot: SBot){
     this.agent = Some(sBot)

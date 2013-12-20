@@ -17,12 +17,16 @@
 
 package org.vastness.evo2dsim.neuro
 
+import org.vastness.evo2dsim.evolution.genomes.NodeTag
 import spire.syntax.cfor._
 
-class Neuron(var bias: NumberT, var t_func: TransferFunction) {
-  var id = -1
-
-  var inputSynapses = Vector.empty[Synapse]
+trait Neuron extends Product with Serializable{
+  def id: Int
+  def bias: NumberT
+  var inputSynapses: Vector[Synapse] = Vector.empty
+  def t_func: TransferFunction
+  def tag: NodeTag
+  def data: String
 
   private var activity: NumberT = zero
   def output: NumberT = t_func(activity)
@@ -42,15 +46,5 @@ class Neuron(var bias: NumberT, var t_func: TransferFunction) {
     activity = calcActivity
   }
 
-  def addInput(s: Synapse){
-    inputSynapses :+= s
-  }
-
-  def removeInput(s: Synapse){
-    inputSynapses = inputSynapses.filterNot(_ == s)
-  }
-
   override def toString = id.toString
 }
-
-

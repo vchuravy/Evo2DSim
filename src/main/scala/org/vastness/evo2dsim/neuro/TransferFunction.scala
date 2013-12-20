@@ -23,6 +23,7 @@ import org.apache.commons.math3.util.FastMath
 sealed trait TransferFunction {
   def name: String
   def apply(x: NumberT): NumberT
+  override def toString = name
 }
 
 object TransferFunction extends Enum[TransferFunction] {

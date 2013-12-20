@@ -15,19 +15,15 @@
  * along with Evo2DSim.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.vastness.evo2dsim.neuro
+package org.vastness.evo2dsim.evolution.genomes.neat
 
-import org.vastness.evo2dsim.evolution.genomes.{Node, NodeTag}
+import org.vastness.evo2dsim.neuro._
+import org.vastness.evo2dsim.evolution.genomes.Connection
 
-case class MotorNeuron(id: Int, bias: NumberT, t_func: TransferFunction, data: String)(var m_func: (NumberT) => Unit = (_) => {}) extends Neuron {
-  override val tag = NodeTag.Motor
-  override def step() {
-    super.step()
-    m_func(output)
-  }
-}
+case class NEATConnection(from: NEATNode, to: NEATNode, weight: NumberT, enabled: Boolean, innovationNumber: Int) extends Connection {
+  def disable = NEATConnection(from, to, weight, false, innovationNumber)
+  def enable  = NEATConnection(from, to ,weight, true, innovationNumber)
+  def toggle  = if(enabled) enable else disable
 
-object MotorNeuron {
-  def apply(n: Node): ((NumberT) => Unit) => MotorNeuron = MotorNeuron(n.id, n.bias, n.transferFunction, n.data)
-  def apply(n: Node, o: MotorNeuron): MotorNeuron = MotorNeuron(n)(o.m_func)
+  def mutate  = NEATConnection(from, to, weight + (2*random - 1), enabled, innovationNumber)
 }

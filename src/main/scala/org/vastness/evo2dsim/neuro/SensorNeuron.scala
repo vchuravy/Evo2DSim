@@ -17,7 +17,11 @@
 
 package org.vastness.evo2dsim.neuro
 
-class SensorNeuron(bias: NumberT, t_func: TransferFunction, var s_func: () => NumberT = () => zero ) extends Neuron(bias, t_func) {
+import org.vastness.evo2dsim.evolution.genomes.{Node, NodeTag}
+
+case class SensorNeuron(id: Int, bias: NumberT, t_func: TransferFunction, data: String)(var s_func: () => NumberT = () => zero) extends Neuron {
+ val tag = NodeTag.Sensor
+
   var memory: Boolean = false
   val decay: NumberT = 0.95
   private var lastSensoryInput: NumberT = zero
@@ -31,4 +35,9 @@ class SensorNeuron(bias: NumberT, t_func: TransferFunction, var s_func: () => Nu
     }
     super.calcActivity + sensorInput
   }
+}
+
+object SensorNeuron {
+  def apply(n: Node): (() => NumberT) => SensorNeuron = SensorNeuron(n.id, n.bias, n.transferFunction, n.data)
+  def apply(n: Node, o: SensorNeuron): SensorNeuron = SensorNeuron(n)(o.s_func)
 }

@@ -22,7 +22,7 @@ import org.jbox2d.dynamics.{FixtureDef, BodyType, BodyDef}
 import org.jbox2d.dynamics
 import org.jbox2d.collision.shapes._
 import org.vastness.evo2dsim.gui._
-import org.vastness.evo2dsim.teem.enki.sbot.{SBotControllerLinear, SBot}
+import org.vastness.evo2dsim.teem.enki.sbot.{SBot}
 import org.vastness.evo2dsim.simulator.light.LightManager
 import org.vastness.evo2dsim.simulator.food.FoodSource
 import scala.collection.mutable.ArrayBuffer
@@ -85,15 +85,6 @@ class Simulator(seed: Long) {
    */
   def addAgent(pos: Vec2, angle:Float, agentType: Agents.Value, id: Int) : Agent = agentType match {
       case Agents.SBot => addSBot(pos, angle, id)
-      case Agents.SBotControllerLinear => addSBotWithLinearController(pos, angle, id)
-      case Agents.SBotControllerLinearRandom =>
-        val a = addSBotWithLinearController(pos, angle, id)
-        a.controller.get.initializeRandom(random.nextDouble)
-        a
-      case Agents.SBotControllerLinearZero =>
-        val a = addSBotWithLinearController(pos, angle, id)
-        a.controller.get.initializeZeros()
-        a
     }
 
   private def addSBot(pos: Vec2, angle:Float, id: Int): Agent = {
@@ -101,12 +92,6 @@ class Simulator(seed: Long) {
     addAgent(a)
   }
 
-  private def addSBotWithLinearController(pos: Vec2, angle:Float, id: Int): Agent = {
-    val a = addSBot(pos, angle, id)
-    a.controller = Option(new SBotControllerLinear)
-    a.controller.get.attachToAgent(a)
-    a
-  }
 
   private def addAgent(agent: Agent) : Agent = {
     addEntityToManger(agent)
@@ -182,7 +167,7 @@ class Simulator(seed: Long) {
 
   object Agents extends Enumeration {
     type Agents = Value
-    val SBot, SBotControllerLinear, SBotControllerLinearRandom, SBotControllerLinearZero = Value
+    val SBot = Value
   }
 }
 

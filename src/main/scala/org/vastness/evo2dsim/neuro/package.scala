@@ -16,6 +16,9 @@
  */
 
 package org.vastness.evo2dsim
+
+import scala.util.Random
+
 package object neuro {
   import spire.algebra._
   import spire.implicits._
@@ -24,6 +27,7 @@ package object neuro {
   val ev = Ring[NumberT]
   val zero: NumberT = ev.zero
   val one: NumberT = ev.one
+  def random: NumberT = Random.nextDouble()
 
   type Neurons = Iterable[(Int, NumberT, TransferFunction)]
   type Synapses = Iterable[(Int,Int, NumberT)]

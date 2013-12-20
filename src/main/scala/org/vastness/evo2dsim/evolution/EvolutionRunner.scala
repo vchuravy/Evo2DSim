@@ -31,8 +31,10 @@ import spray.json._
 
 import org.vastness.evo2dsim.gui.EnvironmentManager
 import org.vastness.evo2dsim.environment.{EnvironmentBuilder, Environment}
-import org.vastness.evo2dsim.teem.enki.sbot.SBotControllerLinear
 import org.vastness.evo2dsim.utils.MyJsonProtocol._
+import org.vastness.evo2dsim.evolution.genomes.{EvolutionManager, Genome}
+import org.vastness.evo2dsim.teem.enki.sbot.SBotController
+import org.vastness.evo2dsim.evolution.genomes.byte.ByteEvolutionManager
 
 class EvolutionRunner(name: String, poolSize: Int, groupSize: Int, evaluationSteps: Int, generations:Int, evaluationPerGeneration: Int, timeStep: Int, envSetup: Seq[(Range,EnvironmentBuilder)]) {
   val now = Calendar.getInstance().getTime
@@ -147,16 +149,14 @@ class EvolutionRunner(name: String, poolSize: Int, groupSize: Int, evaluationSte
     } ).flatten.seq
   }
 
-  def start() {
+  def start(genomeName: String = "byte", em: EvolutionManager = new ByteEvolutionManager()) {
     val time = System.nanoTime()
     val genomes = for(id <- (0 until poolSize).par) yield {
-      val c = new SBotControllerLinear()
-      c.initializeRandom(Random.nextDouble)
-      (id, (0.0, c.toGenome))
+     val c = new SBotController()
+     val g = c.getBasicRandomGenome(genomeName, em)
+     (id, (0.0, g))
     }
     val result = run(Map(genomes.seq: _*))
-    writeGraphViz(result)
-    writeNewickTree(result)
     val timeSpent = TimeUnit.SECONDS.convert(System.nanoTime() - time, TimeUnit.NANOSECONDS)
     println("We are done here:")
     println("Running for: %d min %s sec".format(timeSpent / 60, timeSpent % 60))
@@ -169,61 +169,5 @@ class EvolutionRunner(name: String, poolSize: Int, groupSize: Int, evaluationSte
     val mean = results.sum / results.size
     val variance = results.foldLeft(0.0) {(acc, x) => acc + math.pow(x - mean,2)} / results.size
     (max, min, mean, variance)
-  }
-
-  def writeGraphViz(genomes: Map[Int, (Double, Genome)]){
-    val result = genomes.map(_._2._2)
-    val history = result.map(_.history.reverse).toList
-    val dot = for(h <- history) yield {
-      h.foldLeft("ROOT")(_ + " -> " + _) + ";"
-    }
-    val o = "digraph Tree {" :: dot
-    val output = dir / "Tree.gv"
-    output.writeStrings(o, "\n")
-    output.append("}")
-  }
-
-  def writeNewickTree(genomes: Map[Int, (Double, Genome)]){
-    val tree = constructTree(genomes)
-    val newick = createNewickTree(tree) + ";"
-    val output = dir / "Tree.nh"
-    output.write(newick)
-
-  }
-
-  /**
-   * Currently only constructs trees where no crossover happens.
-   */
-  def constructTree(result: Map[Int, (Double, Genome)]): Tree[String] = {
-    val genomes = result.map(_._2._2)
-    val history = genomes.map(_.history.reverse).toList
-    _constructTree(Tree.leaf[String]("ROOT"),history)
-  }
-
-  def _constructTree(tree: Tree[String], history: List[List[String]]):Tree[String] = {
-    var t = tree.loc
-    for(path <- history) {
-      t = createTreeFromPath(path, t.root)
-    }
-    t.toTree
-  }
-
-  @tailrec
-  private def createTreeFromPath(path: List[String], t: TreeLoc[String]): TreeLoc[String] = path match {
-    case x :: xs =>
-      t.findChild(_.rootLabel == x) match {
-        case Some(child) => createTreeFromPath(xs, child)
-        case None =>
-          val newT = t.insertDownFirst(Tree.leaf(x))
-          createTreeFromPath(xs, newT)
-      }
-    case _ => t
-  }
-
-  def createNewickTree(tree: Tree[String]):String = tree.subForest match {
-    case Stream.Empty => tree.rootLabel
-    case forest: Stream[Tree[String]] =>
-      forest.foldLeft("(")((acc, tree) => acc + createNewickTree(tree) + ",").dropRight(1) + ")"+tree.rootLabel
-
   }
 }

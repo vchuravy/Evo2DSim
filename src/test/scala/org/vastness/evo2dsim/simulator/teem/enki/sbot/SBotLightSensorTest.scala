@@ -32,19 +32,19 @@ class SBotLightSensorTest extends FlatSpec with Matchers {
   }
 
   trait SimWithOneAgent extends Sim with PrivateMethodTester{
-    val agent1 = sim.addAgent(new Vec2(0,0), 0.0f, sim.Agents.SBotControllerLinearZero, 0).asInstanceOf[SBot]
-    val lightSensor1 = agent1.controller.get match{
+    val agent1 = sim.addAgent(new Vec2(0,0), 0.0f, sim.Agents.SBot, 0).asInstanceOf[SBot]
+    val lightSensor1 = agent1.controller match{
       case c: SBotController => c.lightSensor
     }
     val visionStripPM = PrivateMethod[Map[Color,Array[Float]]]('visionStrip)
   }
 
   trait SimWithTwoAgents extends SimWithOneAgent {
-    val agent2 = sim.addAgent(new Vec2(0,1), 0.0f, sim.Agents.SBotControllerLinearZero, 1).asInstanceOf[SBot]
+    val agent2 = sim.addAgent(new Vec2(0,1), 0.0f, sim.Agents.SBot, 1).asInstanceOf[SBot]
   }
 
   trait SimWithTwoAgentsInverse extends  SimWithOneAgent{
-    val agent2 = sim.addAgent(new Vec2(0,-1), 0.0f, sim.Agents.SBotControllerLinearZero, 1).asInstanceOf[SBot]
+    val agent2 = sim.addAgent(new Vec2(0,-1), 0.0f, sim.Agents.SBot, 1).asInstanceOf[SBot]
   }
 
   "Position and angle" should "be Zero for Agent1" in new SimWithOneAgent {

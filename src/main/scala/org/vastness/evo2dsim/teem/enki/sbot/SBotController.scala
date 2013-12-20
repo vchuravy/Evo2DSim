@@ -18,26 +18,25 @@
 package org.vastness.evo2dsim.teem.enki.sbot
 
 import org.vastness.evo2dsim.simulator.{Agent, Motor, Controller}
-import org.vastness.evo2dsim.neuro.{NumberT, SensorNeuron, MotorNeuron, TransferFunction}
-import org.vastness.evo2dsim.evolution.Genome
+import org.vastness.evo2dsim.neuro._
 import spire.implicits._
 import spire.math._
+import org.vastness.evo2dsim.evolution.genomes.Genome
+import scala.Some
 
 
-abstract class SBotController extends Controller {
+class SBotController extends Controller {
   val motor = new Motor()
-  val leftMotorNeuron = new MotorNeuron(0,TransferFunction.THANH, motor.setLeftMotorVelocity)
-  val rightMotorNeuron = new MotorNeuron(0,TransferFunction.THANH, motor.setRightMotorVelocity)
-  val lightSwitch = new MotorNeuron(0, TransferFunction.BINARY)
+  val leftMotorNeuron = new MotorNeuron(-1, 0,TransferFunction.THANH,"LeftMotor")(motor.setLeftMotorVelocity)
+  val rightMotorNeuron = new MotorNeuron(-1, 0,TransferFunction.THANH, "RightMotor")(motor.setRightMotorVelocity)
+  val lightSwitch = new MotorNeuron(-1, 0, TransferFunction.BINARY, "Light")()
 
-  val foodSensorNeuron = new SensorNeuron(0,TransferFunction.THANH)
+  val foodSensorNeuron = new SensorNeuron(-1, 0,TransferFunction.THANH, data = "Food")()
   val lightSensor = new SBotLightSensor(4, 0)
   val lightNeurons = lightSensor.getNeurons
 
-  val motorNeurons = List(leftMotorNeuron, rightMotorNeuron, lightSwitch)
-  val sensorNeurons = foodSensorNeuron :: lightNeurons
-
-  nn.addNeurons(sensorNeurons ++ motorNeurons)
+  val motorNeurons = Set(leftMotorNeuron, rightMotorNeuron, lightSwitch)
+  val sensorNeurons = lightNeurons + foodSensorNeuron
 
   protected def size: Int = {
     sensorNeurons.size * motorNeurons.size
@@ -58,11 +57,6 @@ abstract class SBotController extends Controller {
       }
       case _ => println("Warning you just attached a SBotController to an agent that is not of type SBot")
     }
-  }
-
-  override def fromGenome(genome: Genome) {
-    val (currentID, neurons, synapses) = genome.toSerializedNN
-    nn.initializeNetwork(currentID, neurons, synapses) // Note safe to call because Motors and Sensors are initialized
   }
 
   override def sensorStep(){

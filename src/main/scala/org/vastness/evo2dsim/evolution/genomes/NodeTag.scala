@@ -15,19 +15,22 @@
  * along with Evo2DSim.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.vastness.evo2dsim.neuro
+package org.vastness.evo2dsim.evolution.genomes
 
-import org.vastness.evo2dsim.evolution.genomes.{Node, NodeTag}
+import org.vastness.utils.Enum
 
-case class MotorNeuron(id: Int, bias: NumberT, t_func: TransferFunction, data: String)(var m_func: (NumberT) => Unit = (_) => {}) extends Neuron {
-  override val tag = NodeTag.Motor
-  override def step() {
-    super.step()
-    m_func(output)
-  }
+sealed trait NodeTag{
+  def name: String
 }
 
-object MotorNeuron {
-  def apply(n: Node): ((NumberT) => Unit) => MotorNeuron = MotorNeuron(n.id, n.bias, n.transferFunction, n.data)
-  def apply(n: Node, o: MotorNeuron): MotorNeuron = MotorNeuron(n)(o.m_func)
+object NodeTag extends Enum[NodeTag] {
+  case object Sensor extends NodeTag {
+    def name = "sensor"
+  }
+  case object Motor extends NodeTag {
+    def name = "motor"
+  }
+  case object Hidden extends NodeTag {
+    def name = "hidden"
+  }
 }
