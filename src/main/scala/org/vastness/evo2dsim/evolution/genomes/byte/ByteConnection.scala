@@ -21,6 +21,6 @@ package org.vastness.evo2dsim.evolution.genomes.byte
 import org.vastness.evo2dsim.evolution.genomes.Connection
 
 case class ByteConnection(from: ByteNode, to: ByteNode, v_weight: Byte) extends Connection with Binary {
-  def mutate: ByteConnection = ByteConnection(from, to, xor(v_weight, 0.1)) //TODO: get proper p
+  def mutate: ByteConnection = ByteConnection(from, to, (v_weight ^ xor(p = 0.1)).toByte) //TODO: get proper p
   def weight = mapToDouble(v_weight)
 }
