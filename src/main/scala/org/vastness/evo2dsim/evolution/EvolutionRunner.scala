@@ -149,7 +149,7 @@ class EvolutionRunner(name: String, poolSize: Int, groupSize: Int, evaluationSte
     } ).flatten.seq
   }
 
-  def start(genomeName: String = "byte", em: EvolutionManager = new ByteEvolutionManager()) {
+  def start(genomeName: String = "ByteGenome", em: EvolutionManager = new ByteEvolutionManager()) {
     val time = System.nanoTime()
     val genomes = for(id <- (0 until poolSize).par) yield {
      val c = new SBotController()
