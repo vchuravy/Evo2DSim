@@ -48,7 +48,7 @@ object NeuronalNetwork {
 
     val synapses = for(c <- genome.connections) yield new Synapse(findNeuron(c.from), findNeuron(c.to), c.weight)
     val inSynapses = synapses.groupBy(_.output.id)
-    neurons foreach {n => n.inputSynapses = n.inputSynapses ++ inSynapses(n.id).toVector}
+    neurons foreach {n => n.inputSynapses = n.inputSynapses ++ inSynapses.getOrElse(n.id, Set.empty).toVector}
     NeuronalNetwork(synapses, neurons)
   }
 }
