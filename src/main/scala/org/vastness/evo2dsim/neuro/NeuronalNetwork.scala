@@ -38,7 +38,7 @@ object NeuronalNetwork {
       MotorNeuron(n)(o.m_func)
     }
 
-    val hiddenNeurons = for(n <- taggedNodes(NodeTag.Hidden)) yield HiddenNeuron(n)
+    val hiddenNeurons = for(n <- taggedNodes.getOrElse(NodeTag.Hidden, Set.empty)) yield HiddenNeuron(n)
     val neurons: Set[Neuron] = hiddenNeurons ++ sensorNeurons ++ motorNeurons
 
     def findNeuron(node: Node) = neurons.find(_.id == node.id) match {
