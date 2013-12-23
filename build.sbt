@@ -16,9 +16,9 @@ libraryDependencies ++= Seq(
   "org.apache.commons" % "commons-math3" % "3.2",
   "com.github.scala-incubator.io" %% "scala-io-file" % "0.4.2",
   "io.spray" %% "spray-json" % "1.2.5",
-  "org.scalaz" %% "scalaz-core" % "7.1.0-M3",
+  "org.scalaz" %% "scalaz-core" % "7.1.0-M4",
   "org.vastness" %% "utils" % "0.1",
-  "org.spire-math" %% "spire" % "0.6.1"
+  "org.spire-math" %% "spire" % "0.7.1"
 )
 
 packageArchetype.java_application
