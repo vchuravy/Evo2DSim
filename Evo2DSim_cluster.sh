@@ -27,5 +27,7 @@ cd /work/DoyaU/v-churavy/Evo2DSim
 # -z => Group Size default=10
 # -c => Evaluation config default="0:basic"
 # -a => Evolution algorithm default="sus"
+# -y => GenomeType default="NEATGenome"
+# -p => Probability for mutations default=0.1
 
-$CMD -mem 4096 -s 1200 -g $1 -n $2 -c $3 -a $4
+$CMD -mem 4096 -s 1200 -g $1 -n $2 -c $3 -a $4 -y $5 -p $6
