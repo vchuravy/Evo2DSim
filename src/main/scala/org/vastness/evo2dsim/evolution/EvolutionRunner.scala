@@ -36,7 +36,7 @@ import org.vastness.evo2dsim.evolution.genomes.{EvolutionManager, Genome}
 import org.vastness.evo2dsim.teem.enki.sbot.SBotController
 import org.vastness.evo2dsim.evolution.genomes.byte.ByteEvolutionManager
 
-class EvolutionRunner(name: String, poolSize: Int, groupSize: Int, evaluationSteps: Int, generations:Int, evaluationPerGeneration: Int, timeStep: Int, envSetup: Seq[(Range,EnvironmentBuilder)]) {
+class EvolutionRunner(name: String, poolSize: Int, groupSize: Int, evaluationSteps: Int, generations:Int, evaluationPerGeneration: Int, timeStep: Int, envSetup: Seq[(Range,EnvironmentBuilder)], genomeName: String) {
   val now = Calendar.getInstance().getTime
   val dateFormat = new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss")
   val timeStamp = dateFormat.format(now)
@@ -48,7 +48,7 @@ class EvolutionRunner(name: String, poolSize: Int, groupSize: Int, evaluationSte
   val evo: Evolution = EvolutionBuilder(name)(poolSize)
 
   val envString = envSetup.sortBy(_._1.start).map(_._2.name).mkString("-")
-  val dir = (Path("results") resolve s"${timeStamp}_${name}_$envString").createDirectory()
+  val dir = (Path("results") resolve s"${timeStamp}_${name}_${envString}_$genomeName").createDirectory()
   println(s"Results are saved in: $dir")
 
 
@@ -149,7 +149,7 @@ class EvolutionRunner(name: String, poolSize: Int, groupSize: Int, evaluationSte
     } ).flatten.seq
   }
 
-  def start(genomeName: String, em: EvolutionManager) {
+  def start(em: EvolutionManager) {
     val time = System.nanoTime()
     em.init(new SBotController().getBasicRandomGenome(genomeName, em))
     val genomes = for(id <- (0 until poolSize).par) yield {
