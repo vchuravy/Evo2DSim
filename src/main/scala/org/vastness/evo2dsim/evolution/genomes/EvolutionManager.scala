@@ -22,4 +22,5 @@ import org.vastness.evo2dsim.neuro.TransferFunction
 trait EvolutionManager {
   def probability: Double
   def standardTransferFunction: TransferFunction
+  def init(g: Genome)
 }

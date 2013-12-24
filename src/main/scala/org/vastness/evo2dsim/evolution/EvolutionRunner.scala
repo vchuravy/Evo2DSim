@@ -151,6 +151,7 @@ class EvolutionRunner(name: String, poolSize: Int, groupSize: Int, evaluationSte
 
   def start(genomeName: String, em: EvolutionManager) {
     val time = System.nanoTime()
+    em.init(new SBotController().getBasicRandomGenome(genomeName, em))
     val genomes = for(id <- (0 until poolSize).par) yield {
      val c = new SBotController()
      val g = c.getBasicRandomGenome(genomeName, em)

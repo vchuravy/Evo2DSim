@@ -18,7 +18,7 @@
 package org.vastness.evo2dsim.evolution.genomes.neat
 
 import org.vastness.evo2dsim.neuro.TransferFunction
-import org.vastness.evo2dsim.evolution.genomes.EvolutionManager
+import org.vastness.evo2dsim.evolution.genomes.{Genome, EvolutionManager}
 
 class NEATEvolutionManager(val probability: Double,
                            val standardTransferFunction: TransferFunction = TransferFunction.THANH) extends EvolutionManager {
@@ -53,5 +53,16 @@ class NEATEvolutionManager(val probability: Double,
       val id = nextNeuronID
       neuronIDMap += iN -> id
       id
+  }
+
+  def init(g: Genome) = g match {
+    case n: NEATGenome =>
+      innovationNumberMap = ( for(c <- n.connections) yield {
+        (c.from, c.to) -> c.innovationNumber
+      } ).toMap
+
+      innovationNumber_ = n.connections.map(_.innovationNumber).max
+      currentNeuronID_  = n.nodes.map(_.id).max
+    case _ => throw new Exception("Expected NEATGenome")
   }
 }

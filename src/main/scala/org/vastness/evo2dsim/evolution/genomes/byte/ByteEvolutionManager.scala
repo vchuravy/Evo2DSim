@@ -17,10 +17,11 @@
 
 package org.vastness.evo2dsim.evolution.genomes.byte
 
-import org.vastness.evo2dsim.evolution.genomes.EvolutionManager
+import org.vastness.evo2dsim.evolution.genomes.{Genome, EvolutionManager}
 import org.vastness.evo2dsim.neuro.TransferFunction
 
 class ByteEvolutionManager(val probability: Double = 0.1,
 val standardTransferFunction: TransferFunction = TransferFunction.THANH) extends EvolutionManager{
 
+  def init(g: Genome) {}
 }
