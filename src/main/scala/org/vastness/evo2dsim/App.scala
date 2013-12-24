@@ -20,6 +20,8 @@ package org.vastness.evo2dsim
 
 import org.vastness.evo2dsim.evolution.{EvolutionRunner, EvolutionBuilder, SUSEvolution}
 import org.vastness.evo2dsim.environment.EnvironmentBuilder
+import org.vastness.evo2dsim.evolution.genomes.byte.ByteEvolutionManager
+import org.vastness.evo2dsim.evolution.genomes.neat.NEATEvolutionManager
 
 /**
  * @author Valentin Churavy
@@ -44,6 +46,10 @@ object App {
         c.copy(envConf = x) } text "Generation:Environment;X:Y..."
       opt[String]('a', "algorithmn") action { (x, c) =>
         c.copy(evolutionAlgorithm = x) } text "Evolution algorithm: sus (Stochastic Universal Sampling) or elite (Elitism)"
+      opt[String]('y', "genomeType") action { (x, c) =>
+        c.copy(genomeType = x) } text "GenomeType to be used: ByteGenome or NEATGenome"
+      opt[Double]('p', "probability") action { (x, c) =>
+        c.copy(propability = x) } text "Probability used for Evolution"
     }
 
     parser.parse(args, Config()) map { config =>
@@ -55,7 +61,12 @@ object App {
       val envs = parse(config.generation, envConf)
       for((r, e) <- envs) println("Running %s from %d until %d".format(e.name, r.start, r.end))
       val evo = new EvolutionRunner(config.evolutionAlgorithm,config.numberOfIndiviums, config.groupSize, config.stepsPerEvaluation, config.generation, config.evaluationPerGeneration, config.timeStep, envs)
-      evo.start()
+
+      val em = config.genomeType match {
+        case "ByteGenome" => new ByteEvolutionManager(config.propability)
+        case "NEATGenome" => new NEATEvolutionManager(config.propability)
+      }
+      evo.start(config.genomeType, em)
     } getOrElse {
       sys.exit(1)
       // arguments are bad, usage message will have been displayed
@@ -73,5 +84,14 @@ object App {
     case None => throw new Exception("Could not find: " + name + " in " + EnvironmentBuilder.values)
   }
 
-  case class Config(timeStep: Int = 50, generation: Int = 500, stepsPerEvaluation: Int = 6000, evaluationPerGeneration:Int = 5,  numberOfIndiviums:Int = 500, groupSize: Int = 10, envConf: String = "0:basic", evolutionAlgorithm: String = "sus")
+  case class Config(timeStep: Int = 50,
+                    generation: Int = 500,
+                    stepsPerEvaluation: Int = 6000,
+                    evaluationPerGeneration:Int = 5,
+                    numberOfIndiviums:Int = 500,
+                    groupSize: Int = 10,
+                    envConf: String = "0:basic",
+                    evolutionAlgorithm: String = "sus",
+                    genomeType: String = "NEATGenome",
+                    propability: Double = 0.1)
 }
