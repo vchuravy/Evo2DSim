@@ -24,13 +24,14 @@ import scala.swing._
 import scalax.file.Path
 import scalax.io.Input
 import java.io.File
-import org.vastness.evo2dsim.evolution.Genome
+import org.vastness.evo2dsim.evolution.genomes.Genome
 import org.vastness.evo2dsim.environment.{Environment, EnvironmentBuilder}
 import scala.concurrent._
 import ExecutionContext.Implicits.global
 import scala.swing.event.{Key, KeyPressed}
 import org.vastness.evo2dsim.simulator.light.{LightCategory, LightManager}
 import org.vastness.evo2dsim.teem.enki.sbot.{SBotLightSensor, SBotController, SBot}
+import org.vastness.evo2dsim.analyzer.App
 
 
 class MainWindow extends MainFrame with RenderManager {
@@ -95,13 +96,15 @@ class MainWindow extends MainFrame with RenderManager {
     reactions += {
       case KeyPressed(_, Key.R, _, _)                     => initEnvironment()
       case KeyPressed(_, Key.T, _, _)                     => toggleText()
-      case KeyPressed(_, Key.P, _, _)                     => pause()
+      case KeyPressed(_, Key.P, _, _)                     => App.togglePause()
       case KeyPressed(_, Key.A, Key.Modifier.Control, _)  => lm.map(_.disableCategory(LightCategory.AgentLight))
       case KeyPressed(_, Key.A, Key.Modifier.Shift, _)    => lm.map(_.enableCategory(LightCategory.AgentLight))
       case KeyPressed(_, Key.A, _, _)                     => lm.map(_.toggleCategory(LightCategory.AgentLight))
       case KeyPressed(_, Key.F, Key.Modifier.Control, _)  => lm.map(_.disableCategory(LightCategory.FoodSourceLight))
       case KeyPressed(_, Key.F, Key.Modifier.Shift, _)    => lm.map(_.enableCategory(LightCategory.FoodSourceLight))
       case KeyPressed(_, Key.F, _, _)                     => lm.map(_.toggleCategory(LightCategory.FoodSourceLight))
+      case KeyPressed(_, Key.Comma, _, _)                 => App.changeSpeedDown()
+      case KeyPressed(_, Key.Colon, _, _)                 => App.changeSpeedUp()
     }
 
     focusable = true
@@ -109,6 +112,7 @@ class MainWindow extends MainFrame with RenderManager {
   }
 
   size = new Dimension(300, 200)
+
 
   def selectEnvironment() {
     envBuilder = Dialog.showInput[EnvironmentBuilder](message = "Please select an Environment", entries = EnvironmentBuilder.values.toSeq, initial = envBuilder) match {
@@ -123,7 +127,7 @@ class MainWindow extends MainFrame with RenderManager {
       case Some(a) => e map { _.agents(a)}
       case None => None
     }
-    agent flatMap (_.controller map { case sC: SBotController => sC.lightSensor }) map { //TODO: Simplify
+    agent map (_.controller match { case sC: SBotController => sC.lightSensor }) map { //TODO: Simplify
       cam => {
         val cv = new CameraView(cam)
         val dialog = new ComponentDialog(this, cv, this)
@@ -132,8 +136,6 @@ class MainWindow extends MainFrame with RenderManager {
 
     }
   }
-
-  def pause() = e map {e => e.toggle_pause()}
 
   def toggleText() {
     EnvironmentManager.showData = if (EnvironmentManager.showData) false else true
@@ -215,9 +217,9 @@ class MainWindow extends MainFrame with RenderManager {
     EnvironmentManager.addEnvironment(e)
     e.sim.lightManager.disabledCategories = disabledLightSourceCategories
     this.e = Some(e)
-    future {
-      e.run()
-    }
+    // future {
+    //   e.run()
+    // }
   }
 
   private def mapToAny[A <: Any](array: Array[Array[A]]) = array map { _ map { _.asInstanceOf[Any] }}

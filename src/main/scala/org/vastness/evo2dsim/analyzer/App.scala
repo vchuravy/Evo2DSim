@@ -27,19 +27,48 @@ object App extends SwingApplication {
 
 
   var timer = new Timer
+  var simTimer = new Timer
   var running = true
+
+  var pause = false
+
   val HERTZ = 30
+  var speed = 16
 
   private def render() {
     top.worldView.repaint()
-    //top.e map (_.updateSimulation())
     top.renderComponents.foreach(_.repaint())
   }
 
-  def loop() {
+  def renderLoop() {
+    timer.cancel()
     timer = new Timer()
     timer.schedule(new RenderLoop, 0, 1000 / HERTZ)//new timer at 30 fps, the timing mechanism
   }
+
+  def simLoop() {
+    simTimer.cancel()
+    simTimer = new Timer()
+    simTimer.schedule(new SimLoop, 0, 1000 / (speed*HERTZ))//new timer at 120 fps, the timing mechanism
+  }
+
+  def changeSpeedUp() {
+    speed *= 2
+    simLoop()
+  }
+
+  def changeSpeedDown() {
+    val oldSpeed = speed
+    speed /= 2
+    if(speed*HERTZ <=0) speed = oldSpeed
+
+    simLoop()
+  }
+
+  def togglePause() {
+    pause = if(!pause) true else false
+  }
+
 
   private class RenderLoop extends java.util.TimerTask
   {
@@ -50,6 +79,16 @@ object App extends SwingApplication {
       if (!running)
       {
         timer.cancel()
+      }
+    }
+  }
+
+  private class SimLoop extends java.util.TimerTask {
+    override def run() {
+      if(!pause) top.e map (_.updateSimulation())
+      if (!running)
+      {
+        simTimer.cancel()
       }
     }
   }
@@ -67,7 +106,8 @@ object App extends SwingApplication {
       top.dataDir = Some(config.path)
       top.timeStep = config.timeStep
 
-      loop() // starting render loop
+      renderLoop() // starting render loop
+      simLoop()
 
       top.pack()
       top.visible = true
