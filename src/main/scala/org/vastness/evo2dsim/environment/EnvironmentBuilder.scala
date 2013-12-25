@@ -80,4 +80,9 @@ object EnvironmentBuilder extends Enum[EnvironmentBuilder] {
     val name = "ECECR"
     def apply(t: Int, s:Int) = new BasicEnvironment(t,s) with ECECRSettings with StaticFoodSources with RandomFoodPos
   }
+
+  case object ECECR_WO_AMemory extends EnvironmentBuilder {
+    val name = "ECECR_WO_AMemory"
+    def apply(t: Int, s:Int) = new BasicEnvironment(t,s) with ECECR_WO_AMemorySettings with StaticFoodSources with RandomFoodPos
+  }
 }

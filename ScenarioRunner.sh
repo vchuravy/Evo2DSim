@@ -14,7 +14,7 @@ declare -a ALGOS=("sus" "elite")
 
 declare -a GENOMES=("ByteGenome" "NEATGenome")
 
-declare -a ENVS=("0:basic" "0:basicSimpleRandom" "0:basicRandom" "0:dynamicSimpleRandom" "0:basic;100:basicSimpleRandom" "0:basic;100:basicSimpleRandom;250:basicRandom" "0:basicSimpleRandom;250:basicRandom" "0:positive" "0:positiveRandom" "0:ECECR")
+declare -a ENVS=("0:basic" "0:basicSimpleRandom" "0:basicRandom" "0:dynamicSimpleRandom" "0:basic;100:basicSimpleRandom" "0:basic;100:basicSimpleRandom;250:basicRandom" "0:basicSimpleRandom;250:basicRandom" "0:positive" "0:positiveRandom" "0:ECECR" "0:ECECR_WO_AMemory")
 
 for algo in ${ALGOS[@]}
 do
