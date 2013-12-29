@@ -25,6 +25,8 @@ import java.text.SimpleDateFormat
 import java.util.concurrent.TimeUnit
 import java.util.Calendar
 
+import org.apache.commons.compress.archivers.sevenz._
+
 import scalax.file._
 import scalaz.{TreeLoc, Tree}
 import spray.json._
@@ -36,6 +38,7 @@ import org.vastness.evo2dsim.evolution.genomes.{EvolutionManager, Genome}
 import org.vastness.evo2dsim.teem.enki.sbot.SBotController
 import org.vastness.evo2dsim.evolution.genomes.byte.ByteEvolutionManager
 import scala.Array
+import java.nio.charset.StandardCharsets
 
 class EvolutionRunner(name: String, poolSize: Int, groupSize: Int, evaluationSteps: Int, generations:Int, evaluationPerGeneration: Int, timeStep: Int, envSetup: Seq[(Range,EnvironmentBuilder)], genomeName: String) {
   val now = Calendar.getInstance().getTime
@@ -50,6 +53,7 @@ class EvolutionRunner(name: String, poolSize: Int, groupSize: Int, evaluationSte
 
   val envString = envSetup.sortBy(_._1.start).map(_._2.name).mkString("-")
   val dir = (Path("results") resolve s"${timeStamp}_${name}_${envString}_$genomeName").createDirectory()
+  val generationsFile = new SevenZOutputFile((dir / "generations.7z").jfile)
   println(s"Results are saved in: $dir")
 
 
@@ -98,8 +102,15 @@ class EvolutionRunner(name: String, poolSize: Int, groupSize: Int, evaluationSte
 
       val results: Map[Int, (Double, Genome)] = for((id, fitness) <- evaluation) yield id -> (fitness / evaluationPerGeneration , genomes(id)._2)
 
-      val output = dir resolve "Gen_%04d.json".format(generation)
-      output.write(results.map(x => x._1.toString -> x._2).toJson.prettyPrint)
+      val o7 = new SevenZArchiveEntry()
+      o7.setName("Gen_%04d.json".format(generation))
+
+      val output = results.map(x => x._1.toString -> x._2).toJson.prettyPrint.getBytes(StandardCharsets.UTF_8)
+      o7.setSize(output.size)
+
+      generationsFile.putArchiveEntry(o7)
+      generationsFile.write(output)
+      generationsFile.closeArchiveEntry()
 
       generation +=1
 
@@ -158,7 +169,8 @@ class EvolutionRunner(name: String, poolSize: Int, groupSize: Int, evaluationSte
      val g = c.getBasicRandomGenome(genomeName, em)
      (id, (0.0, g))
     }
-    val result = run(Map(genomes.seq: _*))
+    run(Map(genomes.seq: _*))
+    generationsFile.finish()
     val timeSpent = TimeUnit.SECONDS.convert(System.nanoTime() - time, TimeUnit.NANOSECONDS)
     println("We are done here:")
     println("Running for: %d min %s sec".format(timeSpent / 60, timeSpent % 60))
