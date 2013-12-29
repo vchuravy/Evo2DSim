@@ -35,6 +35,7 @@ import org.vastness.evo2dsim.utils.MyJsonProtocol._
 import org.vastness.evo2dsim.evolution.genomes.{EvolutionManager, Genome}
 import org.vastness.evo2dsim.teem.enki.sbot.SBotController
 import org.vastness.evo2dsim.evolution.genomes.byte.ByteEvolutionManager
+import scala.Array
 
 class EvolutionRunner(name: String, poolSize: Int, groupSize: Int, evaluationSteps: Int, generations:Int, evaluationPerGeneration: Int, timeStep: Int, envSetup: Seq[(Range,EnvironmentBuilder)], genomeName: String) {
   val now = Calendar.getInstance().getTime
@@ -55,7 +56,7 @@ class EvolutionRunner(name: String, poolSize: Int, groupSize: Int, evaluationSte
   private def run(startGenomes: Map[Int, (Double, Genome)]): Map[Int, (Double, Genome)] = {
     val outputStats =  dir resolve "Stats.csv"
     outputStats.createFile()
-    outputStats.append("Generation, Max, Min, Mean, Variance \n")
+    outputStats.append("Generation, Max, Min, Mean, Variance, GroupMax, GroupMin, GroupMean, GroupVariance \n")
 
     var generation = 0
     var genomes: Map[Int, (Double, Genome)] = startGenomes
@@ -102,8 +103,8 @@ class EvolutionRunner(name: String, poolSize: Int, groupSize: Int, evaluationSte
 
       generation +=1
 
-      val (max, min, mean, variance) = collectStats(results.map(_._2._1).toList)
-      outputStats.append("%d, %f, %f, %f, %f \n".format(generation, max, min, mean ,variance))
+      val (max, min, mean, variance, gMax, gMin, gMean, gVar) = collectStats(results.map(_._2._1).toList)
+      outputStats.append(s"$generation, $max, $min, $mean, $variance, $gMax, $gMin, $gMean, $gVar \n")
 
       if(generation < generations) genomes = evo.nextGeneration(results)
       assert(genomes.size == poolSize)
@@ -164,11 +165,19 @@ class EvolutionRunner(name: String, poolSize: Int, groupSize: Int, evaluationSte
     sys.exit()
   }
 
-  def collectStats(results: List[Double]): (Double, Double, Double, Double) = {
+  def collectStats(results: Seq[Double]): (Double, Double, Double, Double, Double, Double, Double, Double) = {
     val max = results.max
     val min = results.min
     val mean = results.sum / results.size
     val variance = results.foldLeft(0.0) {(acc, x) => acc + math.pow(x - mean,2)} / results.size
-    (max, min, mean, variance)
+
+
+    val groups = results.grouped(groupSize) map {l => l.sum / groupSize}
+
+    val gMax = groups.max
+    val gMin = groups.min
+    val gMean = groups.sum / groups.size
+    val gVar = groups.foldLeft(0.0) {(acc, x) => acc + math.pow(x - gMean,2)} / groups.size
+    (max, min, mean, variance, gMax, gMin, gMean, gVar)
   }
 }
