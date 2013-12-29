@@ -36,9 +36,7 @@ import org.vastness.evo2dsim.environment.{EnvironmentBuilder, Environment}
 import org.vastness.evo2dsim.utils.MyJsonProtocol._
 import org.vastness.evo2dsim.evolution.genomes.{EvolutionManager, Genome}
 import org.vastness.evo2dsim.teem.enki.sbot.SBotController
-import org.vastness.evo2dsim.evolution.genomes.byte.ByteEvolutionManager
-import scala.Array
-import java.nio.charset.StandardCharsets
+import java.nio.charset.Charset
 
 class EvolutionRunner(name: String, poolSize: Int, groupSize: Int, evaluationSteps: Int, generations:Int, evaluationPerGeneration: Int, timeStep: Int, envSetup: Seq[(Range,EnvironmentBuilder)], genomeName: String) {
   val now = Calendar.getInstance().getTime
@@ -105,7 +103,7 @@ class EvolutionRunner(name: String, poolSize: Int, groupSize: Int, evaluationSte
       val o7 = new SevenZArchiveEntry()
       o7.setName("Gen_%04d.json".format(generation))
 
-      val output = results.map(x => x._1.toString -> x._2).toJson.prettyPrint.getBytes(StandardCharsets.UTF_8)
+      val output = results.map(x => x._1.toString -> x._2).toJson.prettyPrint.getBytes
       o7.setSize(output.size)
 
       generationsFile.putArchiveEntry(o7)
