@@ -182,12 +182,12 @@ class EvolutionRunner(name: String, poolSize: Int, groupSize: Int, evaluationSte
     val variance = results.foldLeft(0.0) {(acc, x) => acc + math.pow(x - mean,2)} / results.size
 
 
-    val groups = results.grouped(groupSize) map {l => l.sum / groupSize}
+    val groups = results.grouped(groupSize).toSeq map {l => l.sum / groupSize}
+    val (gMax, gMin, gMean) =
+      if (groups.isEmpty) (0.0, 0.0, 0.0)
+      else (groups.max, groups.min, groups.sum / groups.size)
 
-    val gMax = groups.max
-    val gMin = groups.min
-    val gMean = groups.sum / groups.size
-    val gVar = groups.foldLeft(0.0) {(acc, x) => acc + math.pow(x - gMean,2)} / groups.size
+    val gVar = if (groups.isEmpty) 0.0 else groups.foldLeft(0.0) {(acc, x) => acc + math.pow(x - gMean,2)} / groups.size
     (max, min, mean, variance, gMax, gMin, gMean, gVar)
   }
 }
