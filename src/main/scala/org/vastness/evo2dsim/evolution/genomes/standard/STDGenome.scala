@@ -19,6 +19,7 @@ package org.vastness.evo2dsim.evolution.genomes.standard
 
 import org.vastness.evo2dsim.evolution.genomes.{NodeTag, Genome}
 import org.vastness.evo2dsim.neuro._
+import scala.util.Random
 
 case class STDGenome(nodes: Set[STDNode] = Set.empty,
                      connections: Set[STDConnection] = Set.empty,
@@ -30,8 +31,18 @@ case class STDGenome(nodes: Set[STDNode] = Set.empty,
   type SelfNode = STDNode
   type SelfConnection = STDConnection
 
-  def crossover(other: STDGenome) = ???
-  def mutate = ???
+  def crossover(other: STDGenome) = this // TODO: Add a proper crossover
+  def mutate = STDGenome(mutateNodes(em.probability), mutateConnections(em.probability), em)
+
+  private def mutateConnections(p: Double): Set[SelfConnection] =
+    connections map { c =>
+      if(Random.nextDouble <= p) c.mutate else c
+    }
+
+  private def mutateNodes(p: Double) =
+    nodes map { n =>
+      if(Random.nextDouble() <= p) n.mutate else n
+    }
 }
 
 object STDGenome {
