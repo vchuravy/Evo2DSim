@@ -12,18 +12,27 @@ CMD="qsub ${FILE} ${GENERATIONS} ${POOL_SIZE}"
 
 declare -a ALGOS=("sus" "elite")
 
-declare -a GENOMES=("ByteGenome" "NEATGenome")
+declare -a GENOMES=("ByteGenome"  "NEATGenome" "STDGenome")
 
-declare -a ENVS=("0:basic" "0:basicSimpleRandom" "0:basicRandom" "0:dynamicSimpleRandom" "0:basic;100:basicSimpleRandom" "0:basic;100:basicSimpleRandom;250:basicRandom" "0:basicSimpleRandom;250:basicRandom" "0:positive" "0:positiveRandom" "0:ECECR" "0:ECECR_WO_AMemory")
+declare -a STDGENOME=("true:1" "true:2" "true:3" "true:4" "true:5" "false:1" "false:2" "false:3" "false:4" "false:5")
+
+declare -a ENVS=("0:basic" "0:basicSimpleRandom" "0:basicRandom" "0:dynamicSimpleRandom" "0:basic;100:basicSimpleRandom;250:basicRandom" "0:ECECR" )
 
 for algo in ${ALGOS[@]}
 do
-    for genome in ${GENOMES[@]}
+    for env in ${ENVS[@]}
     do
-        for env in ${ENVS[@]}
+        for genome in ${GENOMES[@]}
         do
-            ${CMD} "${env}" "${algo}" "${genome}" "${PROBABILITY}"
-            sleep 5
+            if [ genome == "STDGenome" ]
+             then
+                for setting in ${STDGENOME[@]}
+                do
+                    ${CMD} "${env}" "${algo}" "${genome}" "${PROBABILITY}" "${setting}"
+                 done
+             else
+                 ${CMD} "${env}" "${algo}" "${genome}" "${PROBABILITY}" ""
+             fi
         done
      done
 done

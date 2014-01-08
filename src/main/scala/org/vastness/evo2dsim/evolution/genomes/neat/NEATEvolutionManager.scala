@@ -17,12 +17,14 @@
 
 package org.vastness.evo2dsim.evolution.genomes.neat
 
-import org.vastness.evo2dsim.neuro.TransferFunction
+import org.vastness.evo2dsim.neuro.{Neuron, TransferFunction}
 import org.vastness.evo2dsim.evolution.genomes.{Genome, EvolutionManager}
 
-class NEATEvolutionManager(val probability: Double,
-                           val standardTransferFunction: TransferFunction = TransferFunction.THANH) extends EvolutionManager {
+class NEATEvolutionManager( val probability: Double,
+                            val standardTransferFunction: TransferFunction)
+                            extends EvolutionManager {
 
+  private var initialized_? = false
   var neuronIDMap: Map[Int, Int] = Map.empty
   var innovationNumberMap: Map[(NEATNode, NEATNode), Int] = Map.empty
 
@@ -55,14 +57,20 @@ class NEATEvolutionManager(val probability: Double,
       id
   }
 
-  def init(g: Genome) = g match {
-    case n: NEATGenome =>
-      innovationNumberMap = ( for(c <- n.connections) yield {
-        (c.from, c.to) -> c.innovationNumber
-      } ).toMap
+  def init(n: NEATGenome) = {
+    innovationNumberMap = ( for(c <- n.connections) yield {
+      (c.from, c.to) -> c.innovationNumber
+    } ).toMap
 
-      innovationNumber_ = n.connections.map(_.innovationNumber).max
-      currentNeuronID_  = n.nodes.map(_.id).max
-    case _ => throw new Exception("Expected NEATGenome")
+    innovationNumber_ = n.connections.map(_.innovationNumber).max
+    currentNeuronID_  = n.nodes.map(_.id).max
+    initialized_? = true
+  }
+
+  var blueprint: Set[Neuron] = Set.empty
+  def getBasicRandomGenome: Genome = {
+    val g = NEATGenome.basicRandomGenome(blueprint, this)
+    if(!initialized_?) init(g)
+    g
   }
 }

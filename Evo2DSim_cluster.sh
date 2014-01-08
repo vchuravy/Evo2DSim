@@ -29,5 +29,6 @@ cd /work/DoyaU/v-churavy/Evo2DSim
 # -a => Evolution algorithm default="sus"
 # -y => GenomeType default="NEATGenome"
 # -p => Probability for mutations default=0.1
+# -x => GenomeSettings
 
-$CMD -mem 4096 -s 1200 -g $1 -n $2 -c $3 -a $4 -y $5 -p $6
+$CMD -mem 4096 -s 1200 -g $1 -n $2 -c $3 -a $4 -y $5 -p $6 -x $7

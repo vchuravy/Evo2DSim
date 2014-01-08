@@ -18,10 +18,12 @@
 package org.vastness.evo2dsim.evolution.genomes.byte
 
 import org.vastness.evo2dsim.evolution.genomes.{Genome, EvolutionManager}
-import org.vastness.evo2dsim.neuro.TransferFunction
+import org.vastness.evo2dsim.neuro.{Neuron, TransferFunction}
 
-class ByteEvolutionManager(val probability: Double = 0.1,
-val standardTransferFunction: TransferFunction = TransferFunction.THANH) extends EvolutionManager{
+class ByteEvolutionManager( val probability: Double = 0.1,
+                            val standardTransferFunction: TransferFunction = TransferFunction.THANH)
+                            extends EvolutionManager {
 
-  def init(g: Genome) {}
+  var blueprint: Set[Neuron] = Set.empty
+  def getBasicRandomGenome: Genome = ByteGenome.basicRandomGenome(blueprint, this)
 }

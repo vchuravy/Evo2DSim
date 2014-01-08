@@ -17,10 +17,23 @@
 
 package org.vastness.evo2dsim.evolution.genomes
 
-import org.vastness.evo2dsim.neuro.TransferFunction
+import org.vastness.evo2dsim.neuro.{Neuron, TransferFunction}
+import org.vastness.evo2dsim.evolution.genomes.byte.ByteEvolutionManager
+import org.vastness.evo2dsim.evolution.genomes.neat.NEATEvolutionManager
+import org.vastness.evo2dsim.evolution.genomes.standard.STDEvolutionManager
 
 trait EvolutionManager {
   def probability: Double
   def standardTransferFunction: TransferFunction
-  def init(g: Genome)
+  def blueprint: Set[Neuron] //Getter
+  def blueprint_=(b: Set[Neuron]) //Setter
+  def getBasicRandomGenome: Genome
+}
+
+object EvolutionManager {
+  def apply(genomeName: String, propability: Double, genomeSettings: String, t_func: TransferFunction = TransferFunction.THANH): EvolutionManager = genomeName match {
+      case "ByteGenome" => new ByteEvolutionManager(propability, t_func)
+      case "NEATGenome" => new NEATEvolutionManager(propability, t_func)
+      case "STDGenome"  => STDEvolutionManager(propability, t_func, genomeSettings)
+    }
 }

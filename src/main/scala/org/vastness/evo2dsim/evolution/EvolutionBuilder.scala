@@ -22,5 +22,4 @@ object EvolutionBuilder {
     case "sus" => new SUSEvolution(poolSize)
     case "elite" => new ElitistEvolution(0.2, poolSize)
   }
-
 }

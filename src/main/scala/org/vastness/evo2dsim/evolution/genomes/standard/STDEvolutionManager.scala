@@ -17,12 +17,27 @@
 
 package org.vastness.evo2dsim.evolution.genomes.standard
 
-import org.vastness.evo2dsim.neuro.TransferFunction
+import org.vastness.evo2dsim.neuro.{Neuron, TransferFunction}
 import org.vastness.evo2dsim.evolution.genomes.{Genome, EvolutionManager}
 
-class STDEvolutionManager(val probability: Double,
-                          val standardTransferFunction: TransferFunction = TransferFunction.THANH)
-                          extends EvolutionManager {
-  def init(g: Genome) {}
+class STDEvolutionManager( val probability: Double,
+                           val standardTransferFunction: TransferFunction)
+                         ( val recurrent: Boolean,
+                           val numberOfHiddenNeurons: Int)
+                           extends EvolutionManager {
+
+  var blueprint: Set[Neuron] = Set.empty
+
+  def getBasicRandomGenome: Genome = STDGenome.basicRandomGenome(blueprint, this, numberOfHiddenNeurons, recurrent)
+}
+
+object STDEvolutionManager {
+  def apply(propability: Double, t_func: TransferFunction, settings: String) = {
+    val (r, n) = parse(settings)
+    new STDEvolutionManager(propability, t_func)(r, n)
+  }
+  def parse(settings: String): (Boolean, Int) = settings.split(":").toList match {
+    case x :: List(y) => (x.toBoolean, y.toInt)
+  }
 }
 

@@ -37,8 +37,22 @@ import org.vastness.evo2dsim.utils.MyJsonProtocol._
 import org.vastness.evo2dsim.evolution.genomes.{EvolutionManager, Genome}
 import org.vastness.evo2dsim.teem.enki.sbot.SBotController
 import java.nio.charset.Charset
+import org.vastness.evo2dsim.evolution.genomes.byte.ByteEvolutionManager
+import org.vastness.evo2dsim.evolution.genomes.neat.NEATEvolutionManager
+import org.vastness.evo2dsim.evolution.genomes.standard.STDEvolutionManager
 
-class EvolutionRunner(name: String, poolSize: Int, groupSize: Int, evaluationSteps: Int, generations:Int, evaluationPerGeneration: Int, timeStep: Int, envSetup: Seq[(Range,EnvironmentBuilder)], genomeName: String) {
+class EvolutionRunner(name: String,
+                      poolSize: Int,
+                      groupSize: Int,
+                      evaluationSteps: Int,
+                      generations:Int,
+                      evaluationPerGeneration: Int,
+                      timeStep: Int,
+                      envSetup: Seq[(Range,EnvironmentBuilder)],
+                      genomeName: String,
+                      genomeSettings: String,
+                      propability: Double) {
+
   val now = Calendar.getInstance().getTime
   val dateFormat = new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss")
   val timeStamp = dateFormat.format(now)
@@ -50,7 +64,7 @@ class EvolutionRunner(name: String, poolSize: Int, groupSize: Int, evaluationSte
   val evo: Evolution = EvolutionBuilder(name)(poolSize)
 
   val envString = envSetup.sortBy(_._1.start).map(_._2.name).mkString("-")
-  val dir = (Path("results") resolve s"${timeStamp}_${name}_${envString}_$genomeName").createDirectory()
+  val dir = (Path("results") resolve s"${timeStamp}_${name}_${envString}_${genomeName}_${propability}_$genomeSettings").createDirectory()
   val generationsFile = new SevenZOutputFile((dir / "generations.7z").jfile)
   println(s"Results are saved in: $dir")
 
@@ -159,14 +173,16 @@ class EvolutionRunner(name: String, poolSize: Int, groupSize: Int, evaluationSte
     } ).flatten.seq
   }
 
-  def start(em: EvolutionManager) {
+  def start() {
     val time = System.nanoTime()
-    em.init(new SBotController().getBasicRandomGenome(genomeName, em))
+
+    val em = EvolutionManager(genomeName, propability, genomeSettings)
+    em.blueprint = new SBotController().blueprint
     val genomes = for(id <- (0 until poolSize).par) yield {
-     val c = new SBotController()
-     val g = c.getBasicRandomGenome(genomeName, em)
+      val g = em.getBasicRandomGenome
      (id, (0.0, g))
     }
+
     run(Map(genomes.seq: _*))
     generationsFile.finish()
     val timeSpent = TimeUnit.SECONDS.convert(System.nanoTime() - time, TimeUnit.NANOSECONDS)

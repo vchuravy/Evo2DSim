@@ -21,6 +21,7 @@ import org.vastness.evo2dsim.neuro._
 import org.vastness.evo2dsim.evolution.genomes._
 import org.vastness.evo2dsim.evolution.genomes.byte.{ByteGenome, ByteEvolutionManager}
 import org.vastness.evo2dsim.evolution.genomes.neat.{NEATGenome, NEATEvolutionManager}
+import org.vastness.evo2dsim.evolution.EvolutionBuilder
 
 abstract class Controller {
   var nn: Option[NeuronalNetwork] = None
@@ -34,15 +35,11 @@ abstract class Controller {
     nn = Some(NeuronalNetwork(sensorNeurons, motorNeurons, g))
   }
 
-  def getBasicRandomGenome(genomeName: String, ev: EvolutionManager): Genome = {
-    val neurons = sensorNeurons ++ motorNeurons
-    (genomeName, ev) match {
-      case ("ByteGenome", em: ByteEvolutionManager) => ByteGenome.basicRandomGenome(neurons, em)
-      case ("NEATGenome", em: NEATEvolutionManager) => NEATGenome.basicRandomGenome(neurons, em)
-    }
-  }
-
-
+  /**
+   * Returns the sensor and motor neurons necessary to create a genome.
+   * @return Set of Neurons
+   */
+  def blueprint: Set[Neuron] = sensorNeurons ++ motorNeurons
 
   def attachToAgent(agent: Agent): Unit
 
