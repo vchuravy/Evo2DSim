@@ -24,7 +24,7 @@ do
     do
         for genome in ${GENOMES[@]}
         do
-            if [ genome == "STDGenome" ]
+            if [ ${genome} == "STDGenome" ]
              then
                 for setting in ${STDGENOME[@]}
                 do
