@@ -28,10 +28,10 @@ do
              then
                 for setting in ${STDGENOME[@]}
                 do
-                    ${CMD} "${env}" "${algo}" "${genome}" "${PROBABILITY}" "${setting}"
-                 done
+                    ${CMD} "${env}" "${algo}" "${genome}" "${PROBABILITY}" "-x ${setting}"
+                done
              else
-                 ${CMD} "${env}" "${algo}" "${genome}" "${PROBABILITY}" ""
+                 ${CMD} "${env}" "${algo}" "${genome}" "${PROBABILITY}"
              fi
         done
      done
