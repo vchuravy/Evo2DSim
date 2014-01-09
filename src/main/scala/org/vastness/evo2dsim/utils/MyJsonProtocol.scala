@@ -20,8 +20,9 @@ package org.vastness.evo2dsim.utils
 import spray.json._
 import org.vastness.evo2dsim.neuro.TransferFunction
 import org.vastness.evo2dsim.evolution.genomes.{NodeTag, Genome}
-import org.vastness.evo2dsim.evolution.genomes.byte.{ByteEvolutionManager, ByteNode, ByteConnection, ByteGenome}
-import org.vastness.evo2dsim.evolution.genomes.neat.{NEATEvolutionManager, NEATConnection, NEATNode, NEATGenome}
+import org.vastness.evo2dsim.evolution.genomes.byte._
+import org.vastness.evo2dsim.evolution.genomes.neat._
+import org.vastness.evo2dsim.evolution.genomes.standard._
 
 
 object MyJsonProtocol extends DefaultJsonProtocol {
@@ -85,11 +86,28 @@ object MyJsonProtocol extends DefaultJsonProtocol {
       }
   }
 
+  implicit val stdNodeFormat = jsonFormat5(STDNode)
+  implicit val stdConnectionFormat = jsonFormat3(STDConnection)
+  implicit object stdEvolutionManagerFormat extends JsonFormat[STDEvolutionManager] {
+    def write(em: STDEvolutionManager) = JsObject(
+      "p" -> JsNumber(em.probability),
+      "t_func" -> em.standardTransferFunction.toJson,
+      "settings" -> JsString(s"${em.recurrent}:${em.numberOfHiddenNeurons}")
+    )
+
+    def read(value: JsValue) = value.asJsObject.getFields("p", "t_func", "settings") match {
+      case Seq(JsNumber(p), t_func, JsString(settings)) =>
+        STDEvolutionManager(p.toDouble, t_func.convertTo[TransferFunction], settings)
+    }
+  }
+  implicit val stdGenomeFormat = jsonFormat3(STDGenome)
+
   implicit object genomeFormat extends JsonFormat[Genome] {
     def write(g: Genome) = {
       val jsG = g match {
         case bG: ByteGenome => bG.toJson
         case nG: NEATGenome => nG.toJson
+        case sG: STDGenome => sG.toJson
       }
       JsObject("name" -> JsString(g.name), "data" -> jsG)
     }
@@ -97,6 +115,7 @@ object MyJsonProtocol extends DefaultJsonProtocol {
     def read(value: JsValue) = value.asJsObject.getFields("name", "data") match {
       case Seq(JsString("ByteGenome"), data) => data.convertTo[ByteGenome]
       case Seq(JsString("NEATGenome"), data) => data.convertTo[NEATGenome]
+      case Seq(JsString("STDGenome"), data) => data.convertTo[STDGenome]
       case _ => deserializationError("Got: " + value + " expected Genome")
     }
   }
