@@ -100,7 +100,7 @@ object MyJsonProtocol extends DefaultJsonProtocol {
         STDEvolutionManager(p.toDouble, t_func.convertTo[TransferFunction], settings)
     }
   }
-  implicit val stdGenomeFormat = jsonFormat3(STDGenome)
+  implicit val stdGenomeFormat = jsonFormat(STDGenome, "nodes", "connections", "em")
 
   implicit object genomeFormat extends JsonFormat[Genome] {
     def write(g: Genome) = {
