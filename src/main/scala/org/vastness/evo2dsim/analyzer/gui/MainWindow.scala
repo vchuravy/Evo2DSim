@@ -18,20 +18,17 @@
 package org.vastness.evo2dsim.analyzer.gui
 
 import org.vastness.evo2dsim.gui._
-import spray.json._
-import org.vastness.evo2dsim.utils.MyJsonProtocol._
+
 import scala.swing._
 import scalax.file.Path
-import scalax.io.Input
 import java.io.File
-import org.vastness.evo2dsim.evolution.genomes.Genome
 import org.vastness.evo2dsim.environment.{Environment, EnvironmentBuilder}
-import scala.concurrent._
-import ExecutionContext.Implicits.global
 import scala.swing.event.{Key, KeyPressed}
 import org.vastness.evo2dsim.simulator.light.{LightCategory, LightManager}
-import org.vastness.evo2dsim.teem.enki.sbot.{SBotLightSensor, SBotController, SBot}
+import org.vastness.evo2dsim.teem.enki.sbot.SBotController
 import org.vastness.evo2dsim.analyzer.App
+import org.vastness.evo2dsim.evolution.Evolution.Generation
+import org.vastness.evo2dsim.utils.InputHandler
 
 
 class MainWindow extends MainFrame with RenderManager {
@@ -43,7 +40,7 @@ class MainWindow extends MainFrame with RenderManager {
   var dataDir: Option[File] = None
   var evalDir: Option[Path] = None
   var group: Int = 0
-  var generation: Map[Int, (Double, Genome)] = Map.empty
+  var generation: Option[Generation] = None
 
   def lm: Option[LightManager] = e.map(_.sim.lightManager)
 
@@ -70,9 +67,8 @@ class MainWindow extends MainFrame with RenderManager {
       evalDir = dataDir map {d => Path(d)} map showEvaluations
     })
     contents += new MenuItem( Action("Select generation") {
-      generation = evalDir map showStats match {
-        case Some(gen) => loadGeneration(evalDir.get, gen)
-        case None => Map.empty
+      generation = evalDir map showStats flatMap {
+        gen => loadGeneration(evalDir.get, gen)
       }
     })
     contents += new MenuItem( Action("Select group") {
@@ -141,11 +137,9 @@ class MainWindow extends MainFrame with RenderManager {
     EnvironmentManager.showData = if (EnvironmentManager.showData) false else true
   }
 
-  def loadGeneration(dir: Path, generation: Int): Map[Int, (Double, Genome)] = {
-    val genFile = dir resolve "Gen_%04d.json".format(generation)
-    val input: Input = genFile.inputStream()
-    val gen = input.string.asJson.convertTo[Map[String, (Double, Genome)]]
-    gen.map (x => x._1.toInt -> x._2)
+  def loadGeneration(dir: Path, generation: Int): Option[Generation] = {
+    val in = new InputHandler(dir)
+    in.readGeneration(generation)
   }
 
   def loadEvaluations(dir: Path) = {
@@ -184,7 +178,7 @@ class MainWindow extends MainFrame with RenderManager {
   }
 
   def loadGen(size: Int) = {
-    val groups = generation.toList.sortBy(_._1).grouped(size)
+    val groups = generation.getOrElse(Map.empty).toList.sortBy(_._1).grouped(size)
     val groupPerformance = groups.map(e => e.foldLeft[Double](0.0){ case (acc, (_, (fitness, _))) => acc + fitness}).toIndexedSeq
     val rowData = ( for(i <- groupPerformance.indices) yield (i, groupPerformance(i) / size) ).toArray.sortBy(_._2).reverse map
       {case (i, gP) => Array(i,gP)}
@@ -212,7 +206,7 @@ class MainWindow extends MainFrame with RenderManager {
 
     val e = envBuilder(timeStep, 0)
     e.initializeStatic()
-    val g = generation.grouped(10).toIndexedSeq(group)
+    val g = generation.getOrElse(Map.empty).grouped(10).toIndexedSeq(group)
     e.initializeAgents(g)
     EnvironmentManager.addEnvironment(e)
     e.sim.lightManager.disabledCategories = disabledLightSourceCategories
