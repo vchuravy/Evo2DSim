@@ -18,6 +18,7 @@
 package org.vastness.evo2dsim.evolution
 
 import scala.util.Random
+import org.vastness.evo2dsim.evolution.Evolution.Generation
 
 /**
  * Very stupid test implementation of Elitism
@@ -25,7 +26,7 @@ import scala.util.Random
  * @param poolSize
  */
 class ElitistEvolution(percent: Double, val poolSize: Int) extends Evolution {
-  override def nextGeneration(results: Genomes): Genomes = {
+  override def nextGeneration(results: Generation): Generation = {
     val r = results.toSeq.sortWith(_._2._1 > _._2._1)
     val top = r.view(0,(poolSize*percent).round.toInt)
 

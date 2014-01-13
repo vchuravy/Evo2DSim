@@ -20,6 +20,7 @@ package org.vastness.evo2dsim.evolution
 import scala.annotation.tailrec
 import scala.util.Random
 import org.vastness.evo2dsim.evolution.genomes.Genome
+import org.vastness.evo2dsim.evolution.Evolution.Generation
 
 /**
  * Implements stochastic universal sampling
@@ -27,7 +28,7 @@ import org.vastness.evo2dsim.evolution.genomes.Genome
 class SUSEvolution (val poolSize: Int)
   extends Evolution {
 
-  override def nextGeneration(results: Genomes): Genomes = {
+  override def nextGeneration(results: Generation): Generation = {
     val line = numberLine(normalizeResults(results.toSeq))
     assert(line.size == poolSize)
 

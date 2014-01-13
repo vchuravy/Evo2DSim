@@ -18,11 +18,14 @@
 package org.vastness.evo2dsim.evolution
 
 import org.vastness.evo2dsim.evolution.genomes.Genome
+import org.vastness.evo2dsim.evolution.Evolution.Generation
 
 trait Evolution {
-  type Genomes = Map[Int, (Double, Genome)]
   def poolSize: Int
+  def nextGeneration(results: Generation): Generation
+}
 
-  def nextGeneration(results: Genomes): Genomes
+object Evolution {
+  type Generation = Map[Int, (Double, Genome)]
 }
 
