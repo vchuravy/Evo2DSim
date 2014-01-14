@@ -20,21 +20,23 @@ package org.vastness.evo2dsim.neuro
 import org.vastness.evo2dsim.evolution.genomes.{Node, NodeTag}
 
 case class SensorNeuron(id: Int, bias: NumberT, t_func: TransferFunction, data: String)(var s_func: () => NumberT = () => zero) extends Neuron {
- val tag = NodeTag.Sensor
+  val tag = NodeTag.Sensor
 
   var memory: Boolean = false
   val decay: NumberT = 0.95
   private var lastSensoryInput: NumberT = zero
+
   override def calcActivity: NumberT = {
     var sensorInput = s_func()
-    if(memory) {
-      if(sensorInput == zero) {
+    if(memory && sensorInput == zero) {
         sensorInput = lastSensoryInput * decay
-      }
-      lastSensoryInput = sensorInput
     }
+    lastSensoryInput = sensorInput
     super.calcActivity + sensorInput
   }
+
+  override def dataHeader = super.dataHeader ++ Seq(h("input"))
+  override def dataRow = super.dataRow ++ Seq(lastSensoryInput)
 }
 
 object SensorNeuron {

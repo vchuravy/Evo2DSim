@@ -18,12 +18,16 @@
 package org.vastness.evo2dsim.neuro
 
 import org.vastness.evo2dsim.evolution.genomes.{NodeTag, Node, Genome}
+import org.vastness.evo2dsim.data.Recordable
 
-case class NeuronalNetwork(synapses: Set[Synapse], neurons: Set[Neuron]) {
+case class NeuronalNetwork(synapses: Set[Synapse], neurons: Set[Neuron]) extends Recordable {
   def step() { //Order matters
     neurons foreach {n => n.step()}
     synapses foreach { s => s.step() }
   }
+
+  def dataHeader = neurons.foldLeft(Seq.empty[String])(_ ++ _.dataHeader)
+  def dataRow = neurons.foldLeft(Seq.empty[Any])(_ ++ _.dataRow)
 }
 
 object NeuronalNetwork {

@@ -37,4 +37,6 @@ class SBot(id: Int, pos: Vec2, angle: Float, sim: Simulator)
 
   override def color = light.color
 
+  override def dataHeader = super.dataHeader ++ Seq("light")
+  override def dataRow = super.dataRow ++ Seq(light.active)
 }

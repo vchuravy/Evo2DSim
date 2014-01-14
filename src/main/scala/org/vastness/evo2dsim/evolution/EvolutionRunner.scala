@@ -31,6 +31,7 @@ import org.vastness.evo2dsim.evolution.genomes.{EvolutionManager, Genome}
 import org.vastness.evo2dsim.teem.enki.sbot.SBotController
 import org.vastness.evo2dsim.evolution.Evolution.Generation
 import org.vastness.evo2dsim.utils.OutputHandler
+import org.vastness.evo2dsim.data.{RecordLevel, Recorder, Recordable}
 
 class EvolutionRunner(name: String,
                       poolSize: Int,
@@ -42,7 +43,8 @@ class EvolutionRunner(name: String,
                       envSetup: Seq[(Range,EnvironmentBuilder)],
                       genomeName: String,
                       genomeSettings: String,
-                      propability: Double) {
+                      propability: Double,
+                      recordLevel: RecordLevel) extends Recordable {
 
   val now = Calendar.getInstance().getTime
   val dateFormat = new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss")
@@ -60,11 +62,22 @@ class EvolutionRunner(name: String,
 
   println(s"Results are saved in: $dir")
 
+  override def dataHeader = Seq("Generation", "Max", "Min", "Mean", "Variance", "GroupMax", "GroupMin", "GroupMean", "GroupVariance")
+  private var _dataRow = Seq.empty[Any]
+  override def dataRow = _dataRow
+
+  object Timer extends Recordable{
+    private var _dataRow = Seq.empty[Any]
+    def dataRow_=(d: Seq[Any]){
+      _dataRow = d
+    }
+    override def dataRow = _dataRow
+    override def dataHeader = Seq("Generation", "Total", "Eval", "Sim", "Setup", "NextGen")
+  }
 
   private def run(startGenomes: Map[Int, (Double, Genome)]): Map[Int, (Double, Genome)] = {
-    val outputStats =  dir resolve "Stats.csv"
-    outputStats.createFile()
-    outputStats.append("Generation, Max, Min, Mean, Variance, GroupMax, GroupMin, GroupMean, GroupVariance \n")
+    val outputStats = new Recorder(dir, "Stats", this)
+    val outputTimer = new Recorder(dir, "Times", Timer)
 
     var generation = 0
     var genomes: Map[Int, (Double, Genome)] = startGenomes
@@ -89,7 +102,7 @@ class EvolutionRunner(name: String,
       }
 
       assert(evaluationSteps > 0, "In Simulation mode evaluationSteps has to be bigger than zero.")
-      val futureEvaluations =  groupEvaluations(genomes.toList)(envBuilder)
+      val futureEvaluations =  groupEvaluations(genomes.toList, generation)(envBuilder)
       assert(futureEvaluations.size == evaluationPerGeneration*(poolSize / groupSize))
 
       val evaluationFuture = Future sequence futureEvaluations
@@ -109,8 +122,8 @@ class EvolutionRunner(name: String,
 
       generation +=1
 
-      val (max, min, mean, variance, gMax, gMin, gMean, gVar) = collectStats(results.map(_._2._1).toList)
-      outputStats.append(s"$generation, $max, $min, $mean, $variance, $gMax, $gMin, $gMean, $gVar \n")
+      _dataRow = collectStats(results.map(_._2._1).toSeq)
+      outputStats.step()
 
       if(generation < generations) genomes = evo.nextGeneration(results)
       assert(genomes.size == poolSize)
@@ -119,7 +132,6 @@ class EvolutionRunner(name: String,
       def timeSpent(t1: Long, t2: Long) = {
         TimeUnit.SECONDS.convert(t2 - t1, TimeUnit.NANOSECONDS)
       }
-      def logTime(s: String, t: Long) = println(s.format(t/ 60, t % 60))
 
       val timeTotalSpent = timeSpent(generationStartTime, generationFinishedTime)
       val timeSetupSpent = timeSpent(generationStartTime, environmentSetupTime)
@@ -128,11 +140,8 @@ class EvolutionRunner(name: String,
       val timeNextGenSpent = timeSpent(evaluationFinishedTime, generationFinishedTime)
 
       println(s"Generation $generation done")
-      logTime("Generation took %d min %d sec in total",timeTotalSpent)
-      logTime("Setup of the simulation took %d min %d sec",timeSetupSpent)
-      logTime("Simulation took %d min %d sec", timeSimSpent)
-      logTime("Evaluation took %d min %d sec", timeEvalSpent)
-      logTime("Preparing the next Generation took %d min %d sec", timeNextGenSpent)
+      Timer.dataRow = Seq(generation, timeTotalSpent, timeEvalSpent, timeSimSpent, timeSetupSpent, timeNextGenSpent)
+      outputTimer.step()
       if(generation < generations) println("Starting next generation.")
       else println("We are done here :)")
     }
@@ -140,14 +149,17 @@ class EvolutionRunner(name: String,
   }
 
 
-  def groupEvaluations(genomes: List[(Int, (Double, Genome))])(env: EnvironmentBuilder): Seq[Future[Environment]] = {
-    val gs = genomes.sortBy(_._1).grouped(groupSize).toSeq
-    ( for (g <- gs.par) yield {
+  def groupEvaluations(genomes: List[(Int, (Double, Genome))], generation: Int)(env: EnvironmentBuilder): Seq[Future[Environment]] = {
+    val gs = genomes.sortBy(_._1).grouped(groupSize).toIndexedSeq
+    ( for (g <- gs.indices) yield {
       for (i <- 0 until evaluationPerGeneration) yield {
         val e = env(timeStep, evaluationSteps)
         e.initializeStatic()
-        e.initializeAgents(g.toMap)
+        e.initializeAgents(gs(g).toMap)
         EnvironmentManager.addEnvironment(e)
+        if(recordLevel.record(RecordLevel.Nothing)) {
+          e.startRecording(recordLevel, generation, g, i, dir)
+        }
         future {
           e.run()
         }
@@ -174,7 +186,7 @@ class EvolutionRunner(name: String,
     sys.exit()
   }
 
-  def collectStats(results: Seq[Double]): (Double, Double, Double, Double, Double, Double, Double, Double) = {
+  def collectStats(results: Seq[Double]): Seq[Any] = {
     val max = results.max
     val min = results.min
     val mean = results.sum / results.size
@@ -187,6 +199,6 @@ class EvolutionRunner(name: String,
       else (groups.max, groups.min, groups.sum / groups.size)
 
     val gVar = if (groups.isEmpty) 0.0 else groups.foldLeft(0.0) {(acc, x) => acc + math.pow(x - gMean,2)} / groups.size
-    (max, min, mean, variance, gMax, gMin, gMean, gVar)
+    Seq(max, min, mean, variance, gMax, gMin, gMean, gVar)
   }
 }

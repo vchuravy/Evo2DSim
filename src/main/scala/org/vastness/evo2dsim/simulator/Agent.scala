@@ -21,12 +21,13 @@ import org.jbox2d.common.Vec2
 import org.jbox2d.dynamics.{BodyType, BodyDef}
 import org.jbox2d.collision.shapes.CircleShape
 import org.vastness.evo2dsim.gui.{Color, CircleSprite}
+import org.vastness.evo2dsim.data.Recordable
 
-abstract class Agent(id: Int, pos: Vec2, angle: Float, val sim: Simulator, val radius: Float, mass: Float) extends Entity{
+abstract class Agent(id: Int, pos: Vec2, vAngle: Float, val sim: Simulator, val radius: Float, mass: Float) extends Entity with Recordable{
   //Defines BodyDef
   val bodyDef = new BodyDef
   bodyDef.position.set(pos)
-  bodyDef.angle = angle
+  bodyDef.angle = vAngle
   bodyDef.`type` = BodyType.DYNAMIC
   bodyDef.userData = this
   bodyDef.angularDamping = 0.01f
@@ -44,6 +45,7 @@ abstract class Agent(id: Int, pos: Vec2, angle: Float, val sim: Simulator, val r
 
   override def sprite = new CircleSprite(radius)(body.getPosition, color, text)
   override def position = body.getPosition
+  def angle = body.getAngle
 
   var fitness = 0.0
   var currentReward = 0.0
@@ -72,4 +74,7 @@ abstract class Agent(id: Int, pos: Vec2, angle: Float, val sim: Simulator, val r
   def activateArtificialSmellMemory() {
     controller.activateArtificialSmellMemory()
   }
+
+  def dataHeader: Seq[String] = Seq("posX", "posY", "angle", "fitness", "currentReward")
+  def dataRow: Seq[Any] = Seq(position.x, position.y, angle, fitness, currentReward)
 }

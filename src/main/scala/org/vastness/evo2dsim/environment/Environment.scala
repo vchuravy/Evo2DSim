@@ -24,6 +24,9 @@ import scala.collection.Map
 import org.jbox2d.common.Vec2
 import scala.concurrent.duration.Duration
 import org.vastness.evo2dsim.evolution.genomes.Genome
+import org.vastness.evo2dsim.data.{Recordable, Recorder, RecordLevel}
+import scala.collection.parallel.ParSeq
+import scalax.file.Path
 
 /**
  * Implements the very basics for an environment
@@ -45,10 +48,13 @@ abstract class Environment(val timeStep: Int, val steps: Int) {
 
   var running = true
 
+  var recording: Boolean = false
+  var recorders: ParSeq[Recorder] = ParSeq.empty
 
   def updateSimulation() {
     sim.step(timeStep/1000.0f)
     stepCounter += 1
+    if(recording) recorders map {_.step()}
     if(steps == stepCounter) {
       running = false
       EnvironmentManager.remove(this)
@@ -65,4 +71,28 @@ abstract class Environment(val timeStep: Int, val steps: Int) {
 
   def initializeStatic()
   def initializeAgents(genomes: Map[Int, (Double, Genome)])
+
+  def startRecording(rL: RecordLevel, generation: Int, group: Int, iteration: Int, baseDir: Path) {
+    recording = true
+    var tempRecorders = Seq.empty[Recorder]
+    if(rL.record(RecordLevel.Agents)) {
+      tempRecorders ++= ( for((id, a) <- agents) yield {
+        createRecorder(baseDir, generation, group, iteration, "agent", id, a)
+      } ).toSeq
+    }
+
+    if(rL.record(RecordLevel.Controller)) {
+      tempRecorders ++= ( for((id, a) <- agents) yield {
+        createRecorder(baseDir, generation, group, iteration, "controller", id, a.controller)
+      } ).toSeq
+    }
+    recorders = tempRecorders.par
+  }
+
+  private def createRecorder(baseDir: Path, generation: Int, group: Int, iteration: Int, name: String, id: Int, r: Recordable) = {
+    val dir = baseDir / generation.toString / group.toString / iteration.toString
+    dir.createDirectory(createParents = true)
+    new Recorder(dir, s"${id}_$name", r)
+  }
+
 }

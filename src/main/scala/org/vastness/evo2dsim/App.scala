@@ -23,6 +23,7 @@ import org.vastness.evo2dsim.environment.EnvironmentBuilder
 import org.vastness.evo2dsim.evolution.genomes.byte.ByteEvolutionManager
 import org.vastness.evo2dsim.evolution.genomes.neat.NEATEvolutionManager
 import org.vastness.evo2dsim.evolution.genomes.standard.STDEvolutionManager
+import org.vastness.evo2dsim.data.RecordLevel
 
 /**
  * @author Valentin Churavy
@@ -53,6 +54,8 @@ object App {
         c.copy(genomeSettings = x) } text "Specific genome settings (STD -> recurrent:numberHiddenNeurons)"
       opt[Double]('p', "probability") action { (x, c) =>
         c.copy(propability = x) } text "Probability used for Evolution"
+      opt[Int]('r', "recordingLevel") action { (x,c) =>
+        c.copy(recordingLevel = x) } text "Set a recording level , 0 = Everything, 1 = Networks, 2 = Agents, 3 = Nothing"
     }
 
     parser.parse(args, Config()) map { config =>
@@ -63,6 +66,8 @@ object App {
       }
       val envs = parse(config.generation, envConf)
       for((r, e) <- envs) println("Running %s from %d until %d".format(e.name, r.start, r.end))
+
+      val recordingLevel = RecordLevel.values.find(_.id == config.recordingLevel) getOrElse RecordLevel.Nothing
       val evo =
         new EvolutionRunner(
           config.evolutionAlgorithm,
@@ -75,7 +80,8 @@ object App {
           envs,
           config.genomeType,
           config.genomeSettings,
-          config.propability)
+          config.propability,
+          recordingLevel)
 
       evo.start()
     } getOrElse {
@@ -105,5 +111,6 @@ object App {
                     evolutionAlgorithm: String = "sus",
                     genomeType: String = "NEATGenome",
                     genomeSettings: String = "",
-                    propability: Double = 0.1)
+                    propability: Double = 0.1,
+                    recordingLevel: Int = RecordLevel.Nothing.id)
 }

@@ -19,11 +19,9 @@ package org.vastness.evo2dsim.simulator
 
 import org.vastness.evo2dsim.neuro._
 import org.vastness.evo2dsim.evolution.genomes._
-import org.vastness.evo2dsim.evolution.genomes.byte.{ByteGenome, ByteEvolutionManager}
-import org.vastness.evo2dsim.evolution.genomes.neat.{NEATGenome, NEATEvolutionManager}
-import org.vastness.evo2dsim.evolution.EvolutionBuilder
+import org.vastness.evo2dsim.data.Recordable
 
-abstract class Controller {
+abstract class Controller extends Recordable {
   var nn: Option[NeuronalNetwork] = None
   var genome: Option[Genome] = None
 
@@ -52,4 +50,7 @@ abstract class Controller {
   }
 
   def motorStep(): Unit
+
+  def dataHeader: Seq[String] = nn map {_.dataHeader} getOrElse Seq.empty
+  def dataRow: Seq[Any] = nn map {_.dataRow} getOrElse Seq.empty
 }
