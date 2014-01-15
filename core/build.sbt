@@ -1,12 +1,6 @@
 import com.typesafe.sbt.SbtNativePackager.packageArchetype
 
-organization := "org.vastness"
-
 name := "evo2dsim"
-
-version := "1.0-SNAPSHOT"
-
-scalaVersion := "2.10.3"
 
 libraryDependencies ++= Seq(
   "org.scalatest" %% "scalatest" % "2.0.RC2",
@@ -23,9 +17,3 @@ libraryDependencies ++= Seq(
 )
 
 packageArchetype.java_application
-
-resolvers ++= Seq(
-  "spray" at "http://repo.spray.io/",
-  "Sonatype Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots/",
-  "Sonatype Releases" at "https://oss.sonatype.org/content/repositories/releases/"
-)
