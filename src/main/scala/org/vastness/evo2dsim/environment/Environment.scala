@@ -37,9 +37,9 @@ abstract class Environment(val timeStep: Int, val steps: Int) {
   def spawnSize: Float
 
   def newRandomPosition: Vec2 = {
-    def randomFloat: Float = (sim.random.nextFloat * 2) - 1
     origin add new Vec2(randomFloat * spawnSize, randomFloat * spawnSize)
   }
+  protected def randomFloat: Float = (sim.random.nextFloat * 2) - 1
 
   protected var stepCounter = 0
   val sim = new Simulator(scala.util.Random.nextLong())
