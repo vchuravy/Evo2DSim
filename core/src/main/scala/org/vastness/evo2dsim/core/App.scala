@@ -15,8 +15,7 @@
  * along with Evo2DSim.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.vastness.evo2dsim
-
+package org.vastness.evo2dsim.core
 
 import org.vastness.evo2dsim.evolution.{EvolutionRunner, EvolutionBuilder, SUSEvolution}
 import org.vastness.evo2dsim.environment.EnvironmentBuilder
