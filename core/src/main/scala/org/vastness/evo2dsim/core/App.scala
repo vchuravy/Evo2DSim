@@ -17,12 +17,9 @@
 
 package org.vastness.evo2dsim.core
 
-import org.vastness.evo2dsim.evolution.{EvolutionRunner, EvolutionBuilder, SUSEvolution}
-import org.vastness.evo2dsim.environment.EnvironmentBuilder
-import org.vastness.evo2dsim.evolution.genomes.byte.ByteEvolutionManager
-import org.vastness.evo2dsim.evolution.genomes.neat.NEATEvolutionManager
-import org.vastness.evo2dsim.evolution.genomes.standard.STDEvolutionManager
-import org.vastness.evo2dsim.data.RecordLevel
+import org.vastness.evo2dsim.core.evolution.EvolutionRunner
+import org.vastness.evo2dsim.core.environment.EnvironmentBuilder
+import org.vastness.evo2dsim.core.data.RecordLevel
 
 /**
  * @author Valentin Churavy

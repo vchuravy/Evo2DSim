@@ -15,10 +15,10 @@
  * along with Evo2DSim.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.vastness.evo2dsim.evolution.genomes.byte
+package org.vastness.evo2dsim.core.evolution.genomes.byte
 
 
-import org.vastness.evo2dsim.evolution.genomes.Connection
+import org.vastness.evo2dsim.core.evolution.genomes.Connection
 
 case class ByteConnection(from: ByteNode, to: ByteNode, v_weight: Byte) extends Connection with Binary {
   def mutate: ByteConnection = ByteConnection(from, to, (v_weight ^ xor(p = 0.1)).toByte) //TODO: get proper p

@@ -15,9 +15,9 @@
  * along with Evo2DSim.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.vastness.evo2dsim.evolution.genomes
+package org.vastness.evo2dsim.core.evolution.genomes
 
-import org.vastness.evo2dsim.neuro.{NumberT, TransferFunction}
+import org.vastness.evo2dsim.core.neuro.{NumberT, TransferFunction}
 
 trait Node {
   type Self <: Node

@@ -15,16 +15,16 @@
  * along with Evo2DSim.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.vastness.evo2dsim.simulator
+package org.vastness.evo2dsim.core.simulator
 
 import org.jbox2d.common.Vec2
 import org.jbox2d.dynamics.{FixtureDef, BodyType, BodyDef}
 import org.jbox2d.dynamics
 import org.jbox2d.collision.shapes._
-import org.vastness.evo2dsim.gui._
-import org.vastness.evo2dsim.teem.enki.sbot.{SBot}
-import org.vastness.evo2dsim.simulator.light.LightManager
-import org.vastness.evo2dsim.simulator.food.FoodSource
+import org.vastness.evo2dsim.core.gui._
+import org.vastness.evo2dsim.core.agents.sbot.SBot
+import org.vastness.evo2dsim.core.simulator.light.LightManager
+import org.vastness.evo2dsim.core.simulator.food.FoodSource
 import scala.collection.mutable.ArrayBuffer
 
 class Simulator(seed: Long) {

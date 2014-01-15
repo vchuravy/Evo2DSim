@@ -15,10 +15,10 @@
  * along with Evo2DSim.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.vastness.evo2dsim.simulator.light
+package org.vastness.evo2dsim.core.simulator.light
 
-import org.vastness.evo2dsim.simulator.Entity
-import org.vastness.evo2dsim.gui.Color
+import org.vastness.evo2dsim.core.simulator.Entity
+import org.vastness.evo2dsim.core.gui.Color
 
 /**
  * Implements a simple  LightSource

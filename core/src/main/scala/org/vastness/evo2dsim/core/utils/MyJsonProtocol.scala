@@ -15,14 +15,14 @@
  * along with Evo2DSim.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.vastness.evo2dsim.utils
+package org.vastness.evo2dsim.core.utils
 
 import spray.json._
-import org.vastness.evo2dsim.neuro.TransferFunction
-import org.vastness.evo2dsim.evolution.genomes.{NodeTag, Genome}
-import org.vastness.evo2dsim.evolution.genomes.byte._
-import org.vastness.evo2dsim.evolution.genomes.neat._
-import org.vastness.evo2dsim.evolution.genomes.standard._
+import org.vastness.evo2dsim.core.neuro.TransferFunction
+import org.vastness.evo2dsim.core.evolution.genomes.{NodeTag, Genome}
+import org.vastness.evo2dsim.core.evolution.genomes.byte._
+import org.vastness.evo2dsim.core.evolution.genomes.neat._
+import org.vastness.evo2dsim.core.evolution.genomes.standard._
 
 
 object MyJsonProtocol extends DefaultJsonProtocol {

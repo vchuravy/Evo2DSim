@@ -15,10 +15,10 @@
  * along with Evo2DSim.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.vastness.evo2dsim.environment.mixins.foodSources
+package org.vastness.evo2dsim.core.environment.mixins.foodSources
 
-import org.vastness.evo2dsim.simulator.food.StaticFoodSource
-import org.vastness.evo2dsim.gui.Color
+import org.vastness.evo2dsim.core.simulator.food.StaticFoodSource
+import org.vastness.evo2dsim.core.gui.Color
 
 trait TestSource extends FoodSources {
   def foodSources = List(

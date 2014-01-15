@@ -18,10 +18,10 @@
 package org.vastness.evo2dsim.simulator.teem.enki.sbot
 
 import org.scalatest._
-import org.vastness.evo2dsim.simulator.Simulator
+import org.vastness.evo2dsim.core.simulator.Simulator
 import org.jbox2d.common.Vec2
-import org.vastness.evo2dsim.teem.enki.sbot._
-import org.vastness.evo2dsim.gui.Color
+import org.vastness.evo2dsim.core.agents.sbot._
+import org.vastness.evo2dsim.core.gui.Color
 
 
 class SBotLightSensorTest extends FlatSpec with Matchers {

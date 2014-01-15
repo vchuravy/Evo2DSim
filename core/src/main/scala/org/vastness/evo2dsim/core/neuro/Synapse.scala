@@ -15,7 +15,7 @@
  * along with Evo2DSim.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.vastness.evo2dsim.neuro
+package org.vastness.evo2dsim.core.neuro
 
 case class Synapse(input: Neuron, output: Neuron, weight: NumberT){
   var value: NumberT = input.output * weight

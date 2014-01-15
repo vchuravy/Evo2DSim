@@ -17,18 +17,18 @@
 
 package org.vastness.evo2dsim.analyzer.gui
 
-import org.vastness.evo2dsim.gui._
+import org.vastness.evo2dsim.core.gui._
 
 import scala.swing._
 import scalax.file.Path
 import java.io.File
-import org.vastness.evo2dsim.environment.{Environment, EnvironmentBuilder}
+import org.vastness.evo2dsim.core.environment.{Environment, EnvironmentBuilder}
 import scala.swing.event.{Key, KeyPressed}
-import org.vastness.evo2dsim.simulator.light.{LightCategory, LightManager}
-import org.vastness.evo2dsim.teem.enki.sbot.SBotController
+import org.vastness.evo2dsim.core.simulator.light.{LightCategory, LightManager}
+import org.vastness.evo2dsim.core.agents.sbot.SBotController
 import org.vastness.evo2dsim.analyzer.App
-import org.vastness.evo2dsim.evolution.Evolution.Generation
-import org.vastness.evo2dsim.utils.InputHandler
+import org.vastness.evo2dsim.core.evolution.Evolution.Generation
+import org.vastness.evo2dsim.core.utils.InputHandler
 
 
 class MainWindow extends MainFrame with RenderManager {
@@ -206,7 +206,7 @@ class MainWindow extends MainFrame with RenderManager {
 
     val e = envBuilder(timeStep, 0)
     e.initializeStatic()
-    val g = generation.getOrElse(Map.empty).grouped(10).toIndexedSeq(group)
+    val g = generation.getOrElse(Map.empty).grouped(10).toIndexedSeq(group).toMap
     e.initializeAgents(g)
     EnvironmentManager.addEnvironment(e)
     e.sim.lightManager.disabledCategories = disabledLightSourceCategories

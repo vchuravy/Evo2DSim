@@ -15,14 +15,14 @@
  * along with Evo2DSim.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.vastness.evo2dsim.utils
+package org.vastness.evo2dsim.core.utils
 
-import org.vastness.evo2dsim.evolution.Evolution.Generation
+import org.vastness.evo2dsim.core.evolution.Evolution.Generation
 import scalax.io.Input
-import org.vastness.evo2dsim.evolution.genomes.Genome
+import org.vastness.evo2dsim.core.evolution.genomes.Genome
 import scalax.file._
 import spray.json._
-import org.vastness.evo2dsim.utils.MyJsonProtocol._
+import org.vastness.evo2dsim.core.utils.MyJsonProtocol._
 import org.apache.commons.compress.archivers.sevenz._
 
 import OutputHandler._

@@ -15,10 +15,10 @@
  * along with Evo2DSim.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.vastness.evo2dsim.gui
+package org.vastness.evo2dsim.core.gui
 
 import org.jbox2d.common.Vec2
-import java.awt.{RenderingHints, BasicStroke, Graphics2D}
+import java.awt.{BasicStroke, Graphics2D}
 import scala.annotation.tailrec
 
 /**

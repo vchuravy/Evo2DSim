@@ -15,7 +15,7 @@
  * along with Evo2DSim.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.vastness.evo2dsim.simulator.light
+package org.vastness.evo2dsim.core.simulator.light
 
 import scala.collection.mutable.ArrayBuffer
 

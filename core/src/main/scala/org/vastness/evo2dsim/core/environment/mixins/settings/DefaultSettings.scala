@@ -15,7 +15,7 @@
  * along with Evo2DSim.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.vastness.evo2dsim.environment.mixins.settings
+package org.vastness.evo2dsim.core.environment.mixins.settings
 
 import org.jbox2d.common.Vec2
 

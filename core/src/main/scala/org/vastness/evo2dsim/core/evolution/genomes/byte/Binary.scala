@@ -15,10 +15,10 @@
  * along with Evo2DSim.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.vastness.evo2dsim.evolution.genomes.byte
+package org.vastness.evo2dsim.core.evolution.genomes.byte
 
 import scala.util.Random
-import org.vastness.evo2dsim.neuro._
+import org.vastness.evo2dsim.core.neuro._
 
 
 trait Binary {

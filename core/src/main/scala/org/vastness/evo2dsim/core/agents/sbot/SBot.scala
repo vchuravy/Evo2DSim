@@ -15,12 +15,12 @@
  * along with Evo2DSim.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.vastness.evo2dsim.teem.enki.sbot
+package org.vastness.evo2dsim.core.agents.sbot
 
 import org.jbox2d.common.Vec2
-import org.vastness.evo2dsim.simulator.{Simulator, Agent}
-import org.vastness.evo2dsim.simulator.light.{LightCategory, LightSource}
-import org.vastness.evo2dsim.gui.Color
+import org.vastness.evo2dsim.core.simulator.{Simulator, Agent}
+import org.vastness.evo2dsim.core.simulator.light.{LightCategory, LightSource}
+import org.vastness.evo2dsim.core.gui.Color
 
 /**
  * Implements an S-Bot agent similar to the enki simulator.

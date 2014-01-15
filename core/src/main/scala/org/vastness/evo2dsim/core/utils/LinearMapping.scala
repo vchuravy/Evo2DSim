@@ -15,9 +15,9 @@
  * along with Evo2DSim.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.vastness.evo2dsim.utils
+package org.vastness.evo2dsim.core.utils
 
-import org.vastness.evo2dsim.neuro.NumberT
+import org.vastness.evo2dsim.core.neuro.NumberT
 
 trait LinearMapping {
   def UPPER_OUTPUT_LIMIT: NumberT

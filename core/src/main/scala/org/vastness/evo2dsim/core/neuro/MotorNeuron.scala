@@ -15,9 +15,9 @@
  * along with Evo2DSim.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.vastness.evo2dsim.neuro
+package org.vastness.evo2dsim.core.neuro
 
-import org.vastness.evo2dsim.evolution.genomes.{Node, NodeTag}
+import org.vastness.evo2dsim.core.evolution.genomes.{Node, NodeTag}
 
 case class MotorNeuron(id: Int, bias: NumberT, t_func: TransferFunction, data: String)(var m_func: (NumberT) => Unit = (_) => {}) extends Neuron {
   override val tag = NodeTag.Motor

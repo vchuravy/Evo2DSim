@@ -15,9 +15,9 @@
  * along with Evo2DSim.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.vastness.evo2dsim.evolution.genomes
+package org.vastness.evo2dsim.core.evolution.genomes
 
-import org.vastness.utils.Enum
+import org.vastness.evo2dsim.macros.utils.Enum
 
 sealed trait NodeTag{
   def name: String

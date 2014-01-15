@@ -1,5 +1,7 @@
+package org.vastness.evo2dsim.macros.utils
+
 import org.scalatest._
-import org.vastness.utils.enums._
+import org.vastness.evo2dsim.macros.utils.enums._
 
 class EnumTest extends FlatSpec with Matchers {
 

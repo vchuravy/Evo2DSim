@@ -15,7 +15,7 @@
  * along with Evo2DSim.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.vastness.evo2dsim
+package org.vastness.evo2dsim.core
 
 import scala.util.Random
 

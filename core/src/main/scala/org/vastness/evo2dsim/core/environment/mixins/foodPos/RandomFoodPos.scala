@@ -15,7 +15,7 @@
  * along with Evo2DSim.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.vastness.evo2dsim.environment.mixins.foodPos
+package org.vastness.evo2dsim.core.environment.mixins.foodPos
 
 trait RandomFoodPos extends FoodPos {
   override def foodPos = sim.random.shuffle(edgeLocations).take(2).toList

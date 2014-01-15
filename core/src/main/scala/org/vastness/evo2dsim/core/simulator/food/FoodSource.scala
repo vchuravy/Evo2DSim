@@ -15,11 +15,11 @@
  * along with Evo2DSim.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.vastness.evo2dsim.simulator.food
+package org.vastness.evo2dsim.core.simulator.food
 
-import org.vastness.evo2dsim.simulator.{Simulator, Entity, Agent}
-import org.vastness.evo2dsim.simulator.light.{LightCategory, LightSource}
-import org.vastness.evo2dsim.gui.Color
+import org.vastness.evo2dsim.core.simulator.{Simulator, Entity, Agent}
+import org.vastness.evo2dsim.core.simulator.light.{LightCategory, LightSource}
+import org.vastness.evo2dsim.core.gui.Color
 
 /**
  * Base class for food sources. Gives reward to the first n individuals

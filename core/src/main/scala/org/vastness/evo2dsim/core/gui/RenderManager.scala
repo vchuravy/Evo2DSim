@@ -15,7 +15,7 @@
  * along with Evo2DSim.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.vastness.evo2dsim.gui
+package org.vastness.evo2dsim.core.gui
 
 import scala.swing.Component
 

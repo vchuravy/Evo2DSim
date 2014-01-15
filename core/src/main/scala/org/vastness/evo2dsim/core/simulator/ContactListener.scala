@@ -15,13 +15,13 @@
  * along with Evo2DSim.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.vastness.evo2dsim.simulator
+package org.vastness.evo2dsim.core.simulator
 import org.jbox2d.callbacks
 import org.jbox2d.dynamics.contacts.Contact
 import org.jbox2d.collision.Manifold
 import org.jbox2d.callbacks.ContactImpulse
-import org.vastness.evo2dsim.simulator.food.FoodSource
-import org.jbox2d.dynamics.{Fixture, Body}
+import org.vastness.evo2dsim.core.simulator.food.FoodSource
+import org.jbox2d.dynamics.Fixture
 
 /**
  * Listens for contacts between FoodSources and Agents

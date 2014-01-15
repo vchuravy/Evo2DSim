@@ -15,10 +15,10 @@
  * along with Evo2DSim.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.vastness.evo2dsim.evolution.genomes.byte
+package org.vastness.evo2dsim.core.evolution.genomes.byte
 
-import org.vastness.evo2dsim.evolution.genomes.{Genome, EvolutionManager}
-import org.vastness.evo2dsim.neuro.{Neuron, TransferFunction}
+import org.vastness.evo2dsim.core.evolution.genomes.{Genome, EvolutionManager}
+import org.vastness.evo2dsim.core.neuro.{Neuron, TransferFunction}
 
 class ByteEvolutionManager( val probability: Double = 0.1,
                             val standardTransferFunction: TransferFunction = TransferFunction.THANH)

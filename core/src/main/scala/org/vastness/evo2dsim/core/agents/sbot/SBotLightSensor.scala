@@ -15,13 +15,13 @@
  * along with Evo2DSim.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.vastness.evo2dsim.teem.enki.sbot
+package org.vastness.evo2dsim.core.agents.sbot
 
-import org.vastness.evo2dsim.neuro._
-import org.vastness.evo2dsim.simulator.light.LightSource
-import org.vastness.evo2dsim.gui.Color
+import org.vastness.evo2dsim.core.neuro._
+import org.vastness.evo2dsim.core.simulator.light.LightSource
+import org.vastness.evo2dsim.core.gui.Color
 import org.apache.commons.math3.util.FastMath
-import org.vastness.evo2dsim.utils.LinearMapping
+import org.vastness.evo2dsim.core.utils.LinearMapping
 import spire.implicits._
 
 /**

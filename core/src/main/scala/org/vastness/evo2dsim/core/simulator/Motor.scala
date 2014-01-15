@@ -15,14 +15,12 @@
  * along with Evo2DSim.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.vastness.evo2dsim.simulator
+package org.vastness.evo2dsim.core.simulator
 
 import org.jbox2d.common.Vec2
 import org.apache.commons.math3.util.FastMath
-import org.vastness.evo2dsim.utils.LinearMapping
-import spire.implicits._
-import spire.math._
-import org.vastness.evo2dsim.neuro._
+import org.vastness.evo2dsim.core.utils.LinearMapping
+import org.vastness.evo2dsim.core.neuro._
 import scala.Some
 
 class Motor extends LinearMapping {

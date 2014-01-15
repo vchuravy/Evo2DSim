@@ -15,9 +15,9 @@
  * along with Evo2DSim.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.vastness.evo2dsim.simulator.food
+package org.vastness.evo2dsim.core.simulator.food
 
-import org.vastness.evo2dsim.gui.Color
+import org.vastness.evo2dsim.core.gui.Color
 
 
 /**

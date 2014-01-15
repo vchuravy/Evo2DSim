@@ -1,4 +1,4 @@
-package org.vastness.utils
+package org.vastness.evo2dsim.macros.utils
 
 import scala.language.experimental.macros
 import scala.reflect.macros.Context

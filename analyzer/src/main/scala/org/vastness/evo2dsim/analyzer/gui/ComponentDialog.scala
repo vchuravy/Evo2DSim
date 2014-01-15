@@ -18,7 +18,7 @@
 package org.vastness.evo2dsim.analyzer.gui
 
 import scala.swing._
-import org.vastness.evo2dsim.gui.RenderManager
+import org.vastness.evo2dsim.core.gui.RenderManager
 
 class ComponentDialog(owner: Window, component: Component, manager: RenderManager) extends Dialog(owner) {
   setLocationRelativeTo(owner)

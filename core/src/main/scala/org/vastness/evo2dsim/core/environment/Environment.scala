@@ -15,16 +15,15 @@
  * along with Evo2DSim.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.vastness.evo2dsim.environment
+package org.vastness.evo2dsim.core.environment
 
-import org.vastness.evo2dsim.simulator.{Agent, Simulator}
-import scala.concurrent.{Await, Promise, Future, promise}
-import org.vastness.evo2dsim.gui.EnvironmentManager
+import org.vastness.evo2dsim.core.simulator.{Agent, Simulator}
+import scala.concurrent.promise
+import org.vastness.evo2dsim.core.gui.EnvironmentManager
 import scala.collection.Map
 import org.jbox2d.common.Vec2
-import scala.concurrent.duration.Duration
-import org.vastness.evo2dsim.evolution.genomes.Genome
-import org.vastness.evo2dsim.data.{Recordable, Recorder, RecordLevel}
+import org.vastness.evo2dsim.core.evolution.genomes.Genome
+import org.vastness.evo2dsim.core.data.{Recordable, Recorder, RecordLevel}
 import scala.collection.parallel.ParSeq
 import scalax.file.Path
 

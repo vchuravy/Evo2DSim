@@ -15,10 +15,10 @@
  * along with Evo2DSim.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.vastness.evo2dsim.evolution.genomes.standard
+package org.vastness.evo2dsim.core.evolution.genomes.standard
 
-import org.vastness.evo2dsim.neuro._
-import org.vastness.evo2dsim.evolution.genomes.{NodeTag, Genome, EvolutionManager}
+import org.vastness.evo2dsim.core.neuro._
+import org.vastness.evo2dsim.core.evolution.genomes.{NodeTag, Genome, EvolutionManager}
 
 class STDEvolutionManager( val probability: Double,
                            val standardTransferFunction: TransferFunction,

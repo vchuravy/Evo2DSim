@@ -15,7 +15,7 @@
  * along with Evo2DSim.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.vastness.evo2dsim.evolution
+package org.vastness.evo2dsim.core.evolution
 
 import scala.concurrent._, duration._, ExecutionContext.Implicits.global
 
@@ -25,13 +25,13 @@ import java.util.Calendar
 
 import scalax.file._
 
-import org.vastness.evo2dsim.gui.EnvironmentManager
-import org.vastness.evo2dsim.environment.{EnvironmentBuilder, Environment}
-import org.vastness.evo2dsim.evolution.genomes.{EvolutionManager, Genome}
-import org.vastness.evo2dsim.teem.enki.sbot.SBotController
-import org.vastness.evo2dsim.evolution.Evolution.Generation
-import org.vastness.evo2dsim.utils.OutputHandler
-import org.vastness.evo2dsim.data.{RecordLevel, Recorder, Recordable}
+import org.vastness.evo2dsim.core.gui.EnvironmentManager
+import org.vastness.evo2dsim.core.environment.{EnvironmentBuilder, Environment}
+import org.vastness.evo2dsim.core.evolution.genomes.{EvolutionManager, Genome}
+import org.vastness.evo2dsim.core.agents.sbot.SBotController
+import org.vastness.evo2dsim.core.evolution.Evolution.Generation
+import org.vastness.evo2dsim.core.utils.OutputHandler
+import org.vastness.evo2dsim.core.data.{RecordLevel, Recorder, Recordable}
 
 class EvolutionRunner(name: String,
                       poolSize: Int,

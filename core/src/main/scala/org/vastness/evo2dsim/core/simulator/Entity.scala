@@ -15,9 +15,9 @@
  * along with Evo2DSim.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.vastness.evo2dsim.simulator
+package org.vastness.evo2dsim.core.simulator
 
-import org.vastness.evo2dsim.gui.Sprite
+import org.vastness.evo2dsim.core.gui.Sprite
 import org.jbox2d.common.Vec2
 
 trait Entity {

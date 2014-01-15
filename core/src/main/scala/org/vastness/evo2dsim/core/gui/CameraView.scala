@@ -15,9 +15,9 @@
  * along with Evo2DSim.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.vastness.evo2dsim.gui
+package org.vastness.evo2dsim.core.gui
 
-import org.vastness.evo2dsim.teem.enki.sbot.SBotLightSensor
+import org.vastness.evo2dsim.core.agents.sbot.SBotLightSensor
 import java.awt
 import scala.swing.{Dimension, Graphics2D, Component}
 

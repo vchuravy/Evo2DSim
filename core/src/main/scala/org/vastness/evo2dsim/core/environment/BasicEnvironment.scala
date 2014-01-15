@@ -15,14 +15,14 @@
  * along with Evo2DSim.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.vastness.evo2dsim.environment
+package org.vastness.evo2dsim.core.environment
 
 import org.jbox2d.common.Vec2
-import org.vastness.evo2dsim.simulator.Agent
+import org.vastness.evo2dsim.core.simulator.Agent
 import scala.collection.Map
-import org.vastness.evo2dsim.simulator.food.FoodSource
+import org.vastness.evo2dsim.core.simulator.food.FoodSource
 import scala.annotation.tailrec
-import org.vastness.evo2dsim.evolution.genomes.{Genome}
+import org.vastness.evo2dsim.core.evolution.genomes.Genome
 
 /**
  * @see Environment
@@ -51,8 +51,8 @@ abstract class BasicEnvironment(timeStep:Int, steps:Int) extends Environment(tim
     @tailrec
     def addFood(food: List[FoodSource], pos: List[Vec2]) {
       (food, pos) match {
-        case (f :: fs, p :: ps) =>
-          sim.addFoodSource(p,f)
+        case (f :: fs, _p :: ps) =>
+          sim.addFoodSource(_p,f)
           addFood(fs, ps)
         case (Nil, Nil) =>
         case (fs, Nil) => throw new Exception(s"There are still some Food Source left: $fs")

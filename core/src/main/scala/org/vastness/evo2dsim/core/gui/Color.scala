@@ -15,10 +15,10 @@
  * along with Evo2DSim.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.vastness.evo2dsim.gui
+package org.vastness.evo2dsim.core.gui
 
 import java.awt
-import org.vastness.utils.Enum
+import org.vastness.evo2dsim.macros.utils.Enum
 
 /**
  * Singelton that abstracts away the actual color implementation from the runtime

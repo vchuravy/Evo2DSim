@@ -15,10 +15,10 @@
  * along with Evo2DSim.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.vastness.evo2dsim.evolution.genomes.standard
+package org.vastness.evo2dsim.core.evolution.genomes.standard
 
-import org.vastness.evo2dsim.evolution.genomes.Connection
-import org.vastness.evo2dsim.neuro._
+import org.vastness.evo2dsim.core.evolution.genomes.Connection
+import org.vastness.evo2dsim.core.neuro._
 
 
 case class STDConnection(from: STDNode, to: STDNode, weight: NumberT) extends Connection {

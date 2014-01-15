@@ -15,11 +15,9 @@
  * along with Evo2DSim.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.vastness.evo2dsim.evolution.genomes
+package org.vastness.evo2dsim.core.evolution.genomes
 
-import org.vastness.evo2dsim.neuro.NumberT
-import org.vastness.evo2dsim.evolution.genomes.byte.{ByteNode, Binary, ByteConnection}
-import org.vastness.evo2dsim.evolution.genomes.neat.{NEATNode, NEATConnection}
+import org.vastness.evo2dsim.core.neuro.NumberT
 
 
 trait Connection extends Product with Serializable {

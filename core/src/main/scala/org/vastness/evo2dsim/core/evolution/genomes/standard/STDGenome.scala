@@ -15,9 +15,9 @@
  * along with Evo2DSim.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.vastness.evo2dsim.evolution.genomes.standard
+package org.vastness.evo2dsim.core.evolution.genomes.standard
 
-import org.vastness.evo2dsim.evolution.genomes.Genome
+import org.vastness.evo2dsim.core.evolution.genomes.Genome
 import scala.util.Random
 
 case class STDGenome(nodes: Set[STDNode] = Set.empty,

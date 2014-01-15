@@ -15,10 +15,10 @@
  * along with Evo2DSim.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.vastness.evo2dsim.gui
+package org.vastness.evo2dsim.core.gui
 
 import scala.swing.{Graphics2D, Component}
-import org.vastness.evo2dsim.simulator.Entity
+import org.vastness.evo2dsim.core.simulator.Entity
 import java.awt.RenderingHints
 
 class Surface extends Component {

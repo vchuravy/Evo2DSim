@@ -1,6 +1,6 @@
-package org.vastness.utils.enums
+package org.vastness.evo2dsim.macros.utils.enums
 
-import org.vastness.utils.Enum
+import org.vastness.evo2dsim.macros.utils.Enum
 
 sealed trait SimpleEnum
 

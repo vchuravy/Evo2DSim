@@ -15,8 +15,8 @@
  * along with Evo2DSim.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.vastness.evo2dsim.environment.mixins.settings
+package org.vastness.evo2dsim.core.environment.mixins.settings
 
-import org.vastness.evo2dsim.environment.BasicEnvironment
+import org.vastness.evo2dsim.core.environment.BasicEnvironment
 
 trait Settings extends BasicEnvironment

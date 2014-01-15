@@ -15,12 +15,12 @@
  * along with Evo2DSim.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.vastness.evo2dsim.evolution.genomes
+package org.vastness.evo2dsim.core.evolution.genomes
 
-import org.vastness.evo2dsim.neuro.{Neuron, TransferFunction}
-import org.vastness.evo2dsim.evolution.genomes.byte.ByteEvolutionManager
-import org.vastness.evo2dsim.evolution.genomes.neat.NEATEvolutionManager
-import org.vastness.evo2dsim.evolution.genomes.standard.STDEvolutionManager
+import org.vastness.evo2dsim.core.neuro.{Neuron, TransferFunction}
+import org.vastness.evo2dsim.core.evolution.genomes.byte.ByteEvolutionManager
+import org.vastness.evo2dsim.core.evolution.genomes.neat.NEATEvolutionManager
+import org.vastness.evo2dsim.core.evolution.genomes.standard.STDEvolutionManager
 
 trait EvolutionManager {
   def probability: Double

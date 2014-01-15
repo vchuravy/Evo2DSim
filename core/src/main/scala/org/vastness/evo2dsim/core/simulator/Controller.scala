@@ -15,11 +15,11 @@
  * along with Evo2DSim.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.vastness.evo2dsim.simulator
+package org.vastness.evo2dsim.core.simulator
 
-import org.vastness.evo2dsim.neuro._
-import org.vastness.evo2dsim.evolution.genomes._
-import org.vastness.evo2dsim.data.Recordable
+import org.vastness.evo2dsim.core.neuro._
+import org.vastness.evo2dsim.core.evolution.genomes._
+import org.vastness.evo2dsim.core.data.Recordable
 
 abstract class Controller extends Recordable {
   var nn: Option[NeuronalNetwork] = None

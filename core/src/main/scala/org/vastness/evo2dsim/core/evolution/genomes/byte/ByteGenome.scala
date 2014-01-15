@@ -15,11 +15,11 @@
  * along with Evo2DSim.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.vastness.evo2dsim.evolution.genomes.byte
+package org.vastness.evo2dsim.core.evolution.genomes.byte
 
-import org.vastness.evo2dsim.evolution.genomes.{NodeTag, Genome}
+import org.vastness.evo2dsim.core.evolution.genomes.{NodeTag, Genome}
 import scala.util.Random
-import org.vastness.evo2dsim.neuro.Neuron
+import org.vastness.evo2dsim.core.neuro.Neuron
 
 case class ByteGenome(nodes: Set[ByteNode], connections: Set[ByteConnection], em: ByteEvolutionManager) extends Genome {
   type Self = ByteGenome

@@ -15,10 +15,10 @@
  * along with Evo2DSim.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.vastness.evo2dsim.gui
+package org.vastness.evo2dsim.core.gui
 
-import org.vastness.evo2dsim.environment.Environment
-import org.vastness.evo2dsim.simulator.Entity
+import org.vastness.evo2dsim.core.environment.Environment
+import org.vastness.evo2dsim.core.simulator.Entity
 import scala.collection.mutable.ListBuffer
 
 object EnvironmentManager {

@@ -15,14 +15,11 @@
  * along with Evo2DSim.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.vastness.evo2dsim.teem.enki.sbot
+package org.vastness.evo2dsim.core.agents.sbot
 
-import org.vastness.evo2dsim.simulator.{Agent, Motor, Controller}
-import org.vastness.evo2dsim.neuro._
+import org.vastness.evo2dsim.core.simulator.{Agent, Motor, Controller}
+import org.vastness.evo2dsim.core.neuro._
 import spire.implicits._
-import spire.math._
-import org.vastness.evo2dsim.evolution.genomes.Genome
-import scala.Some
 
 
 class SBotController extends Controller {

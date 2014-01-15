@@ -15,9 +15,9 @@
  * along with Evo2DSim.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.vastness.evo2dsim.neuro
+package org.vastness.evo2dsim.core.neuro
 
-import org.vastness.utils.Enum
+import org.vastness.evo2dsim.macros.utils.Enum
 import org.apache.commons.math3.util.FastMath
 
 sealed trait TransferFunction {

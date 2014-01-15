@@ -15,10 +15,7 @@
  * along with Evo2DSim.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.vastness.evo2dsim.evolution.genomes
-
-import org.vastness.evo2dsim.evolution.genomes.byte.ByteGenome
-import org.vastness.evo2dsim.evolution.genomes.neat.NEATGenome
+package org.vastness.evo2dsim.core.evolution.genomes
 
 
 trait Genome {

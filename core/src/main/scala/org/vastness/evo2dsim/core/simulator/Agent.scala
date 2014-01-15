@@ -15,13 +15,13 @@
  * along with Evo2DSim.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.vastness.evo2dsim.simulator
+package org.vastness.evo2dsim.core.simulator
 
 import org.jbox2d.common.Vec2
 import org.jbox2d.dynamics.{BodyType, BodyDef}
 import org.jbox2d.collision.shapes.CircleShape
-import org.vastness.evo2dsim.gui.{Color, CircleSprite}
-import org.vastness.evo2dsim.data.Recordable
+import org.vastness.evo2dsim.core.gui.{Color, CircleSprite}
+import org.vastness.evo2dsim.core.data.Recordable
 
 abstract class Agent(id: Int, pos: Vec2, vAngle: Float, val sim: Simulator, val radius: Float, mass: Float) extends Entity with Recordable{
   //Defines BodyDef

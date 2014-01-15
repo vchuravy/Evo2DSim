@@ -15,10 +15,10 @@
  * along with Evo2DSim.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.vastness.evo2dsim.evolution
+package org.vastness.evo2dsim.core.evolution
 
 import scala.util.Random
-import org.vastness.evo2dsim.evolution.Evolution.Generation
+import org.vastness.evo2dsim.core.evolution.Evolution.Generation
 
 /**
  * Very stupid test implementation of Elitism

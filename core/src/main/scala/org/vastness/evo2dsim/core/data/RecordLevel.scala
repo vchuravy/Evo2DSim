@@ -15,9 +15,9 @@
  * along with Evo2DSim.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.vastness.evo2dsim.data
+package org.vastness.evo2dsim.core.data
 
-import org.vastness.utils.Enum
+import org.vastness.evo2dsim.macros.utils.Enum
 
 sealed trait RecordLevel {
   def id: Int

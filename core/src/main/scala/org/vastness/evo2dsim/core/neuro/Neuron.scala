@@ -15,11 +15,11 @@
  * along with Evo2DSim.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.vastness.evo2dsim.neuro
+package org.vastness.evo2dsim.core.neuro
 
-import org.vastness.evo2dsim.evolution.genomes.NodeTag
+import org.vastness.evo2dsim.core.evolution.genomes.NodeTag
 import spire.syntax.cfor._
-import org.vastness.evo2dsim.data.Recordable
+import org.vastness.evo2dsim.core.data.Recordable
 
 trait Neuron extends Product with Serializable with Recordable{
   def id: Int

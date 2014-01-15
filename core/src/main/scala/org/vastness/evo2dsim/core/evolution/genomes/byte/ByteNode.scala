@@ -15,10 +15,10 @@
  * along with Evo2DSim.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.vastness.evo2dsim.evolution.genomes.byte
+package org.vastness.evo2dsim.core.evolution.genomes.byte
 
-import org.vastness.evo2dsim.evolution.genomes.{NodeTag, Node}
-import org.vastness.evo2dsim.neuro._
+import org.vastness.evo2dsim.core.evolution.genomes.{NodeTag, Node}
+import org.vastness.evo2dsim.core.neuro._
 
 case class ByteNode(tag: NodeTag, id: Int, v_bias: Byte, transferFunction: TransferFunction, data: String) extends Node with Binary {
   type Self = ByteNode
