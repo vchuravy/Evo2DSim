@@ -15,7 +15,7 @@
 #$ -l virtual_free=4g
 
 JAVA_OPTS="-server"
-CMD=target/universal/stage/bin/evo2dsim
+CMD=core/target/universal/stage/bin/evo2dsim-core
 
 cd /work/DoyaU/v-churavy/Evo2DSim
 # -mem 4096 -g 500 -c "0:basic;50:basicSimpleRandom;200:basicRandom;400:dynamicSimpleRandom"

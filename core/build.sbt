@@ -1,6 +1,4 @@
-import com.typesafe.sbt.SbtNativePackager.packageArchetype
-
-name := "evo2dsim"
+name := "evo2dsim-core"
 
 libraryDependencies ++= Seq(
   "org.scalatest" %% "scalatest" % "2.0.RC2",
@@ -12,7 +10,6 @@ libraryDependencies ++= Seq(
   "com.github.scala-incubator.io" %% "scala-io-file" % "0.4.2",
   "io.spray" %% "spray-json" % "1.2.5",
   "org.scalaz" %% "scalaz-core" % "7.1.0-M4",
-  "org.vastness" %% "utils" % "0.1",
   "org.spire-math" %% "spire" % "0.7.1"
 )
 

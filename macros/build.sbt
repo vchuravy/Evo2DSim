@@ -1,8 +1,4 @@
-organization := "org.vastness"
-
-name := "utils"
-
-version := "0.1"
+name := "evo2dsim-macros"
 
 libraryDependencies ++= Seq(
   "org.scalatest" %% "scalatest" % "2.0" % "test",
