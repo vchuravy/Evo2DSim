@@ -6,4 +6,5 @@ object Evo2DSimBuild extends Build {
     lazy val core = project in file("core") dependsOn macros
     lazy val analyzer = project in file("analyzer") dependsOn core
     lazy val macros = project in file("macros")
+    lazy val data = project in file("data") dependsOn core
 }
