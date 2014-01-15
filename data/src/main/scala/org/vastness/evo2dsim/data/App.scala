@@ -15,28 +15,8 @@
  * along with Evo2DSim.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.vastness.evo2dsim.analyzer.gui
+package org.vastness.evo2dsim.data
 
-import scala.swing._
-import org.vastness.evo2dsim.core.gui.RenderManager
+object App {
 
-class ComponentDialog(owner: Window, component: Component, manager: RenderManager) extends Dialog(owner) {
-  setLocationRelativeTo(owner)
-
-  val ok = new Button(Action("Ok") {
-    this.visible = false
-    manager.renderComponents -= component
-  })
-
-  contents = new BorderPanel {
-    import BorderPanel._
-    add(component, Position.Center)
-    add(ok, Position.South)
-  }
-
-  def showDialog() = {
-    this.pack()
-    manager.renderComponents += component
-    this.visible = true
-  }
 }
