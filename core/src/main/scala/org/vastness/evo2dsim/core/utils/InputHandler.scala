@@ -27,6 +27,7 @@ import org.apache.commons.compress.archivers.sevenz._
 
 import OutputHandler._
 import java.io.File
+import org.vastness.evo2dsim.core.evolution.EvolutionConfig
 
 /**
  * An handler for reading the data created by @see OutputHandler.
@@ -45,6 +46,14 @@ class InputHandler(dir: Path) {
    * @return Option[Generation]
    */
   def readGeneration(id: Int): Option[Generation] = if(compressed_?) readCompressed(id) else read(id)
+
+  def readEvolutionConfig: Option[EvolutionConfig] = {
+    val cFile = dir / configFileName
+    if(cFile.exists) {
+      val input: Input = cFile.inputStream()
+      Some(input.string.asJson.convertTo[EvolutionConfig])
+    } else None
+  }
   
   private def read(id: Int): Option[Generation] = {
     val genFile = dir resolve gFileTemplate.format(id)

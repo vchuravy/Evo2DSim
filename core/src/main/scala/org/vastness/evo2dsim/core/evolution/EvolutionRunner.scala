@@ -33,33 +33,18 @@ import org.vastness.evo2dsim.core.evolution.Evolution.Generation
 import org.vastness.evo2dsim.core.utils.OutputHandler
 import org.vastness.evo2dsim.core.data.{RecordLevel, Recorder, Recordable}
 
-class EvolutionRunner(name: String,
-                      poolSize: Int,
-                      groupSize: Int,
-                      evaluationSteps: Int,
-                      generations:Int,
-                      evaluationPerGeneration: Int,
-                      timeStep: Int,
-                      envSetup: Seq[(Range,EnvironmentBuilder)],
-                      genomeName: String,
-                      genomeSettings: String,
-                      propability: Double,
-                      recordLevel: RecordLevel) extends Recordable {
-
+class EvolutionRunner(c: EvolutionConfig) extends Recordable {
   val now = Calendar.getInstance().getTime
   val dateFormat = new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss")
   val timeStamp = dateFormat.format(now)
 
-  require(poolSize % groupSize == 0)
-  require(timeStep > 0)
-  require(evaluationSteps > 0)
+  val evo: Evolution = EvolutionBuilder(c.evolutionAlgorithm)(c.poolSize)
 
-  val evo: Evolution = EvolutionBuilder(name)(poolSize)
-
-  val envString = envSetup.sortBy(_._1.start).map(_._2.name).mkString("-")
-  val dir = (Path("results") resolve s"${timeStamp}_${name}_${envString}_${genomeName}_${propability}_$genomeSettings").createDirectory()
+  val envString = c.envSetup.sortBy(_._1.start).map(_._2.name).mkString("-")
+  val dir = (Path("results") resolve s"${timeStamp}_${c.evolutionAlgorithm}_${envString}_${c.genomeName}_${c.propability}_${c.genomeSettings}").createDirectory()
   val output = new OutputHandler(dir, true)
 
+  output.writeEvolutionConfig(c)
   println(s"Results are saved in: $dir")
 
   override def dataHeader = Seq("Generation", "Max", "Min", "Mean", "Variance", "GroupMax", "GroupMin", "GroupMean", "GroupVariance")
@@ -82,12 +67,12 @@ class EvolutionRunner(name: String,
     var generation = 0
     var genomes: Map[Int, (Double, Genome)] = startGenomes
 
-    while(generation < generations) {
+    while(generation < c.generations) {
       val generationStartTime = System.nanoTime()
 
       EnvironmentManager.clean()
 
-      val envBuilders = envSetup filter {case (range, _) => range contains generation} map {_._2}
+      val envBuilders: Seq[EnvironmentBuilder] = c.envSetup filter { case (range, _) => range contains generation } map { case (_, e) => e }
       val envBuilder = envBuilders.size match {
         case 0 => throw new Exception(s"Could not find an environment for generation $generation.")
         case 1 => envBuilders.head
@@ -101,14 +86,12 @@ class EvolutionRunner(name: String,
           scala.util.Random.shuffle(envBuilders).head
       }
 
-      assert(evaluationSteps > 0, "In Simulation mode evaluationSteps has to be bigger than zero.")
-      val futureEvaluations =  groupEvaluations(genomes.toList, generation)(envBuilder)
-      assert(futureEvaluations.size == evaluationPerGeneration*(poolSize / groupSize))
+      assert(c.evaluationSteps > 0, "In Simulation mode evaluationSteps has to be bigger than zero.")
+      val futureEvaluations =  EvolutionRunner.groupEvaluations(genomes.toList, generation, dir)(envBuilder)(c)
 
-      val evaluationFuture = Future sequence futureEvaluations
       val environmentSetupTime = System.nanoTime()
 
-      val evaluatedEnvironments = Await.result(evaluationFuture, Duration.Inf)
+      val evaluatedEnvironments = Await.result(futureEvaluations, Duration.Inf)
       val simulationFinishedTime = System.nanoTime()
 
       val extractedFitnessValues =
@@ -117,7 +100,7 @@ class EvolutionRunner(name: String,
       val evaluation = fitnessValuesPerAgent.map((e) => (e._1, e._2.foldLeft(0.0)(_ + _._2)))
       val evaluationFinishedTime = System.nanoTime()
 
-      val results: Generation = for((id, fitness) <- evaluation) yield id -> (fitness / evaluationPerGeneration , genomes(id)._2)
+      val results: Generation = for((id, fitness) <- evaluation) yield id -> (fitness / c.evaluationsPerGeneration , genomes(id)._2)
       output.writeGeneration(generation, results)
 
       generation +=1
@@ -125,8 +108,8 @@ class EvolutionRunner(name: String,
       _dataRow = collectStats(results.map(_._2._1).toSeq)
       outputStats.step()
 
-      if(generation < generations) genomes = evo.nextGeneration(results)
-      assert(genomes.size == poolSize)
+      if(generation < c.generations) genomes = evo.nextGeneration(results)
+      assert(genomes.size == c.poolSize)
 
       val generationFinishedTime = System.nanoTime()
       def timeSpent(t1: Long, t2: Long) = {
@@ -142,40 +125,20 @@ class EvolutionRunner(name: String,
       println(s"Generation $generation done")
       Timer.dataRow = Seq(generation, timeTotalSpent, timeEvalSpent, timeSimSpent, timeSetupSpent, timeNextGenSpent)
       outputTimer.step()
-      if(generation < generations) println("Starting next generation.")
+      if(generation < c.generations) println("Starting next generation.")
       else println("We are done here :)")
     }
     genomes
   }
 
-
-  def groupEvaluations(genomes: List[(Int, (Double, Genome))], generation: Int)(env: EnvironmentBuilder): Seq[Future[Environment]] = {
-    val gs = genomes.sortBy(_._1).grouped(groupSize).toIndexedSeq
-    ( for (g <- gs.indices) yield {
-      for (i <- 0 until evaluationPerGeneration) yield {
-        val e = env(timeStep, evaluationSteps)
-        e.initializeStatic()
-        e.initializeAgents(gs(g).toMap)
-        EnvironmentManager.addEnvironment(e)
-        if(recordLevel.record(RecordLevel.Nothing)) {
-          e.startRecording(recordLevel, generation, g, i, dir)
-        }
-        future {
-          e.run()
-        }
-        e.p.future
-      }
-    } ).flatten.seq
-  }
-
   def start() {
     val time = System.nanoTime()
 
-    val em = EvolutionManager(genomeName, propability, genomeSettings)
+    val em = EvolutionManager(c.genomeName, c.propability, c.genomeSettings)
     em.blueprint = new SBotController().blueprint
-    val genomes = for(id <- (0 until poolSize).par) yield {
+    val genomes = for(id <- (0 until c.poolSize).par) yield {
       val g = em.getBasicRandomGenome
-     (id, (0.0, g))
+      (id, (0.0, g))
     }
 
     run(Map(genomes.seq: _*))
@@ -193,12 +156,35 @@ class EvolutionRunner(name: String,
     val variance = results.foldLeft(0.0) {(acc, x) => acc + math.pow(x - mean,2)} / results.size
 
 
-    val groups = results.grouped(groupSize).toSeq map {l => l.sum / groupSize}
+    val groups = results.grouped(c.groupSize).toSeq map {l => l.sum / c.groupSize}
     val (gMax, gMin, gMean) =
       if (groups.isEmpty) (0.0, 0.0, 0.0)
       else (groups.max, groups.min, groups.sum / groups.size)
 
     val gVar = if (groups.isEmpty) 0.0 else groups.foldLeft(0.0) {(acc, x) => acc + math.pow(x - gMean,2)} / groups.size
     Seq(max, min, mean, variance, gMax, gMin, gMean, gVar)
+  }
+}
+
+object EvolutionRunner {
+  def groupEvaluations(genomes: List[(Int, (Double, Genome))], generation: Int, dir: Path)
+                      (env: EnvironmentBuilder)
+                      (config: EvolutionConfig): Future[Seq[Environment]] = {
+    val gs = genomes.sortBy(_._1).grouped(config.groupSize).toIndexedSeq
+    Future sequence ( for (g <- gs.indices) yield {
+      for (i <- 0 until config.evaluationsPerGeneration) yield {
+        val e = env(config.timeStep, config.evaluationSteps)
+        e.initializeStatic()
+        e.initializeAgents(gs(g).toMap)
+        EnvironmentManager.addEnvironment(e)
+        if(config.recordingLevel.record(RecordLevel.Nothing)) {
+          e.startRecording(config.recordingLevel, generation, g, i, dir)
+        }
+        future {
+          e.run()
+        }
+        e.p.future
+      }
+    } ).flatten.seq
   }
 }

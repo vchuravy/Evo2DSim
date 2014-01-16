@@ -23,6 +23,7 @@ import org.vastness.evo2dsim.core.evolution.genomes.{NodeTag, Genome}
 import org.vastness.evo2dsim.core.evolution.genomes.byte._
 import org.vastness.evo2dsim.core.evolution.genomes.neat._
 import org.vastness.evo2dsim.core.evolution.genomes.standard._
+import org.vastness.evo2dsim.core.evolution.EvolutionConfig
 
 
 object MyJsonProtocol extends DefaultJsonProtocol {
@@ -119,5 +120,7 @@ object MyJsonProtocol extends DefaultJsonProtocol {
       case _ => deserializationError("Got: " + value + " expected Genome")
     }
   }
+
+  implicit val evolutionConfigFormat = jsonFormat12(EvolutionConfig)
 
 }

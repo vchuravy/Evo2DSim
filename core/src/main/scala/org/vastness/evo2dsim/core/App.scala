@@ -17,27 +17,25 @@
 
 package org.vastness.evo2dsim.core
 
-import org.vastness.evo2dsim.core.evolution.EvolutionRunner
-import org.vastness.evo2dsim.core.environment.EnvironmentBuilder
-import org.vastness.evo2dsim.core.data.RecordLevel
+import org.vastness.evo2dsim.core.evolution.{EvolutionConfig, EvolutionRunner}
 
 /**
  * @author Valentin Churavy
  */
 object App {
   def main(args : Array[String]) {
-    val parser = new scopt.OptionParser[Config]("scopt") {
+    val parser = new scopt.OptionParser[EvolutionConfig]("scopt") {
       head("Evo2DSim is a simple simulator for evolutionary environment.")
       opt[Int]('t', "timeStep") action { (x, c) =>
         c.copy(timeStep = x) } text "Time step in ms"
       opt[Int]('g', "generations") action { (x, c) =>
-        c.copy(generation = x) } text "How many generations are run"
+        c.copy(generations = x) } text "How many generations are run"
       opt[Int]('s', "steps") action { (x, c) =>
-        c.copy(stepsPerEvaluation = x) } text "Steps per Evaluation"
+        c.copy(evaluationSteps = x) } text "Steps per Evaluation"
       opt[Int]('e', "evals") action { (x, c) =>
-        c.copy(evaluationPerGeneration = x) } text "Evaluation per Generation"
+        c.copy(evaluationsPerGeneration = x) } text "Evaluation per Generation"
       opt[Int]('n', "numberOfIndividiums") action { (x, c) =>
-        c.copy(numberOfIndiviums = x) } text "Individiums per Generation"
+        c.copy(poolSize = x) } text "Individiums per Generation"
       opt[Int]('z', "groupSize") action { (x, c) =>
         c.copy(groupSize = x) } text "Group Size"
       opt[String]('c', "evalConf") action { (x, c) =>
@@ -45,39 +43,21 @@ object App {
       opt[String]('a', "algorithmn") action { (x, c) =>
         c.copy(evolutionAlgorithm = x) } text "Evolution algorithm: sus (Stochastic Universal Sampling) or elite (Elitism)"
       opt[String]('y', "genomeType") action { (x, c) =>
-        c.copy(genomeType = x) } text "GenomeType to be used: ByteGenome or NEATGenome"
+        c.copy(genomeName = x) } text "GenomeType to be used: ByteGenome or NEATGenome"
       opt[String]('x', "genomeSettings") action { (x,c) =>
         c.copy(genomeSettings = x) } text "Specific genome settings (STD -> recurrent:numberHiddenNeurons)"
       opt[Double]('p', "probability") action { (x, c) =>
         c.copy(propability = x) } text "Probability used for Evolution"
-      opt[Int]('r', "recordingLevel") action { (x,c) =>
-        c.copy(recordingLevel = x) } text "Set a recording level , 0 = Everything, 1 = Networks, 2 = Agents, 3 = Nothing"
+      opt[Int]('r', "rLevel") action { (x,c) =>
+        c.copy(rLevel = x) } text "Set a recording level , 0 = Everything, 1 = Networks, 2 = Agents, 3 = Nothing"
     }
 
-    parser.parse(args, Config()) map { config =>
+    parser.parse(args, EvolutionConfig()) map { config =>
       println(s"Using Config: $config")
-      val envConf = config.envConf.split(';') map {_.split(':').toList } map {
-        case x :: List(y) => (x.toInt ,y)
-        case _ => throw new IllegalArgumentException(s"Could not parse envConf: ${config.envConf}")
-      }
-      val envs = parse(config.generation, envConf)
-      for((r, e) <- envs) println("Running %s from %d until %d".format(e.name, r.start, r.end))
 
-      val recordingLevel = RecordLevel.values.find(_.id == config.recordingLevel) getOrElse RecordLevel.Nothing
-      val evo =
-        new EvolutionRunner(
-          config.evolutionAlgorithm,
-          config.numberOfIndiviums,
-          config.groupSize,
-          config.stepsPerEvaluation,
-          config.generation,
-          config.evaluationPerGeneration,
-          config.timeStep,
-          envs,
-          config.genomeType,
-          config.genomeSettings,
-          config.propability,
-          recordingLevel)
+      for((r, e) <- config.envSetup) println("Running %s from %d until %d".format(e.name, r.start, r.end))
+
+      val evo = new EvolutionRunner(config)
 
       evo.start()
     } getOrElse {
@@ -85,28 +65,4 @@ object App {
       // arguments are bad, usage message will have been displayed
     }
   }
-
-  def parse(max: Int, envs: Seq[(Int, String)]) = _parse(max, envs.toList.sortBy(_._1).reverse)
-  private def _parse(next: Int, elems: List[(Int, String)]): List[(Range, EnvironmentBuilder)] = elems match {
-    case (gen, name) :: xs => (gen until next, resolve(name)) :: _parse(gen, xs)
-    case Nil => List.empty
-  }
-
-  private def resolve(name: String) = EnvironmentBuilder.values.find(_.name == name) match {
-    case Some(e) => e
-    case None => throw new Exception("Could not find: " + name + " in " + EnvironmentBuilder.values)
-  }
-
-  case class Config(timeStep: Int = 50,
-                    generation: Int = 500,
-                    stepsPerEvaluation: Int = 6000,
-                    evaluationPerGeneration:Int = 5,
-                    numberOfIndiviums:Int = 500,
-                    groupSize: Int = 10,
-                    envConf: String = "0:basic",
-                    evolutionAlgorithm: String = "sus",
-                    genomeType: String = "NEATGenome",
-                    genomeSettings: String = "",
-                    propability: Double = 0.1,
-                    recordingLevel: Int = RecordLevel.Nothing.id)
 }

@@ -25,6 +25,7 @@ import org.vastness.evo2dsim.core.utils.MyJsonProtocol._
 import scalax.file._
 import java.io.File
 import OutputHandler._
+import org.vastness.evo2dsim.core.evolution.EvolutionConfig
 
 /**
  * Allows for either compressed or uncompressed output of generations
@@ -40,6 +41,11 @@ class OutputHandler(dir: Path, compress: Boolean) {
    * @param gen generation
    */
   def writeGeneration(id: Int, gen: Generation) = if(compress) writeCompressed(id, gen) else write(id, gen)
+  def writeEvolutionConfig(config: EvolutionConfig) = {
+    val s = config.toJson.prettyPrint
+    val file = dir / configFileName
+    file.write(s)
+  }
 
   def finish() {
     gFile map {_.finish()}
@@ -72,6 +78,7 @@ class OutputHandler(dir: Path, compress: Boolean) {
 object OutputHandler {
   val cFileName = "generations.7z"
   val gFileTemplate = "Gen_%04d.json"
+  val configFileName = "Config.json"
 }
 
 
