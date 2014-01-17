@@ -23,7 +23,7 @@ import org.jbox2d.collision.shapes.CircleShape
 import org.vastness.evo2dsim.core.gui.{Color, CircleSprite}
 import org.vastness.evo2dsim.core.data.Recordable
 
-abstract class Agent(id: Int, pos: Vec2, vAngle: Float, val sim: Simulator, val radius: Float, mass: Float) extends Entity with Recordable{
+abstract class Agent(id: AgentID, pos: Vec2, vAngle: Float, val sim: Simulator, val radius: Float, mass: Float) extends Entity with Recordable{
   //Defines BodyDef
   val bodyDef = new BodyDef
   bodyDef.position.set(pos)

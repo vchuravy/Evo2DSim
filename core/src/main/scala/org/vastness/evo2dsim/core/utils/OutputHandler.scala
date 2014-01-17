@@ -72,7 +72,7 @@ class OutputHandler(dir: Path, compress: Boolean) {
     file.write(output)
   }
 
-  private def gen2JSONString(gen: Generation) = gen.map(x => x._1.toString -> x._2).toJson.prettyPrint
+  private def gen2JSONString(gen: Generation) = gen.toJson.prettyPrint
 }
 
 object OutputHandler {

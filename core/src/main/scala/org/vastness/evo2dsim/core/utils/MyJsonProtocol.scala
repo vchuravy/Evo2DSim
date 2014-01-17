@@ -24,6 +24,7 @@ import org.vastness.evo2dsim.core.evolution.genomes.byte._
 import org.vastness.evo2dsim.core.evolution.genomes.neat._
 import org.vastness.evo2dsim.core.evolution.genomes.standard._
 import org.vastness.evo2dsim.core.evolution.EvolutionConfig
+import org.vastness.evo2dsim.core.simulator.AgentID
 
 
 object MyJsonProtocol extends DefaultJsonProtocol {
@@ -122,5 +123,6 @@ object MyJsonProtocol extends DefaultJsonProtocol {
   }
 
   implicit val evolutionConfigFormat = jsonFormat12(EvolutionConfig)
+  implicit val agentIDFormat = jsonFormat3(AgentID)
 
 }

@@ -20,23 +20,33 @@ package org.vastness.evo2dsim.core.evolution
 import scala.annotation.tailrec
 import scala.util.Random
 import org.vastness.evo2dsim.core.evolution.genomes.Genome
-import org.vastness.evo2dsim.core.evolution.Evolution.Generation
+import org.vastness.evo2dsim.core.evolution.Evolution.{Genomes, Generation}
+import org.vastness.evo2dsim.core.simulator.AgentID
 
 /**
  * Implements stochastic universal sampling
  */
-class SUSEvolution (val poolSize: Int)
+class SUSEvolution (val config: EvolutionConfig)
   extends Evolution {
 
-  override def nextGeneration(results: Generation): Generation = {
-    val line = numberLine(normalizeResults(results.toSeq))
-    assert(line.size == poolSize)
+  /**
+   * Implements a Stochastic Universal Sampling algorithm
+   * TODO: Use crossover
+   * @param generation the previous generation
+   * @return the next generation
+   */
+  override def nextGeneration(generation: Generation): Generation = {
+    val genomes = Evolution.extractGenomes(generation)
+    val fitness = Evolution.extractFitness(generation)
+
+    val line = numberLine(normalizeResults(fitness))
+    assert(line.size == config.poolSize)
 
     def select(x: Double) = {
       line.filter(_._1 <= x).maxBy(_._1)._2
     }
 
-    val stepSize = 1.0/poolSize
+    val stepSize = 1.0/config.poolSize
     val startingPoint = Random.nextDouble * stepSize
     //Generate a newId from 0 until poolSize
     var counter = -1
@@ -45,25 +55,33 @@ class SUSEvolution (val poolSize: Int)
       counter
     }
 
-    ( for(x <- startingPoint to 1.0 by stepSize; id = select(x)) yield nextId(x) -> (0.0, results(id)._2.mutate) ).toMap //Todo: Use crossover
+    val nextGenomes: Genomes = (
+      for(x <- startingPoint to 1.0 by stepSize; id = select(x)) yield
+        nextId(x) -> genomes(id).mutate ).toMap
+    Evolution.groupGenomes(nextGenomes, config)
   }
 
   /**
-   * Returns positive values for the fitness
+   * Normalizes the fitness values
+   * @return A sequences of (id, fitness) sorted by fitness
    */
-  def normalizeResults(results: Seq[(Int,(Double, Genome))]): List[(Int, Double)] = {
-    val abs_rel = (results minBy {case (_, (fitness, _)) => fitness})._2._1 match {
+  def normalizeResults(results: Map[Int, Double]): Seq[(Int, Double)] = {
+    val abs_rel = results.values.min  match {
       case x: Double if x <= 0 => (y: Double) => (y-x)+1 // So that we don't have a genome with zero fitness
-      case _ => (y: Double) => y
+      case _ => (y: Double) => y // If we only have positive fitness values return the identity function
     }
 
-    val total = results.foldLeft(0.0){case (acc, (_, (fitness, _))) => acc + abs_rel(fitness)}
+    val total = results.values.foldLeft(0.0)( _ + abs_rel(_))
     def f_norm(x: Double) = abs_rel(x) / total
 
-    ( for((key, (fitness, _)) <- results) yield key -> f_norm(fitness) ).sortBy(_._1).toList
+    val norm_results = results map {
+      case (id, fitness) => id -> f_norm(fitness)
+    }
+
+    norm_results.toSeq.sortBy(_._2)
   }
 
-  def numberLine(results: List[(Int, Double)]) = _numberLine(0.0, results, List.empty[(Double, Int)]).reverse
+  def numberLine(results: Seq[(Int, Double)]) = _numberLine(0.0, results.toList, List.empty[(Double, Int)]).reverse
 
   @tailrec
   private def _numberLine(nextIndex: Double, elems: List[(Int, Double)], acc: List[(Double, Int)]): List[(Double, Int)] = elems match {

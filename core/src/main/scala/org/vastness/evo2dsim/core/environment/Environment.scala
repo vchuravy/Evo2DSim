@@ -17,7 +17,7 @@
 
 package org.vastness.evo2dsim.core.environment
 
-import org.vastness.evo2dsim.core.simulator.{Agent, Simulator}
+import org.vastness.evo2dsim.core.simulator.{AgentID, Agent, Simulator}
 import scala.concurrent.promise
 import org.vastness.evo2dsim.core.gui.EnvironmentManager
 import scala.collection.Map
@@ -26,6 +26,7 @@ import org.vastness.evo2dsim.core.evolution.genomes.Genome
 import org.vastness.evo2dsim.core.data.{Recordable, Recorder, RecordLevel}
 import scala.collection.parallel.ParSeq
 import scalax.file.Path
+import org.vastness.evo2dsim.core.evolution.Evolution.Generation
 
 /**
  * Implements the very basics for an environment
@@ -42,7 +43,7 @@ abstract class Environment(val timeStep: Int, val steps: Int) {
 
   protected var stepCounter = 0
   val sim = new Simulator(scala.util.Random.nextLong())
-  var agents = Map.empty[Int, Agent]
+  var agents = Map.empty[AgentID, Agent]
   val p = promise[Environment]()
 
   var running = true
@@ -69,29 +70,33 @@ abstract class Environment(val timeStep: Int, val steps: Int) {
   }
 
   def initializeStatic()
-  def initializeAgents(genomes: Map[Int, (Double, Genome)])
+  def initializeAgents(genomes: Generation)
 
-  def startRecording(rL: RecordLevel, generation: Int, group: Int, iteration: Int, baseDir: Path) {
+  def startRecording(rL: RecordLevel, iteration: Int, baseDir: Path) {
     recording = true
     var tempRecorders = Seq.empty[Recorder]
     if(rL.record(RecordLevel.Agents)) {
       tempRecorders ++= ( for((id, a) <- agents) yield {
-        createRecorder(baseDir, generation, group, iteration, "agent", id, a)
+        createRecorder(baseDir, iteration, "agent", id, a)
       } ).toSeq
     }
 
     if(rL.record(RecordLevel.Controller)) {
       tempRecorders ++= ( for((id, a) <- agents) yield {
-        createRecorder(baseDir, generation, group, iteration, "controller", id, a.controller)
+        createRecorder(baseDir, iteration, "controller", id, a.controller)
       } ).toSeq
     }
     recorders = tempRecorders.par
   }
 
-  private def createRecorder(baseDir: Path, generation: Int, group: Int, iteration: Int, name: String, id: Int, r: Recordable) = {
-    val dir = baseDir / generation.toString / group.toString / iteration.toString
+  def agentBySimpleID(id: Int) = {
+    agents.find(_._1.id == id).map(_._2)
+  }
+
+  private def createRecorder(baseDir: Path, iteration: Int, name: String, id: AgentID, r: Recordable) = {
+    val dir = baseDir / id.generation.toString / id.group.toString / iteration.toString
     dir.createDirectory(createParents = true)
-    new Recorder(dir, s"${id}_$name", r)
+    new Recorder(dir, s"${id.id}_$name", r)
   }
 
 }

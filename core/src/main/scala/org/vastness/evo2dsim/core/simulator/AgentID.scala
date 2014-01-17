@@ -15,11 +15,8 @@
  * along with Evo2DSim.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.vastness.evo2dsim.core.evolution
+package org.vastness.evo2dsim.core.simulator
 
-object EvolutionBuilder {
-  def apply(config: EvolutionConfig): Evolution = config.evolutionAlgorithm match {
-    case "sus" => new SUSEvolution(config)
-    case "elite" => new ElitistEvolution(0.2, config)
-  }
+case class AgentID(id: Int = 0, group: Int = 0, generation: Int = 0) {
+  override def toString = s"$generation+$group#$id"
 }

@@ -18,7 +18,7 @@
 package org.vastness.evo2dsim.simulator.teem.enki.sbot
 
 import org.scalatest._
-import org.vastness.evo2dsim.core.simulator.Simulator
+import org.vastness.evo2dsim.core.simulator.{AgentID, Simulator}
 import org.jbox2d.common.Vec2
 import org.vastness.evo2dsim.core.agents.sbot._
 import org.vastness.evo2dsim.core.gui.Color
@@ -32,7 +32,7 @@ class SBotLightSensorTest extends FlatSpec with Matchers {
   }
 
   trait SimWithOneAgent extends Sim with PrivateMethodTester{
-    val agent1 = sim.addAgent(new Vec2(0,0), 0.0f, sim.Agents.SBot, 0).asInstanceOf[SBot]
+    val agent1 = sim.addAgent(new Vec2(0,0), 0.0f, sim.Agents.SBot, AgentID()).asInstanceOf[SBot]
     val lightSensor1 = agent1.controller match{
       case c: SBotController => c.lightSensor
     }
@@ -40,11 +40,11 @@ class SBotLightSensorTest extends FlatSpec with Matchers {
   }
 
   trait SimWithTwoAgents extends SimWithOneAgent {
-    val agent2 = sim.addAgent(new Vec2(0,1), 0.0f, sim.Agents.SBot, 1).asInstanceOf[SBot]
+    val agent2 = sim.addAgent(new Vec2(0,1), 0.0f, sim.Agents.SBot, AgentID(1)).asInstanceOf[SBot]
   }
 
   trait SimWithTwoAgentsInverse extends  SimWithOneAgent{
-    val agent2 = sim.addAgent(new Vec2(0,-1), 0.0f, sim.Agents.SBot, 1).asInstanceOf[SBot]
+    val agent2 = sim.addAgent(new Vec2(0,-1), 0.0f, sim.Agents.SBot, AgentID(1)).asInstanceOf[SBot]
   }
 
   "Position and angle" should "be Zero for Agent1" in new SimWithOneAgent {

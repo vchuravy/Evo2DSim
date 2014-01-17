@@ -119,8 +119,8 @@ class MainWindow extends MainFrame with RenderManager {
 
   def showAgentView() {
     val agent = Dialog.showInput[Int](message = "Please choose Agent",
-      entries = e map { _.agents.map(_._1).toSeq } getOrElse Seq.empty[Int] , initial = 0) match {
-      case Some(a) => e map { _.agents(a)}
+      entries = e map { _.agents.map(_._1.id).toSeq } getOrElse Seq.empty[Int] , initial = 0) match {
+      case Some(a) => e flatMap { _.agentBySimpleID(a)}
       case None => None
     }
     agent map (_.controller match { case sC: SBotController => sC.lightSensor }) map { //TODO: Simplify
@@ -162,6 +162,7 @@ class MainWindow extends MainFrame with RenderManager {
     val in = statsFile.inputStream()
     val csv: Traversable[Array[String]] = in.lines().map (_ split ',')
     val columnNames = csv.head.toIndexedSeq
+    //TODO outdated
     val columns = csv.tail.map {
       case Array(index, max, min, mean, variance) => Array(index.toInt, max.toDouble, min.toDouble, mean.toDouble, variance.toDouble)
     }.toArray.sortBy(_(3)).reverse
@@ -178,8 +179,8 @@ class MainWindow extends MainFrame with RenderManager {
   }
 
   def loadGen(size: Int) = {
-    val groups = generation.getOrElse(Map.empty).toList.sortBy(_._1).grouped(size)
-    val groupPerformance = groups.map(e => e.foldLeft[Double](0.0){ case (acc, (_, (fitness, _))) => acc + fitness}).toIndexedSeq
+    val groups = generation.getOrElse(Map.empty).toList.groupBy(_._1.group)
+    val groupPerformance = groups.map(e => e._2.foldLeft[Double](0.0){ case (acc, (_, (fitness, _))) => acc + fitness}).toIndexedSeq
     val rowData = ( for(i <- groupPerformance.indices) yield (i, groupPerformance(i) / size) ).toArray.sortBy(_._2).reverse map
       {case (i, gP) => Array(i,gP)}
     (IndexedSeq("Index", "GroupPerformance"), rowData)

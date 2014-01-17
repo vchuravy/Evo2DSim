@@ -18,7 +18,7 @@
 package org.vastness.evo2dsim.core.agents.sbot
 
 import org.jbox2d.common.Vec2
-import org.vastness.evo2dsim.core.simulator.{Simulator, Agent}
+import org.vastness.evo2dsim.core.simulator.{AgentID, Simulator, Agent}
 import org.vastness.evo2dsim.core.simulator.light.{LightCategory, LightSource}
 import org.vastness.evo2dsim.core.gui.Color
 
@@ -27,7 +27,7 @@ import org.vastness.evo2dsim.core.gui.Color
  *   val radius = 0.06f  S-Bot size 6cm
  *   val mass = 0.66f S-Bot weight 660g
  */
-class SBot(id: Int, pos: Vec2, angle: Float, sim: Simulator)
+class SBot(id: AgentID, pos: Vec2, angle: Float, sim: Simulator)
   extends Agent(id, pos, angle, sim, radius = 0.06f, mass = 0.66f) {
   val light = new LightSource(Color.BLUE, this, LightCategory.AgentLight, radius)
   sim.lightManager.addLight(light)

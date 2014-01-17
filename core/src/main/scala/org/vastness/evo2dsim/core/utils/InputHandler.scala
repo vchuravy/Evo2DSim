@@ -87,8 +87,5 @@ class InputHandler(dir: Path) {
     }
   }
 
-  private def string2Generation(in: String): Generation =  {
-    val gen = in.asJson.convertTo[Map[String, (Double, Genome)]]
-    gen.map (x => x._1.toInt -> x._2)
-  }
+  private def string2Generation(in: String): Generation = in.asJson.convertTo[Generation]
 }

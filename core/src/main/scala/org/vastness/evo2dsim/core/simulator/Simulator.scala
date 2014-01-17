@@ -83,11 +83,11 @@ class Simulator(seed: Long) {
    * @param agentType  agent type
    * @return the created agent
    */
-  def addAgent(pos: Vec2, angle:Float, agentType: Agents.Value, id: Int) : Agent = agentType match {
+  def addAgent(pos: Vec2, angle:Float, agentType: Agents.Value, id: AgentID) : Agent = agentType match {
       case Agents.SBot => addSBot(pos, angle, id)
     }
 
-  private def addSBot(pos: Vec2, angle:Float, id: Int): Agent = {
+  private def addSBot(pos: Vec2, angle:Float, id: AgentID): Agent = {
     val a = new SBot(id, pos, angle, this)
     addAgent(a)
   }

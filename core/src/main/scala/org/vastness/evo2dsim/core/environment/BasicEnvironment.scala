@@ -23,6 +23,7 @@ import scala.collection.Map
 import org.vastness.evo2dsim.core.simulator.food.FoodSource
 import scala.annotation.tailrec
 import org.vastness.evo2dsim.core.evolution.genomes.Genome
+import org.vastness.evo2dsim.core.evolution.Evolution.Generation
 
 /**
  * @see Environment
@@ -70,17 +71,17 @@ abstract class BasicEnvironment(timeStep:Int, steps:Int) extends Environment(tim
 
   protected def edgeLocations = edges map {e => e sub (normToOrigin(e) mul foodOffset)}
 
-  def initializeAgents(genomes: Map[Int, (Double, Genome)]){
+  def initializeAgents(genomes: Generation){
     def pos = newRandomPosition
     def angle = sim.random.nextFloat()
-    def addWithGenome(id: Int, a: Agent, g: Genome): Agent = {
+    def addWithGenome(a: Agent, g: Genome): Agent = {
       a.controller.init(g)
       if(artificialSmellMemory) a.activateArtificialSmellMemory()
       a
     }
 
     agents = ( for( (id,(_, genome)) <- genomes) yield
-      (id, addWithGenome(id, sim.addAgent(pos, angle, sim.Agents.SBot, id), genome))
+      (id, addWithGenome(sim.addAgent(pos, angle, sim.Agents.SBot, id), genome))
       ).toMap
   }
 }

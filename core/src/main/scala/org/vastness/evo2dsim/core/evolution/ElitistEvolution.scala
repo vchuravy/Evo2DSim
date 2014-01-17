@@ -21,15 +21,25 @@ import scala.util.Random
 import org.vastness.evo2dsim.core.evolution.Evolution.Generation
 
 /**
- * Very stupid test implementation of Elitism
+ * Implements a Elitist Evolution algorithm
+ * TODO: Use crossover
  * @param percent
- * @param poolSize
+ * @param config
  */
-class ElitistEvolution(percent: Double, val poolSize: Int) extends Evolution {
-  override def nextGeneration(results: Generation): Generation = {
-    val r = results.toSeq.sortWith(_._2._1 > _._2._1)
-    val top = r.view(0,(poolSize*percent).round.toInt)
+class ElitistEvolution(percent: Double, val config: EvolutionConfig) extends Evolution {
+  override def nextGeneration(generation: Generation): Generation = {
+    val results = Evolution.extractFitness(generation).toSeq
+    val genomes = Evolution.extractGenomes(generation)
 
-    Map(( for(id <- (0 until poolSize).par) yield (id, (0.0, top(Random.nextInt(top.size))._2._2.mutate)) ).seq: _*)
+    val sortedResults = results.sortWith(_._2 > _._2) // Sorted by fitness. Big to small
+    val top = sortedResults.slice(0,(config.poolSize*percent).round.toInt).map(_._1).toIndexedSeq // look at the top percent
+
+
+    val nextGenomes = ( for(id <- 0 until config.poolSize) yield {
+      val i = top(Random.nextInt(top.size)) // Randomly select an id out of the top percent
+      id -> genomes(i).mutate // Get the genome to that id and mutate it.
+    } ).toMap
+
+    Evolution.groupGenomes(nextGenomes, config)
   }
 }

@@ -19,13 +19,37 @@ package org.vastness.evo2dsim.core.evolution
 
 import org.vastness.evo2dsim.core.evolution.genomes.Genome
 import org.vastness.evo2dsim.core.evolution.Evolution.Generation
+import org.vastness.evo2dsim.core.simulator.AgentID
 
 trait Evolution {
-  def poolSize: Int
+  def config: EvolutionConfig
   def nextGeneration(results: Generation): Generation
 }
 
 object Evolution {
-  type Generation = Map[Int, (Double, Genome)]
+  type Generation = Map[AgentID, (Double, Genome)]
+  type Genomes = Map[Int, Genome]
+
+  def groupGenomes(genomes: Genomes, config: EvolutionConfig): Generation = {
+    val groupedGenomes = genomes.grouped(config.groupSize).toIndexedSeq
+    val generation: Generation = ( for(group <- groupedGenomes.indices) yield {
+      groupedGenomes(group) map {
+        case (id, genome) => AgentID(id, group, 0) -> (0.0, genome)
+      }
+    } ).flatten.toMap
+    generation
+  }
+
+  def extractGenomes(generation: Generation): Genomes = {
+    generation map {
+      case (id, data) => id.id -> data._2
+    }
+  }
+
+  def extractFitness(generation: Generation): Map[Int, Double] = {
+    generation map {
+      case (id, data) => id.id -> data._1
+    }
+  }
 }
 

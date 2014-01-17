@@ -58,4 +58,21 @@ case class EvolutionConfig(
     case Some(e) => e
     case None => throw new Exception("Could not find: " + name + " in " + EnvironmentBuilder.values)
   }
+
+  def environment(generation: Int): EnvironmentBuilder = {
+    val envBuilders: Seq[EnvironmentBuilder] = envSetup filter { case (range, _) => range contains generation } map { case (_, e) => e }
+    val envBuilder = envBuilders.size match {
+      case 0 => throw new Exception(s"Could not find an environment for generation $generation.")
+      case 1 => envBuilders.head
+      case 2 =>
+        println(s"Warning: Two possible environment for generation $generation")
+        println("Selecting the last.")
+        envBuilders.tail.head
+      case _ =>
+        println(s"Warning: Multiple possible environment for generation $generation")
+        println("Selecting randomly.")
+        scala.util.Random.shuffle(envBuilders).head
+    }
+    envBuilder
+  }
 }

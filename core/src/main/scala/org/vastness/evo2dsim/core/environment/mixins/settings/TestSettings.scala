@@ -18,6 +18,8 @@
 package org.vastness.evo2dsim.core.environment.mixins.settings
 
 import org.jbox2d.common.Vec2
+import org.vastness.evo2dsim.core.evolution.Evolution.Generation
+import org.vastness.evo2dsim.core.simulator.AgentID
 
 trait TestSettings extends DefaultSettings {
   override def spawnSize  = 0.0f
@@ -34,4 +36,12 @@ trait TestSettings extends DefaultSettings {
   override def activationRange: Float = 0f
   override def smellRange: Float = 0f
   override def artificialSmellMemory: Boolean = false
+
+  var agent_pos: Map[AgentID, Vec2] = Map.empty
+
+  override def initializeAgents(genomes: Generation) = {
+    super.initializeAgents(genomes)
+    agent_pos = agents map { case (id, a) => id -> a.position}
+    agents
+  }
 }
