@@ -62,8 +62,8 @@ class EvolutionRunner(c: EvolutionConfig) extends Recordable {
   }
 
   private def run(startGenomes: Generation): Generation = {
-    val outputStats = new Recorder(dir, "Stats", this)
-    val outputTimer = new Recorder(dir, "Times", Timer)
+    val outputStats = Recorder(dir, "Stats", this)
+    val outputTimer = Recorder(dir, "Times", Timer)
 
     var generation = 0
     var genomes: Generation = startGenomes

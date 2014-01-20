@@ -96,7 +96,7 @@ abstract class Environment(val timeStep: Int, val steps: Int) {
   private def createRecorder(baseDir: Path, iteration: Int, name: String, id: AgentID, r: Recordable) = {
     val dir = baseDir / id.generation.toString / id.group.toString / iteration.toString
     dir.createDirectory(createParents = true)
-    new Recorder(dir, s"${id.id}_$name", r)
+    Recorder(dir, s"${id.id}_$name", r)
   }
 
 }
