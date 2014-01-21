@@ -77,7 +77,7 @@ abstract class BasicEnvironment(timeStep:Int, steps:Int) extends Environment(tim
 
   def initializeAgents(genomes: Generation){
     def pos = newRandomPosition
-    def angle = sim.random.nextFloat()
+    def angle = newRandomAngle
     def addWithGenome(a: Agent, g: Genome): Agent = {
       a.controller.init(g)
       if(artificialSmellMemory) a.activateArtificialSmellMemory()
