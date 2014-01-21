@@ -31,4 +31,5 @@ trait DefaultSettings extends Settings{
   override def smellRange: Float = activationRange * 1.3f
   override def artificialSmellMemory: Boolean = false
   override def simFlags = Flags()
+  override def agentLimit = Int.MaxValue
 }

@@ -36,6 +36,7 @@ abstract class BasicEnvironment(timeStep:Int, steps:Int) extends Environment(tim
   def smellRange: Float
   def artificialSmellMemory: Boolean
   def simFlags: Simulator.Flags
+  def agentLimit: Int
 
   // Overwritten in mixins.foodSources
   protected def foodSources: List[FoodSource]
@@ -76,6 +77,7 @@ abstract class BasicEnvironment(timeStep:Int, steps:Int) extends Environment(tim
   protected def edgeLocations = edges map {e => e sub (normToOrigin(e) mul foodOffset)}
 
   def initializeAgents(genomes: Generation){
+    require(genomes.size <= agentLimit, s"This environment only supports $agentLimit")
     def pos = newRandomPosition
     def angle = newRandomAngle
     def addWithGenome(a: Agent, g: Genome): Agent = {

@@ -36,6 +36,7 @@ trait BlueTestSettings extends DefaultSettings {
   override def activationRange: Float = 0f
   override def smellRange: Float = 0f
   override def artificialSmellMemory: Boolean = false
+  override def agentLimit = 1
 
   var agent_pos: Map[AgentID, Vec2] = Map.empty
 
