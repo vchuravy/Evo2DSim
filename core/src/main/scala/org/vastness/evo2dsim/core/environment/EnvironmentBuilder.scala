@@ -88,6 +88,6 @@ object EnvironmentBuilder extends Enum[EnvironmentBuilder] {
 
   case object BlueTest extends  EnvironmentBuilder {
     val name = "BlueTest"
-    def apply(t: Int, s: Int) = new BasicEnvironment(t, s) with TestSettings with TestSource with TestPos
+    def apply(t: Int, s: Int) = new BasicEnvironment(t, s) with BlueTestSettings with BlueTestSource with TestPos
   }
 }

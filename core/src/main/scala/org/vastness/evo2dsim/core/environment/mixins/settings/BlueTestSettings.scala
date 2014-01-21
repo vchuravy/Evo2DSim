@@ -21,7 +21,7 @@ import org.jbox2d.common.Vec2
 import org.vastness.evo2dsim.core.evolution.Evolution.Generation
 import org.vastness.evo2dsim.core.simulator.AgentID
 
-trait TestSettings extends DefaultSettings {
+trait BlueTestSettings extends DefaultSettings {
   override def spawnSize  = 0.0f
 
   // Positions agents 50cm around the origin.
