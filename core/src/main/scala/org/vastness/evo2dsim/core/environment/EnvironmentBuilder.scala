@@ -21,6 +21,7 @@ import org.vastness.evo2dsim.core.environment.mixins.foodSources._
 import org.vastness.evo2dsim.core.environment.mixins.foodPos._
 import org.vastness.evo2dsim.core.environment.mixins.settings._
 import org.vastness.evo2dsim.macros.utils.Enum
+import org.vastness.evo2dsim.core.environment.mixins.settings.informationTests.FixedAgentTestSettings
 
 /**
  * Builder functions for Environment.
@@ -89,5 +90,10 @@ object EnvironmentBuilder extends Enum[EnvironmentBuilder] {
   case object BlueTest extends  EnvironmentBuilder {
     val name = "BlueTest"
     def apply(t: Int, s: Int) = new BasicEnvironment(t, s) with BlueTestSettings with BlueTestSource with TestPos
+  }
+
+  case object RedTest extends EnvironmentBuilder {
+    val name = "RedTest"
+    def apply(t: Int, s: Int) = new BasicEnvironment(t,s) with FixedAgentTestSettings with RedTestSource with TestPos
   }
 }

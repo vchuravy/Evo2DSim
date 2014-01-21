@@ -17,9 +17,34 @@
 
 package org.vastness.evo2dsim.core.environment.mixins.settings.informationTests
 
-import org.vastness.evo2dsim.core.environment.mixins.settings.informationTests.OneVarTest
-import org.vastness.evo2dsim.core.environment.mixins.settings.Settings
+import org.jbox2d.common.Vec2
+import org.vastness.evo2dsim.core.environment.mixins.settings.DefaultSettings
+import org.vastness.evo2dsim.core.simulator.Simulator.Flags
 
-class FixedAgentTestSettings  extends Settings with OneVarTest{
+trait FixedAgentTestSettings extends DefaultSettings with OneVarTest[Float] {
+  val normVec = {
+    val v = new Vec2(1f, 1f)
+    v.normalize()
+    v
+  }
 
+  def offSet: Float = foodRadius + 0.06f + varRange(varIdx).toFloat
+
+  override def varRange = Range.Double.inclusive(0, 1, 0.1)
+  override def spawnSize  = 0.0f
+
+  // Positions agents at a fixed position with a fixed angle.
+  override def newRandomPosition: Vec2 = normVec mul offSet
+  override def newRandomAngle = 0f
+
+  override def foodOffset: Float = 0f
+
+  override def agentLimit: Int = 1
+
+  override def simFlags = Flags(motors = false)
+  override def varUpdate() {
+    agents foreach { case (_, a) =>
+      a.position = newRandomPosition
+    }
+  }
 }

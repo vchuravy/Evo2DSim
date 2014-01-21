@@ -18,10 +18,12 @@
 package org.vastness.evo2dsim.core.environment.mixins.settings.informationTests
 
 import org.vastness.evo2dsim.core.environment.mixins.settings.Settings
+import scala.collection.immutable.NumericRange
 
-trait OneVarTest extends Settings {
-  def varRange: Range
-  def varUpdate(idx: Int): Unit
+trait OneVarTest[A] extends Settings {
+  def varRange: NumericRange[Double]
+  def varUpdate(): Unit
+  def varIdx: Int = steps / stepsPerTest
 
   require(steps % varRange.size == 0)
   val stepsPerTest = steps / varRange.size
@@ -29,6 +31,6 @@ trait OneVarTest extends Settings {
 
   override def updateSimulation() {
     super.updateSimulation()
-    if(steps % stepsPerTest == 0) varUpdate(steps / stepsPerTest)
+    if(steps % stepsPerTest == 0) varUpdate()
   }
 }
