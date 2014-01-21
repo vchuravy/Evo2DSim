@@ -27,7 +27,7 @@ import org.vastness.evo2dsim.core.simulator.light.LightManager
 import org.vastness.evo2dsim.core.simulator.food.FoodSource
 import scala.collection.mutable.ArrayBuffer
 
-class Simulator(seed: Long) {
+class Simulator(seed: Long) {  var allow_rewards = true
   val random = new scala.util.Random(seed)
 
   val velocityIteration = 8
@@ -42,6 +42,10 @@ class Simulator(seed: Long) {
 
   private val foodSourceList = new ArrayBuffer[FoodSource]()
 
+  // flags
+  var allow_sensors = true
+  var allow_controllers = true
+  var allow_motors = true
 
   //Adds a static box object. Remember width and height are half-units
   def addStaticWorldObject(pos: Vec2, shape: Shape) {
@@ -156,9 +160,9 @@ class Simulator(seed: Long) {
   }
 
   def step(timeStep: Float) {
-    agentList foreach { a => a.sensorStep() }
-    agentList foreach { a => a.controllerStep() }
-    agentList foreach { a => a.motorStep() }
+    if(allow_sensors) agentList foreach { a => a.sensorStep() }
+    if(allow_controllers) agentList foreach { a => a.controllerStep() }
+    if(allow_motors) agentList foreach { a => a.motorStep() }
 
     world.step(timeStep, velocityIteration, positionIteration)
 
