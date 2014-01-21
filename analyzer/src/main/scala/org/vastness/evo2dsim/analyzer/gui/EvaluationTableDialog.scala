@@ -47,7 +47,7 @@ class EvaluationTableDialog(owner: Window, table: Table, stats: PlotStats) exten
 
   reactions += {
     case TableRowsSelected(_, range, _) =>
-      table.selection.rows.filter( range contains ).map{r => table(r, 0)}.headOption.map(stats.render)
+      table.selection.rows.filter( range.contains ).map{r => table(r, 0)}.headOption.map(stats.render)
   }
 
   listenTo(table.selection)
