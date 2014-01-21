@@ -27,7 +27,8 @@ import org.vastness.evo2dsim.core.data.{Recordable, Recorder, RecordLevel}
 import scala.collection.parallel.ParSeq
 import scalax.file.Path
 import org.vastness.evo2dsim.core.evolution.Evolution.Generation
-import org.apache.commons.math3.util.FastMath
+import spire.math._
+import spire.implicits._
 
 /**
  * Implements the very basics for an environment
@@ -43,7 +44,7 @@ abstract class Environment(val timeStep: Int, val steps: Int) {
   protected def randomFloat: Float = (sim.random.nextFloat * 2) - 1
 
   // Angle in Radian
-  def newRandomAngle: Float = sim.random.nextFloat * 2 * spire.math.pi[Float]
+  def newRandomAngle: Float = sim.random.nextFloat * 2 * pi[Float]
 
   protected var stepCounter = 0
   val sim = new Simulator(scala.util.Random.nextLong())
