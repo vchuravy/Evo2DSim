@@ -29,7 +29,7 @@ import org.vastness.evo2dsim.core.evolution.{EvolutionRunner, EvolutionConfig}
 import org.vastness.evo2dsim.core.evolution.Evolution.Generation
 import scala.concurrent.duration.Duration
 import org.jbox2d.common.Vec2
-import org.vastness.evo2dsim.core.environment.mixins.settings.TestSettings
+import org.vastness.evo2dsim.core.environment.mixins.settings.BlueTestSettings
 import org.vastness.evo2dsim.core.simulator.AgentID
 
 object App {
@@ -98,8 +98,8 @@ object App {
     def callback(envs: Seq[Environment]):Seq[(Int, Int, Float)] = {
       val results = for (env <- envs) yield {
         env match {
-          case e: TestSettings =>
-            val d = delta(e.origin)
+          case e: BlueTestSettings =>
+            val d = delta(e.origin) _
             if(e.agents.size != 1) throw new Exception("Only one Agent is supported!")
             val a = e.agents.head
             (a._1, norm(d(e.agent_pos(a._1)) - d(a._2.position)))
