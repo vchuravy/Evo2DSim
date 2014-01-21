@@ -18,7 +18,7 @@
 package org.vastness.evo2dsim.core.simulator
 
 import org.jbox2d.common.Vec2
-import org.jbox2d.dynamics.{BodyType, BodyDef}
+import org.jbox2d.dynamics.{Body, BodyType, BodyDef}
 import org.jbox2d.collision.shapes.CircleShape
 import org.vastness.evo2dsim.core.gui.{Color, CircleSprite}
 import org.vastness.evo2dsim.core.data.Recordable
@@ -36,7 +36,7 @@ abstract class Agent(id: AgentID, pos: Vec2, vAngle: Float, val sim: Simulator, 
   val shape = new CircleShape
   shape.setRadius(radius)
 
-  val body = sim.world.createBody(bodyDef)
+  val body: Body = sim.world.createBody(bodyDef)
   val density = (mass / (Math.PI * radius * radius)).toFloat // Density is influenced by the volume and the mass
   val agentFixture = body.createFixture(shape, density)
   agentFixture.setUserData(this)
@@ -45,6 +45,7 @@ abstract class Agent(id: AgentID, pos: Vec2, vAngle: Float, val sim: Simulator, 
 
   override def sprite = new CircleSprite(radius)(body.getPosition, color, text)
   override def position = body.getPosition
+  def position_=(p: Vec2) = body.setTransform(p, 0) //Teleports agent.
   def angle = body.getAngle
 
   var fitness = 0.0
