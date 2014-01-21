@@ -42,10 +42,7 @@ class Simulator(seed: Long) {  var allow_rewards = true
 
   private val foodSourceList = new ArrayBuffer[FoodSource]()
 
-  // flags
-  var allow_sensors = true
-  var allow_controllers = true
-  var allow_motors = true
+  var flags = Simulator.Flags()
 
   //Adds a static box object. Remember width and height are half-units
   def addStaticWorldObject(pos: Vec2, shape: Shape) {
@@ -160,9 +157,9 @@ class Simulator(seed: Long) {  var allow_rewards = true
   }
 
   def step(timeStep: Float) {
-    if(allow_sensors) agentList foreach { a => a.sensorStep() }
-    if(allow_controllers) agentList foreach { a => a.controllerStep() }
-    if(allow_motors) agentList foreach { a => a.motorStep() }
+    if(flags.sensors) agentList foreach { a => a.sensorStep() }
+    if(flags.controllers) agentList foreach { a => a.controllerStep() }
+    if(flags.motors) agentList foreach { a => a.motorStep() }
 
     world.step(timeStep, velocityIteration, positionIteration)
 
@@ -173,6 +170,10 @@ class Simulator(seed: Long) {  var allow_rewards = true
     type Agents = Value
     val SBot = Value
   }
+}
+
+object Simulator {
+  case class Flags(motors: Boolean = true, sensors: Boolean = true, controllers: Boolean = true)
 }
 
 

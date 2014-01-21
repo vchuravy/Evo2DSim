@@ -18,7 +18,7 @@
 package org.vastness.evo2dsim.core.environment
 
 import org.jbox2d.common.Vec2
-import org.vastness.evo2dsim.core.simulator.Agent
+import org.vastness.evo2dsim.core.simulator.{Simulator, Agent}
 import scala.collection.Map
 import org.vastness.evo2dsim.core.simulator.food.FoodSource
 import scala.annotation.tailrec
@@ -35,6 +35,7 @@ abstract class BasicEnvironment(timeStep:Int, steps:Int) extends Environment(tim
   def activationRange: Float
   def smellRange: Float
   def artificialSmellMemory: Boolean
+  def simFlags: Simulator.Flags
 
   // Overwritten in mixins.foodSources
   protected def foodSources: List[FoodSource]
@@ -48,6 +49,9 @@ abstract class BasicEnvironment(timeStep:Int, steps:Int) extends Environment(tim
   def text: String = "" + stepCounter
   def initializeStatic() {
     sim.createWorldBoundary(edges.toArray, text)
+
+    //setFlags
+    sim.flags = simFlags
 
     @tailrec
     def addFood(food: List[FoodSource], pos: List[Vec2]) {

@@ -15,20 +15,20 @@
  * along with Evo2DSim.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.vastness.evo2dsim.core.environment.mixins.settings
+package org.vastness.evo2dsim.core.environment.mixins.settings.informationTests
 
-import org.jbox2d.common.Vec2
-import org.vastness.evo2dsim.core.simulator.Simulator.Flags
+import org.vastness.evo2dsim.core.environment.mixins.settings.Settings
 
-trait DefaultSettings extends Settings{
-  override val origin = new Vec2(1.515f,1.515f)
-  override val halfSize = 1.5f
-  override def spawnSize  = halfSize*0.8f
+trait OneVarTest extends Settings {
+  def varRange: Range
+  def varUpdate(idx: Int): Unit
 
-  override val foodRadius: Float = 0.17f
-  override def foodOffset: Float = 2f*foodRadius
-  override def activationRange: Float = foodRadius * 1.3f
-  override def smellRange: Float = activationRange * 1.3f
-  override def artificialSmellMemory: Boolean = false
-  override def simFlags = Flags()
+  require(steps % varRange.size == 0)
+  val stepsPerTest = steps / varRange.size
+  require(stepsPerTest != 0)
+
+  override def updateSimulation() {
+    super.updateSimulation()
+    if(steps % stepsPerTest == 0) varUpdate(steps / stepsPerTest)
+  }
 }
