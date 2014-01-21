@@ -95,7 +95,7 @@ object App {
       RecordLevel.Nothing.id
     )
 
-    def callback(envs: Seq[Environment]):Seq[(Int, Int, Float)] = {
+    def blueCallback(envs: Seq[Environment]):Seq[(Int, Int, Float)] = {
       val results = for (env <- envs) yield {
         env match {
           case e: BlueTestSettings =>
@@ -115,11 +115,29 @@ object App {
       gResults.flatten.toSeq
     }
 
-    val blue = runConfig(dir / "blueTest", blueTestConfig, 0, in, callback)
+    val blue = runConfig(dir / "blueTest", blueTestConfig, 0, in, blueCallback)
     val results = Await.result(blue, Duration.Inf).flatten
 
     val blueOutput = new Recorder(dir, "blueTest", Seq("Generation", "Group", "BlueTest"))
     blueOutput.write(results map(d => Seq(d._1, d._2, d._3)))
+
+    val redTestConfig = EvolutionConfig(
+      config.timeStep,
+      generations = 0,
+      evaluationSteps = 100,
+      evaluationsPerGeneration = 10,
+      config.poolSize,
+      groupSize = 1,
+      envConf = "0:RedTest",
+      evolutionAlgorithm = "", // Stuff breaks if you want to run evolution on this setting.
+      config.genomeName,
+      config.genomeSettings,
+      config.propability,
+      RecordLevel.Everything.id
+    )
+
+    def redCallback(envs: Seq[Environment]) = {}
+    runConfig(dir, redTestConfig, 0, in, redCallback)
   }
 
   private def delta(origin: Vec2)(pos: Vec2) : Float = {
