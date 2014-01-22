@@ -8,7 +8,16 @@ GENERATIONS=500
 FILE="Evo2DSim_cluster.sh"
 PROBABILITY=0.1
 
-CMD="qsub ${FILE} ${GENERATIONS} ${POOL_SIZE}"
+DISTRIBUTION=$(lsb_release -is)
+declare -a DEV_DISTRIBUTIONS=("Arch")
+
+if [[ " ${DEV_DISTRIBUTIONS[@]} " =~ " ${DISTRIBUTION} " ]]; then
+BASECMD="bash"
+else
+BASECMD="qsub"
+fi
+
+CMD="${BASECMD} ${FILE} ${GENERATIONS} ${POOL_SIZE}"
 
 declare -a ALGOS=("sus" "elite")
 
