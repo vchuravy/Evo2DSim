@@ -14,10 +14,13 @@
 #$ -l h_vmem=10g
 #$ -l virtual_free=4g
 
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}")" && pwd )"
+cd ${DIR}
+cd ..
+
 JAVA_OPTS="-server"
 CMD=core/target/universal/stage/bin/evo2dsim-core
 
-cd /work/DoyaU/v-churavy/Evo2DSim
 # -mem 4096 -g 500 -c "0:basic;50:basicSimpleRandom;200:basicRandom;400:dynamicSimpleRandom"
 # -t => timeStep default=50
 # -g => generations default=500
