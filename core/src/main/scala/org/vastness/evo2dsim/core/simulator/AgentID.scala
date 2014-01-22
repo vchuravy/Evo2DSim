@@ -18,5 +18,13 @@
 package org.vastness.evo2dsim.core.simulator
 
 case class AgentID(id: Int = 0, group: Int = 0, generation: Int = 0) {
-  override def toString = s"$generation+$group#$id"
+  override def toString = s"$generation/$group/$id"
+}
+
+object AgentID {
+  def fromString(s: String): AgentID = {
+    val a = s.split('/').map(_.toInt)
+    require(a.length == 3)
+    AgentID(a(2), a(1), a(0))
+  }
 }

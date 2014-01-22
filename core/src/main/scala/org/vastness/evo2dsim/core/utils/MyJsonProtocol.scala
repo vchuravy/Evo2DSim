@@ -123,6 +123,11 @@ object MyJsonProtocol extends DefaultJsonProtocol {
   }
 
   implicit val evolutionConfigFormat = jsonFormat12(EvolutionConfig)
-  implicit val agentIDFormat = jsonFormat3(AgentID)
+  implicit object agentIDFormat extends JsonFormat[AgentID] {
+    def write(a: AgentID) = JsString(a.toString)
+    def read(v: JsValue) = v match {
+      case JsString(value) => AgentID.fromString(value)
+    }
+  }
 
 }
