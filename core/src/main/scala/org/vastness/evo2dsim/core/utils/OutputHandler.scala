@@ -32,7 +32,7 @@ import org.vastness.evo2dsim.core.evolution.EvolutionConfig
  * @param dir base dir
  * @param compress flag
  */
-class OutputHandler(dir: Path, compress: Boolean) {
+class OutputHandler(dir: Path, compress: Boolean) extends AutoCloseable{
   val gFile: Option[SevenZOutputFile] = if(compress) Some(new SevenZOutputFile(new File((dir / cFileName).toURI))) else None
 
   /**
@@ -73,6 +73,10 @@ class OutputHandler(dir: Path, compress: Boolean) {
   }
 
   private def gen2JSONString(gen: Generation) = gen.toJson.prettyPrint
+
+  override def close() {
+    gFile map (_.close())
+  }
 }
 
 object OutputHandler {
