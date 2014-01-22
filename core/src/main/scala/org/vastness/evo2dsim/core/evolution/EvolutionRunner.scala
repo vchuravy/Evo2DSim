@@ -93,7 +93,7 @@ class EvolutionRunner(c: EvolutionConfig) extends Recordable {
 
       generation +=1
 
-      _dataRow = collectStats(results.map(_._2._1).toSeq)
+      _dataRow = collectStats(generation, results.map(_._2._1).toSeq)
       outputStats.step()
 
       if(generation < c.generations) genomes = evo.nextGeneration(results)
@@ -138,7 +138,7 @@ class EvolutionRunner(c: EvolutionConfig) extends Recordable {
     sys.exit()
   }
 
-  def collectStats(results: Seq[Double]): Seq[Any] = {
+  def collectStats(generation: Int, results: Seq[Double]): Seq[Any] = {
     val max = results.max
     val min = results.min
     val mean = results.sum / results.size
@@ -151,7 +151,7 @@ class EvolutionRunner(c: EvolutionConfig) extends Recordable {
       else (groups.max, groups.min, groups.sum / groups.size)
 
     val gVar = if (groups.isEmpty) 0.0 else groups.foldLeft(0.0) {(acc, x) => acc + math.pow(x - gMean,2)} / groups.size
-    Seq(max, min, mean, variance, gMax, gMin, gMean, gVar)
+    Seq(generation, max, min, mean, variance, gMax, gMin, gMean, gVar)
   }
 }
 
