@@ -56,7 +56,7 @@ class OutputHandler(dir: Path, compress: Boolean) {
       val o7 = new SevenZArchiveEntry()
       o7.setName(gFileTemplate.format(id))
 
-      val output = gen2JSONString(gen).getBytes
+      val output = gen2JSONString(gen).getBytes("UTF-8")
       o7.setSize(output.size)
 
       cFile.putArchiveEntry(o7)

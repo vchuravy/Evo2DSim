@@ -66,7 +66,7 @@ class InputHandler(dir: Path) {
   private def readCompressed(id: Int): Option[Generation] = {
     val cFile = new SevenZFile(new File((dir / cFileName).toURI))
     val content = findAndReadFile(cFile, gFileTemplate.format(id))
-    val gen = content map { c => string2Generation(new String(c))}
+    val gen = content map { c => string2Generation(new String(c, "UTF-8"))}
     cFile.close()
     gen
   }
