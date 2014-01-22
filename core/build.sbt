@@ -10,7 +10,8 @@ libraryDependencies ++= Seq(
   "com.github.scala-incubator.io" %% "scala-io-file" % "0.4.2",
   "io.spray" %% "spray-json" % "1.2.5",
   "org.scalaz" %% "scalaz-core" % "7.1.0-M4",
-  "org.spire-math" %% "spire" % "0.7.3"
+  "org.spire-math" %% "spire" % "0.7.3",
+  "org.grouplens.lenskit" % "lenskit-core" % "2.0.5"
 )
 
 packageArchetype.java_application

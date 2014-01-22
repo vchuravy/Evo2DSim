@@ -34,9 +34,9 @@ case class EvolutionConfig(
                   propability: Double = 0.1,
                   rLevel: Int = RecordLevel.Nothing.id) {
 
-  require(poolSize % groupSize == 0)
-  require(timeStep > 0)
-  require(evaluationSteps > 0)
+  require(poolSize % groupSize == 0, s"$poolSize % $groupSize != 0)")
+  require(timeStep > 0, "timeStep must be lager then zero")
+  require(evaluationSteps > 0, "EvaluationSteps must be lager then zero")
 
   def envSetup: Seq[(Range, EnvironmentBuilder)] = {
     val conf = envConf.split(';') map {_.split(':').toList } map {

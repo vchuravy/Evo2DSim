@@ -33,8 +33,8 @@ trait BlueTestSettings extends DefaultSettings {
 
   override val foodRadius: Float = 0.06f
   override def foodOffset: Float = 0f
-  override def activationRange: Float = 0f
-  override def smellRange: Float = 0f
+  override def activationRange: Float = foodRadius
+  override def smellRange: Float = foodRadius
   override def artificialSmellMemory: Boolean = false
   override def agentLimit = 1
 

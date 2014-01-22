@@ -54,18 +54,19 @@ abstract class BasicEnvironment(timeStep:Int, steps:Int) extends Environment(tim
     //setFlags
     sim.flags = simFlags
 
-    @tailrec
-    def addFood(food: List[FoodSource], pos: List[Vec2]) {
-      (food, pos) match {
-        case (f :: fs, _p :: ps) =>
-          sim.addFoodSource(_p,f)
-          addFood(fs, ps)
-        case (Nil, Nil) =>
-        case (fs, Nil) => throw new Exception(s"There are still some Food Source left: $fs")
-        case (Nil, ps) => println("Warning two many positions")
-      }
-    }
     addFood(foodSources, foodPos)
+  }
+
+  @tailrec
+  private def addFood(food: List[FoodSource], pos: List[Vec2]) {
+    (food, pos) match {
+      case (f :: fs, _p :: ps) =>
+        sim.addFoodSource(_p,f)
+        addFood(fs, ps)
+      case (Nil, Nil) =>
+      case (fs, Nil) => throw new Exception(s"There are still some Food Source left: $fs")
+      case (Nil, ps) => println("Warning two many positions")
+    }
   }
 
   protected def normToOrigin(p: Vec2): Vec2 = {

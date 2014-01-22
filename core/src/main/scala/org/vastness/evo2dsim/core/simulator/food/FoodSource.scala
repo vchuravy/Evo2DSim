@@ -27,10 +27,10 @@ import org.vastness.evo2dsim.core.gui.Color
  * @param max maximal numbers of individuals who can feed from this source
  */
 abstract class FoodSource(c: Color, var max: Int, var radius: Float, var activationRange: Float, var smellRange: Float) {
-  require(radius > 0)
-  require(radius <= activationRange)
-  require(c == Color.BLUE || c == Color.RED)
-  require(smellRange >= activationRange)
+  require(radius > 0, "Radius must be bigger than zero")
+  require(radius <= activationRange, "ActivationRange can't be smaller than radius")
+  require(c == Color.BLUE || c == Color.RED, "Only Blue or Red is supported")
+  require(smellRange >= activationRange, "SmellRange can't be smaller than activationRange")
 
   protected var light: Option[LightSource] = None
 
