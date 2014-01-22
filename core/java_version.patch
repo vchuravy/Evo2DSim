@@ -1,5 +1,5 @@
---- target/universal/stage/bin/evo2dsim	2013-12-10 16:05:45.999657805 +0900
-+++ target/universal/stage/bin/evo2dsim_new	2013-12-10 16:04:57.671186919 +0900
+--- target/universal/stage/bin/evo2dsim-core	2013-12-10 16:05:45.999657805 +0900
++++ target/universal/stage/bin/evo2dsim-core_new	2013-12-10 16:04:57.671186919 +0900
 @@ -306,28 +306,6 @@
  
  declare -r java_cmd=$(get_java_cmd)

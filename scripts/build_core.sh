@@ -5,9 +5,9 @@ cd $DIR
 
 cd ..
 git pull
-sbt clean core:compile
-rm $DIR/core/target/scala-2.10/classes/org/vastness/evo2dsim/App*
-sbt core:compile core:stage
+sbt clean compile
+rm core/target/scala-2.10/classes/org/vastness/evo2dsim/App*
+sbt compile core:stage
 
 cd core
 patch -p0 < java_version.patch
