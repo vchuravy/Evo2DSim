@@ -22,7 +22,7 @@ import scala.concurrent.{Await, Future, future}
 import org.vastness.evo2dsim.core.evolution.genomes.Genome
 import org.vastness.evo2dsim.core.environment.{Environment, EnvironmentBuilder}
 import org.vastness.evo2dsim.core.gui.EnvironmentManager
-import org.vastness.evo2dsim.core.data.{Recorder, RecordLevel}
+import org.vastness.evo2dsim.core.data.{DirectRecorder, Recorder, RecordLevel}
 import scala.concurrent.ExecutionContext.Implicits.global
 import org.vastness.evo2dsim.core.utils.{OutputHandler, InputHandler}
 import org.vastness.evo2dsim.core.evolution.{EvolutionRunner, EvolutionConfig}
@@ -33,11 +33,12 @@ import org.vastness.evo2dsim.core.environment.mixins.settings.BlueTestSettings
 import org.vastness.evo2dsim.core.simulator.AgentID
 
 object App {
-  def main(args : Array[String]) {
+  def main(args : Array[String]): Unit = {
     val f = Future sequence ( args map {
       s => future {
-        val dir = Path(s)
-        run(dir)
+        println(s)
+        val dir = Path.fromString(s)
+        if(dir.exists && dir.isDirectory) run(dir)
       }
     } ).toSeq
 
@@ -50,10 +51,12 @@ object App {
         print(result)
         sys.exit(1)
     }
+
+    Await.ready(f, Duration.Inf)
   }
 
   def run(dir: Path): Unit = {
-    var in = new InputHandler(dir)
+    val in = new InputHandler(dir)
     val config = in.readEvolutionConfig match {
       case None => throw new Exception("Didn't find a config.")
       case Some(c) => c
@@ -62,7 +65,7 @@ object App {
     else {
       val recordingConfig = EvolutionConfig(
         config.timeStep,
-        generations = 0,
+        config.generations,
         config.evaluationSteps,
         config.evaluationsPerGeneration,
         config.poolSize,
@@ -74,15 +77,13 @@ object App {
         config.propability,
         RecordLevel.Agents.id
       )
-      def callback(envs: Seq[Environment]) = {}
+      def callback(env: Environment) = {}
       runConfig(dir, recordingConfig, 0, in, callback)
     }
 
-    in = new InputHandler(dir) // reset InputHandler
-
     val blueTestConfig = EvolutionConfig(
       config.timeStep,
-      generations = 0,
+      config.generations,
       evaluationSteps = 10,
       config.evaluationsPerGeneration,
       config.poolSize,
@@ -95,35 +96,31 @@ object App {
       RecordLevel.Nothing.id
     )
 
-    def blueCallback(envs: Seq[Environment]):Seq[(Int, Int, Float)] = {
-      val results = for (env <- envs) yield {
-        env match {
-          case e: BlueTestSettings =>
+    def blueCallback(env: Environment): (AgentID, Float) = env match {
+      case e: BlueTestSettings =>
             val d = delta(e.origin) _
             if(e.agents.size != 1) throw new Exception("Only one Agent is supported!")
             val a = e.agents.head
             (a._1, norm(d(e.agent_pos(a._1)) - d(a._2.position)))
-
-        }
       }
-      val gResults = results groupBy(_._1.generation) map {
-        case (generation, t1) => t1 groupBy(_._1.group) map {
-          case (group, t2) =>
-            (generation, group, t2.map(_._2).sum / t2.length)
-        }
-      }
-      gResults.flatten.toSeq
-    }
 
     val blue = runConfig(dir / "blueTest", blueTestConfig, 0, in, blueCallback)
-    val results = Await.result(blue, Duration.Inf).flatten
+    val results = Await.result(blue, Duration.Inf)
 
-    val blueOutput = new Recorder(dir, "blueTest", Seq("Generation", "Group", "BlueTest"))
-    blueOutput.write(results map(d => Seq(d._1, d._2, d._3)))
+    val gResults = ( results groupBy(_._1.generation) map {
+      case (generation, t1) => t1 groupBy(_._1.group) map {
+        case (group, t2) =>
+          (generation, group, t2.map(_._2).sum / t2.length)
+      }
+    } ).flatten.toSeq
+
+    val blueOutput = new DirectRecorder(dir, "blueTest", Seq("Generation", "Group", "BlueTest"))
+    blueOutput.write(gResults map(d => Seq(d._1, d._2, d._3)))
+
 
     val redTestConfig = EvolutionConfig(
       config.timeStep,
-      generations = 0,
+      config.generations,
       evaluationSteps = 100,
       evaluationsPerGeneration = 10,
       config.poolSize,
@@ -136,8 +133,9 @@ object App {
       RecordLevel.Everything.id
     )
 
-    def redCallback(envs: Seq[Environment]) = {}
-    runConfig(dir, redTestConfig, 0, in, redCallback)
+    def redCallback(env: Environment) = {}
+    runConfig(dir / "redTest", redTestConfig, 0, in, redCallback)
+
   }
 
   private def delta(origin: Vec2)(pos: Vec2) : Float = {
@@ -162,14 +160,17 @@ object App {
                    config: EvolutionConfig,
                    startGeneration: Int = 0,
                    in: InputHandler,
-                   callback: (Seq[Environment]) => A ): Future[Seq[A]] = {
+                   callback: (Environment) => A ): Future[Seq[A]] = {
+    if(dir.nonExistent) dir.createDirectory()
     val fs = for{generation <- startGeneration until config.generations} yield {
-      in.readGeneration(generation) map {
+      val f = ( in.readGeneration(generation) map {
         genomes =>
-          val gF = EvolutionRunner.groupEvaluations(genomes, dir)(config.environment(generation))(config)
-          gF map callback
-      }
+          println(s"Loaded generation $generation")
+          EvolutionRunner.groupEvaluations[A](genomes, dir)(config.environment(generation))(config)(callback, wait = true)
+      } ).getOrElse(future { Seq.empty })
+      Await.ready(f, Duration.Inf) // Block so we don't run out of memory.
     }
-    Future sequence fs.flatten
+    val f = Future sequence fs
+    f map (_.flatten)
   }
 }
