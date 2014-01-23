@@ -19,18 +19,19 @@ package org.vastness.evo2dsim.core.data
 
 import scalax.file.Path
 
-trait Recorder {
-  def dir: Path
-  def name: String
-  def dataHeader: Seq[String]
-  def dataRow: () => Seq[Any]
+class DirectRecorder(val dir: Path, val name: String, val dataHeader: Seq[String], val dataRow: () => Seq[Any] = () => Seq.empty) extends Recorder{
+    private val output: Path =  dir resolve s"$name.csv"
+    output.deleteIfExists()
+    if(output.nonExistent) output.createFile()
+    writeln(seqToString(dataHeader))
 
-  def step(): Unit
-  def write(data: Traversable[Seq[Any]]): Unit
+    def step() = writeRow(dataRow())
+    def write(data: Traversable[Seq[Any]]) {
+      for(row <- data) {
+        writeRow(row)
+      }
+    }
 
-  protected def seqToString(row: Seq[Any]) = if(row.isEmpty) "" else row.tail.foldLeft[String](row.head.toString)(_ + ", " + _)
-}
-
-object Recorder {
-  def apply(dir: Path, name: String, r: Recordable) = new DirectRecorder(dir, name, r.dataHeader, r.dataRow _)
+    protected def writeln(s: String) = output.append(s + "\n")
+    protected def writeRow(row: Seq[Any]) = writeln(seqToString(row))
 }
