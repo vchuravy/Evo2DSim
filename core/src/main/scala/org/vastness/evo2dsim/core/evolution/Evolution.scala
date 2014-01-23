@@ -23,18 +23,18 @@ import org.vastness.evo2dsim.core.simulator.AgentID
 
 trait Evolution {
   def config: EvolutionConfig
-  def nextGeneration(results: Generation): Generation
+  def nextGeneration(idx: Int, results: Generation): Generation
 }
 
 object Evolution {
   type Generation = Map[AgentID, (Double, Genome)]
   type Genomes = Map[Int, Genome]
 
-  def groupGenomes(genomes: Genomes, config: EvolutionConfig): Generation = {
+  def groupGenomes(genIdx: Int, genomes: Genomes, config: EvolutionConfig): Generation = {
     val groupedGenomes = genomes.grouped(config.groupSize).toIndexedSeq
     val generation: Generation = ( for(group <- groupedGenomes.indices) yield {
       groupedGenomes(group) map {
-        case (id, genome) => AgentID(id, group, 0) -> (0.0, genome)
+        case (id, genome) => AgentID(id, group, genIdx) -> (0.0, genome)
       }
     } ).flatten.toMap
     generation

@@ -35,7 +35,7 @@ class SUSEvolution (val config: EvolutionConfig)
    * @param generation the previous generation
    * @return the next generation
    */
-  override def nextGeneration(generation: Generation): Generation = {
+  override def nextGeneration(idx: Int, generation: Generation): Generation = {
     val genomes = Evolution.extractGenomes(generation)
     val fitness = Evolution.extractFitness(generation)
 
@@ -58,7 +58,7 @@ class SUSEvolution (val config: EvolutionConfig)
     val nextGenomes: Genomes = (
       for(x <- startingPoint to 1.0 by stepSize; id = select(x)) yield
         nextId(x) -> genomes(id).mutate ).toMap
-    Evolution.groupGenomes(nextGenomes, config)
+    Evolution.groupGenomes(idx, nextGenomes, config)
   }
 
   /**

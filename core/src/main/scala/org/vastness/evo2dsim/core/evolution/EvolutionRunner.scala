@@ -89,7 +89,7 @@ class EvolutionRunner(c: EvolutionConfig) extends Recordable {
       _dataRow = collectStats(idx, result.map(_._2._1).toSeq)
       outputStats.step()
 
-      if(idx < c.generations) generation = evo.nextGeneration(result)
+      if(idx < c.generations) generation = evo.nextGeneration(idx, result)
       assert(generation.size == c.poolSize)
 
       val generationFinishedTime = System.nanoTime()
@@ -135,7 +135,7 @@ class EvolutionRunner(c: EvolutionConfig) extends Recordable {
       id -> g
     } ).toMap
 
-    val startGeneration = Evolution.groupGenomes(genomes, c)
+    val startGeneration = Evolution.groupGenomes(0, genomes, c)
     run(startGeneration)
     val timeSpent = TimeUnit.SECONDS.convert(System.nanoTime() - time, TimeUnit.NANOSECONDS)
     println("We are done here:")

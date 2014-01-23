@@ -27,7 +27,7 @@ import org.vastness.evo2dsim.core.evolution.Evolution.Generation
  * @param config
  */
 class ElitistEvolution(percent: Double, val config: EvolutionConfig) extends Evolution {
-  override def nextGeneration(generation: Generation): Generation = {
+  override def nextGeneration(idx: Int, generation: Generation): Generation = {
     val results = Evolution.extractFitness(generation).toSeq
     val genomes = Evolution.extractGenomes(generation)
 
@@ -40,6 +40,6 @@ class ElitistEvolution(percent: Double, val config: EvolutionConfig) extends Evo
       id -> genomes(i).mutate // Get the genome to that id and mutate it.
     } ).toMap
 
-    Evolution.groupGenomes(nextGenomes, config)
+    Evolution.groupGenomes(idx, nextGenomes, config)
   }
 }
