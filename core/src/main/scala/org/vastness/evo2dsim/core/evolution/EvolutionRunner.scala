@@ -165,7 +165,7 @@ object EvolutionRunner {
   def groupEvaluations[A](generation: Generation, dir: Path)
                       (env: EnvironmentBuilder)
                       (config: EvolutionConfig)
-                      (callback: (Environment) => A): Future[Seq[A]] = {
+                      (callback: (Environment) => A, wait: Boolean = false): Future[Seq[A]] = {
     val groupsById = generation.groupBy{case (id, _) => id.group}
     val groups =
       if(groupsById.size != config.poolSize / config.groupSize) {
@@ -192,7 +192,7 @@ object EvolutionRunner {
           }
           e.p.future map callback
         } )
-        Await.ready(eF, Duration.Inf) // When we have a lot of groups creating them all would consume to much memory.
+        if(wait) Await.ready(eF, Duration.Inf) else eF// When we have a lot of groups creating them all would consume to much memory.
       } ).toSeq
       val f = Future sequence gF
       f map (_.flatten)
