@@ -58,46 +58,39 @@ class EvolutionRunner(c: EvolutionConfig) extends Recordable {
       _dataRow = d
     }
     override def dataRow = _dataRow
-    override def dataHeader = Seq("Generation", "Total", "Eval", "Sim", "Setup", "NextGen")
+    override def dataHeader = Seq("Generation", "Total", "Sim", "Setup", "NextGen")
   }
 
-  private def run(startGenomes: Generation): Generation = {
+  private def run(startGeneration: Generation): Generation = {
     val outputStats = Recorder(dir, "Stats", this)
     val outputTimer = Recorder(dir, "Times", Timer)
 
-    var generation = 0
-    var genomes: Generation = startGenomes
+    var idx = 0
+    var generation: Generation = startGeneration
 
-    while(generation < c.generations) {
+    while(idx < c.generations) {
       val generationStartTime = System.nanoTime()
 
       EnvironmentManager.clean()
 
-      val envBuilder = c.environment(generation)
+      val envBuilder = c.environment(idx)
       assert(c.evaluationSteps > 0, "In Simulation mode evaluationSteps has to be bigger than zero.")
-      val futureEvaluations =  EvolutionRunner.groupEvaluations(genomes, dir)(envBuilder)(c)
-
+      val fFitness =  EvolutionRunner.groupEvaluations(generation, dir)(envBuilder)(c)(extractFitness)
       val environmentSetupTime = System.nanoTime()
 
-      val evaluatedEnvironments = Await.result(futureEvaluations, Duration.Inf)
+      val fResult = fFitness map (_.flatten) map { values => evaluate(values, generation)}
+      val result = Await.result(fResult, Duration.Inf)
       val simulationFinishedTime = System.nanoTime()
 
-      val extractedFitnessValues =
-        evaluatedEnvironments.map( env => (for((id, a) <- env.agents) yield id -> a.fitness).toSeq)
-      val fitnessValuesPerAgent  = extractedFitnessValues.flatten.groupBy(e => e._1)
-      val evaluation = fitnessValuesPerAgent.map((e) => (e._1, e._2.foldLeft(0.0)(_ + _._2)))
-      val evaluationFinishedTime = System.nanoTime()
+      output.writeGeneration(idx, result)
 
-      val results: Generation = for((id, fitness) <- evaluation) yield id -> (fitness / c.evaluationsPerGeneration , genomes(id)._2)
-      output.writeGeneration(generation, results)
+      idx +=1
 
-      generation +=1
-
-      _dataRow = collectStats(generation, results.map(_._2._1).toSeq)
+      _dataRow = collectStats(idx, result.map(_._2._1).toSeq)
       outputStats.step()
 
-      if(generation < c.generations) genomes = evo.nextGeneration(results)
-      assert(genomes.size == c.poolSize)
+      if(idx < c.generations) generation = evo.nextGeneration(result)
+      assert(generation.size == c.poolSize)
 
       val generationFinishedTime = System.nanoTime()
       def timeSpent(t1: Long, t2: Long) = {
@@ -107,16 +100,29 @@ class EvolutionRunner(c: EvolutionConfig) extends Recordable {
       val timeTotalSpent = timeSpent(generationStartTime, generationFinishedTime)
       val timeSetupSpent = timeSpent(generationStartTime, environmentSetupTime)
       val timeSimSpent = timeSpent(environmentSetupTime, simulationFinishedTime)
-      val timeEvalSpent = timeSpent(simulationFinishedTime, evaluationFinishedTime)
-      val timeNextGenSpent = timeSpent(evaluationFinishedTime, generationFinishedTime)
+      val timeNextGenSpent = timeSpent(simulationFinishedTime, generationFinishedTime)
 
-      println(s"Generation $generation done")
-      Timer.dataRow = Seq(generation, timeTotalSpent, timeEvalSpent, timeSimSpent, timeSetupSpent, timeNextGenSpent)
+      println(s"Generation $idx done")
+      Timer.dataRow = Seq(idx, timeTotalSpent, timeSimSpent, timeSetupSpent, timeNextGenSpent)
       outputTimer.step()
-      if(generation < c.generations) println("Starting next generation.")
+      if(idx < c.generations) println("Starting next generation.")
       else println("We are done here :)")
     }
-    genomes
+    generation
+  }
+
+  private def extractFitness(env: Environment): Seq[(AgentID, Double)] = {
+    ( for((id, a) <- env.agents)
+      yield id -> a.fitness ).toSeq
+  }
+
+  private def evaluate(values: Seq[(AgentID, Double)], generation: Generation): Generation = {
+    val fitnessValuesPerAgent  = values.groupBy(e => e._1)
+    val evaluation = fitnessValuesPerAgent.map((e) => (e._1, e._2.foldLeft(0.0)(_ + _._2)))
+
+    //Update the fitness values
+    for((id, fitness) <- evaluation)
+      yield id -> (fitness / c.evaluationsPerGeneration , generation(id)._2)
   }
 
   def start() {
@@ -156,13 +162,25 @@ class EvolutionRunner(c: EvolutionConfig) extends Recordable {
 }
 
 object EvolutionRunner {
-  def groupEvaluations(genomes: Generation, dir: Path)
+  def identityCallback(e: Environment) = e
+  def groupEvaluations[A](genomes: Generation, dir: Path)
                       (env: EnvironmentBuilder)
-                      (config: EvolutionConfig): Future[Seq[Environment]] = {
-    val groups = genomes.groupBy {case (id, _) => id.group}
-    val fEnvs: Seq[Future[Environment]] = (
-      for ((g, group) <- groups) yield {
-        for (i <- 0 until config.evaluationsPerGeneration) yield {
+                      (config: EvolutionConfig)
+                      (callback: (Environment) => A): Future[Seq[A]] = {
+    val groupsById = genomes.groupBy{case (id, _) => id.group}
+    val groups =
+      if(groupsById.size != config.poolSize / config.groupSize) {
+        val g = genomes.grouped(config.groupSize).toIndexedSeq
+        val newGroups = for(i <- g.indices) yield {
+          i -> g(i)
+        }
+        newGroups.toMap
+      } else
+        groupsById
+
+    val fEnvs: Future[Seq[A]] = {
+      val gF = ( for ((g, group) <- groups) yield {
+        val eF = Future sequence ( for (i <- 0 until config.evaluationsPerGeneration) yield {
           val e = env(config.timeStep, config.evaluationSteps)
           e.initializeStatic()
           e.initializeAgents(group)
@@ -173,10 +191,13 @@ object EvolutionRunner {
           future {
             e.run()
           }
-          e.p.future
-        }
-      }
-    ).toSeq.flatten
-    Future sequence fEnvs
+          e.p.future map callback
+        } )
+        Await.ready(eF, Duration.Inf) // When we have a lot of groups creating them all would consume to much memory.
+      } ).toSeq
+      val f = Future sequence gF
+      f map (_.flatten)
+    }
+    fEnvs
   }
 }
