@@ -163,14 +163,14 @@ class EvolutionRunner(c: EvolutionConfig) extends Recordable {
 
 object EvolutionRunner {
   def identityCallback(e: Environment) = e
-  def groupEvaluations[A](genomes: Generation, dir: Path)
+  def groupEvaluations[A](generation: Generation, dir: Path)
                       (env: EnvironmentBuilder)
                       (config: EvolutionConfig)
                       (callback: (Environment) => A): Future[Seq[A]] = {
-    val groupsById = genomes.groupBy{case (id, _) => id.group}
+    val groupsById = generation.groupBy{case (id, _) => id.group}
     val groups =
       if(groupsById.size != config.poolSize / config.groupSize) {
-        val g = genomes.grouped(config.groupSize).toIndexedSeq
+        val g = generation.grouped(config.groupSize).toIndexedSeq
         val newGroups = for(i <- g.indices) yield {
           i -> g(i)
         }

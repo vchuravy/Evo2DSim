@@ -46,7 +46,9 @@ abstract class Environment(val timeStep: Int, val steps: Int) {
   // Angle in Radian
   def newRandomAngle: Float = sim.random.nextFloat * 2 * pi[Float]
 
-  protected var stepCounter = 0
+  private var _stepCounter = 0
+  def stepCounter = _stepCounter
+  
   val sim = new Simulator(scala.util.Random.nextLong())
   var agents = Map.empty[AgentID, Agent]
   val p = promise[Environment]()
@@ -58,7 +60,7 @@ abstract class Environment(val timeStep: Int, val steps: Int) {
 
   def updateSimulation() {
     sim.step(timeStep/1000.0f)
-    stepCounter += 1
+    _stepCounter += 1
     if(recording) recorders map {_.step()}
     if(steps == stepCounter) {
       running = false

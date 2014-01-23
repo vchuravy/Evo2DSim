@@ -23,11 +23,11 @@ import scala.collection.immutable.NumericRange
 trait OneVarTest[A] extends Settings {
   def varRange: NumericRange[Double]
   def varUpdate(): Unit
-  def varIdx: Int = steps / stepsPerTest
+  def varIdx: Int = stepCounter / stepsPerTest
 
-  require(steps % varRange.size == 0)
+  require(steps % varRange.size == 0, s"$steps % ${varRange.size} != 0")
   val stepsPerTest = steps / varRange.size
-  require(stepsPerTest != 0)
+  require(stepsPerTest != 0, s"StepsPerTest: $stepsPerTest")
 
   override def updateSimulation() {
     super.updateSimulation()

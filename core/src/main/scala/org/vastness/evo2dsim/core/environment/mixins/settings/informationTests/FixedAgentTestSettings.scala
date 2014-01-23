@@ -30,7 +30,7 @@ trait FixedAgentTestSettings extends DefaultSettings with OneVarTest[Float] {
 
   def offSet: Float = foodRadius + 0.06f + varRange(varIdx).toFloat
 
-  override def varRange = Range.Double.inclusive(0, 1, 0.1)
+  override def varRange = Range.Double.inclusive(0.1, 1, 0.1)
   override def spawnSize  = 0.0f
 
   // Positions agents at a fixed position with a fixed angle.
