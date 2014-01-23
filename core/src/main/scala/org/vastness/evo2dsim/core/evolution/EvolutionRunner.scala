@@ -137,7 +137,6 @@ class EvolutionRunner(c: EvolutionConfig) extends Recordable {
 
     val startGeneration = Evolution.groupGenomes(genomes, c)
     run(startGeneration)
-    output.close()
     val timeSpent = TimeUnit.SECONDS.convert(System.nanoTime() - time, TimeUnit.NANOSECONDS)
     println("We are done here:")
     println("Running for: %d min %s sec".format(timeSpent / 60, timeSpent % 60))

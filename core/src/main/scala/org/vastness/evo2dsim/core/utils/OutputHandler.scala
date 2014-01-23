@@ -19,69 +19,41 @@ package org.vastness.evo2dsim.core.utils
 
 
 import org.vastness.evo2dsim.core.evolution.Evolution.Generation
-import org.apache.commons.compress.archivers.sevenz._
 import spray.json._
 import org.vastness.evo2dsim.core.utils.MyJsonProtocol._
 import scalax.file._
-import java.io.File
 import OutputHandler._
 import org.vastness.evo2dsim.core.evolution.EvolutionConfig
+import de.schlichtherle.truezip.file.{TFileWriter, TFile}
 
 /**
  * Allows for either compressed or uncompressed output of generations
  * @param dir base dir
  * @param compress flag
  */
-class OutputHandler(dir: Path, compress: Boolean) extends AutoCloseable{
-  val gFile: Option[SevenZOutputFile] = if(compress) Some(new SevenZOutputFile(new File((dir / cFileName).toURI))) else None
-
+class OutputHandler(dir: Path, val compress: Boolean) extends Writer {
   /**
    * Given a generation write it
    * @param id generation number
    * @param gen generation
    */
-  def writeGeneration(id: Int, gen: Generation) = if(compress) writeCompressed(id, gen) else write(id, gen)
+  def writeGeneration(id: Int, gen: Generation) = {
+    write(dir, gDirName, gFileTemplate(id), gen2JSONString(gen))
+  }
+
   def writeEvolutionConfig(config: EvolutionConfig) = {
     val s = config.toJson.prettyPrint
     val file = dir / configFileName
     file.write(s)
   }
 
-  def finish() {
-    gFile map {_.finish()}
-  }
-  
-  private def writeCompressed(id: Int, gen: Generation): Unit = gFile match {
-    case Some(cFile) =>
-      val o7 = new SevenZArchiveEntry()
-      o7.setName(gFileTemplate.format(id))
-
-      val output = gen2JSONString(gen).getBytes("UTF-8")
-      o7.setSize(output.size)
-
-      cFile.putArchiveEntry(o7)
-      cFile.write(output)
-      cFile.closeArchiveEntry()
-
-    case None => throw new Exception("Trying to write a compressed File, when there is none.")
-  }
-
-  private def write(id: Int, gen: Generation) {
-    val file = dir / gFileTemplate.format(dir)
-    val output = gen2JSONString(gen)
-    file.write(output)
-  }
 
   private def gen2JSONString(gen: Generation) = gen.toJson.prettyPrint
-
-  override def close() {
-    gFile map (_.close())
-  }
 }
 
 object OutputHandler {
-  val cFileName = "generations.7z"
-  val gFileTemplate = "Gen_%04d.json"
+  val gDirName = "generations"
+  def gFileTemplate(id: Int) = s"Gen_$id.json"
   val configFileName = "Config.json"
 }
 

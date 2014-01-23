@@ -19,33 +19,28 @@ package org.vastness.evo2dsim.core.utils
 
 import org.vastness.evo2dsim.core.evolution.Evolution.Generation
 import scalax.io.Input
-import org.vastness.evo2dsim.core.evolution.genomes.Genome
 import scalax.file._
 import spray.json._
 import org.vastness.evo2dsim.core.utils.MyJsonProtocol._
-import org.apache.commons.compress.archivers.sevenz._
 
 import OutputHandler._
-import java.io.File
 import org.vastness.evo2dsim.core.evolution.EvolutionConfig
 
 /**
  * An handler for reading the data created by @see OutputHandler.
  * @param dir base dir
  */
-class InputHandler(dir: Path) {
-  /**
-   * Test for compressed data
-   * @return
-   */
-  def compressed_? = (dir / cFileName).exists
+class InputHandler(dir: Path) extends Reader {
 
   /**
    * Tries to read the generation with the given id
    * @param id generation id
    * @return Option[Generation]
    */
-  def readGeneration(id: Int): Option[Generation] = if(compressed_?) readCompressed(id) else read(id)
+  def readGeneration(id: Int): Option[Generation] = {
+    val content = read(dir, gDirName, gFileTemplate(id))
+    content map string2Generation
+  }
 
   def readEvolutionConfig: Option[EvolutionConfig] = {
     val cFile = dir / configFileName
@@ -53,38 +48,6 @@ class InputHandler(dir: Path) {
       val input: Input = cFile.inputStream()
       Some(input.string.asJson.convertTo[EvolutionConfig])
     } else None
-  }
-  
-  private def read(id: Int): Option[Generation] = {
-    val genFile = dir resolve gFileTemplate.format(id)
-    if(genFile.exists) {
-      val input: Input = genFile.inputStream()
-      Some(string2Generation(input.string))
-    } else None
-  }
-
-  private def readCompressed(id: Int): Option[Generation] = {
-    val cFile = new SevenZFile(new File((dir / cFileName).toURI))
-    val content = findAndReadFile(cFile, gFileTemplate.format(id))
-    val gen = content map { c => string2Generation(new String(c, "UTF-8"))}
-    cFile.close()
-    gen
-  }
-
-  private def findAndReadFile(cFile: SevenZFile, fileName: String): Option[Array[Byte]] = {
-    var entry = cFile.getNextEntry
-    var offset: Int = 0
-    while (entry != null && entry.getName != fileName) {
-      offset += entry.getSize.toInt
-      entry = cFile.getNextEntry
-    }
-    if (entry == null) None
-    else {
-        val content =  new Array[Byte](entry.getSize.toInt)
-        val l = cFile.read(content)
-        if (l != content.length) throw new Exception(s"Read $l bytes instead of ${content.length} bytes")
-        Some(content)
-    }
   }
 
   private def string2Generation(in: String): Generation = in.asJson.convertTo[Generation]
