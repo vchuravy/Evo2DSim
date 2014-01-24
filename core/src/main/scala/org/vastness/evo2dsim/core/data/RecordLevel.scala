@@ -21,7 +21,7 @@ import org.vastness.evo2dsim.macros.utils.Enum
 
 sealed trait RecordLevel {
   def id: Int
-  def record(other: RecordLevel): Boolean = other.id <= id
+  def record(other: RecordLevel): Boolean = other.id >= id
 }
 
 object RecordLevel extends Enum[RecordLevel] {

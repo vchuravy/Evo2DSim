@@ -75,7 +75,7 @@ class EvolutionRunner(c: EvolutionConfig) extends Recordable {
 
       val envBuilder = c.environment(idx)
       assert(c.evaluationSteps > 0, "In Simulation mode evaluationSteps has to be bigger than zero.")
-      val fFitness =  EvolutionRunner.groupEvaluations(generation, dir)(envBuilder)(c)(extractFitness)
+      val fFitness =  EvolutionRunner.groupEvaluations(generation, dir / "output")(envBuilder)(c)(extractFitness)
       val environmentSetupTime = System.nanoTime()
 
       val fResult = fFitness map (_.flatten) map { values => evaluate(values, generation)}

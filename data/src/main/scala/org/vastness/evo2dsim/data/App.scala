@@ -34,11 +34,24 @@ import org.vastness.evo2dsim.core.simulator.AgentID
 
 object App {
   def main(args : Array[String]): Unit = {
+    val startGeneration = try {
+      Some(args.head.toInt)
+    } catch {
+      case _ : java.lang.NumberFormatException => None
+    }
+    val f = startGeneration match {
+      case Some(i)  => createFuture(i, args.tail)
+      case None => createFuture(0, args)
+    }
+    Await.ready(f, Duration.Inf)
+  }
+
+  def createFuture(startGen: Int, args: Array[String]) = {
     val f = Future sequence ( args map {
       s => future {
         println(s)
         val dir = Path.fromString(s)
-        if(dir.exists && dir.isDirectory) run(dir)
+        if(dir.exists && dir.isDirectory) run(startGen, dir)
       }
     } ).toSeq
 
@@ -52,16 +65,16 @@ object App {
         sys.exit(1)
     }
 
-    Await.ready(f, Duration.Inf)
+    f
   }
 
-  def run(dir: Path): Unit = {
+  def run(startGen: Int, dir: Path): Unit = {
     val in = new InputHandler(dir)
     val config = in.readEvolutionConfig match {
       case None => throw new Exception("Didn't find a config.")
       case Some(c) => c
     }
-    if(RecordLevel.Agents.record(config.recordingLevel)) println("Output already created. Nothing to do here.")
+    if(config.recordingLevel.record(RecordLevel.Agents)) println("Output already created. Nothing to do here.")
     else {
       val recordingConfig = EvolutionConfig(
         config.timeStep,
@@ -78,7 +91,7 @@ object App {
         RecordLevel.Agents.id
       )
       def callback(env: Environment) = {}
-      runConfig(dir, recordingConfig, 0, in, callback)
+      runConfig(dir / "output", recordingConfig, startGen, in, callback)
     }
 
     val blueTestConfig = EvolutionConfig(
@@ -104,7 +117,7 @@ object App {
             (a._1, norm(d(e.agent_pos(a._1)) - d(a._2.position)))
       }
 
-    val blue = runConfig(dir / "blueTest", blueTestConfig, 0, in, blueCallback)
+    val blue = runConfig(dir / "blueTest", blueTestConfig, startGen, in, blueCallback)
     val results = Await.result(blue, Duration.Inf)
 
     val gResults = ( results groupBy(_._1.generation) map {
@@ -134,7 +147,7 @@ object App {
     )
 
     def redCallback(env: Environment) = {}
-    runConfig(dir / "redTest", redTestConfig, 0, in, redCallback)
+    runConfig(dir / "redTest", redTestConfig, startGen, in, redCallback)
 
   }
 
