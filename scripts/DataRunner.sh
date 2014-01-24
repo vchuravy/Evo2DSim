@@ -1,7 +1,6 @@
 #! /bin/bash
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}")" && pwd )"
-cd ${DIR}
 
 FILE="Data_cluster.sh"
 
@@ -14,9 +13,11 @@ else
 BASECMD="qsub"
 fi
 
-CMD="${BASECMD} ${FILE}"
+CMD="${BASECMD} ${DIR}/${FILE}"
 
-FILES=../results/*
+cd "$DIR/.."
+BASEDIR=$( pwd )
+FILES=$BASEDIR/results/*/
 
 for f in $FILES 
 do

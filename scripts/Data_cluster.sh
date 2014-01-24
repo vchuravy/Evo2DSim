@@ -14,11 +14,12 @@
 #$ -l virtual_free=4g
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}")" && pwd )"
-cd ${DIR}
-cd ..
+cd "${DIR}/.."
+
+BASEDIR=$( pwd )
 
 JAVA_HOME="$HOME/java/current"
 JAVA_OPTS="-server"
-CMD=data/target/universal/stage/bin/evo2dsim-data
+CMD="$BASEDIR/data/target/universal/stage/bin/evo2dsim-data"
 
 $CMD -mem 4096 400 $1
