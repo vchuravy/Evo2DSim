@@ -21,7 +21,6 @@ files <- Map(function(x) paste(x, "Stats.csv", sep=""), arguments)
 # Merge data into one frame
 loadData <- function(fn){
      tmp <- read.csv(fn)
-     extractName(fn)
      tmp$Filename <- extractName(fn)
      tmp
 }
