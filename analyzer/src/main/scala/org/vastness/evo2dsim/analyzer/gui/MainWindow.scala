@@ -162,10 +162,7 @@ class MainWindow extends MainFrame with RenderManager {
     val in = statsFile.inputStream()
     val csv: Traversable[Array[String]] = in.lines().map (_ split ',')
     val columnNames = csv.head.toIndexedSeq
-    //TODO outdated
-    val columns = csv.tail.map {
-      case Array(index, max, min, mean, variance) => Array(index.toInt, max.toDouble, min.toDouble, mean.toDouble, variance.toDouble)
-    }.toArray.sortBy(_(3)).reverse
+    val columns = csv.tail.toArray.sortBy(_(3)).reverse
     (columnNames, columns)
   }
 
