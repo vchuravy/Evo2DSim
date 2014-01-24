@@ -18,6 +18,7 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}")" && pwd )"
 cd ${DIR}
 cd ..
 
+JAVA_HOME="$HOME/java"
 JAVA_OPTS="-server"
 CMD=core/target/universal/stage/bin/evo2dsim-core
 
