@@ -7,7 +7,7 @@ cd ..
 git pull
 sbt clean compile
 rm core/target/scala-2.10/classes/org/vastness/evo2dsim/App*
-sbt compile core:stage
+sbt compile stage 
 
 cd core
 patch -p0 < java_version.patch
