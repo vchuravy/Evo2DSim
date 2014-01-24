@@ -1,25 +1,15 @@
 #! /bin/bash
-
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}")" && pwd )"
+source "${DIR}/common.sh"
 
 FILE="Data_cluster.sh"
 
-DISTRIBUTION=$(lsb_release -is)
-declare -a DEV_DISTRIBUTIONS=("Arch")
+CMD="${BASECMD} ${SCRIPTDIR}/${FILE}"
 
-if [[ " ${DEV_DISTRIBUTIONS[@]} " =~ " ${DISTRIBUTION} " ]]; then
-BASECMD="bash"
-else
-BASECMD="qsub"
-fi
+FILES=${ROOT}/results/*/
+cd ${ROOT}
 
-CMD="${BASECMD} ${DIR}/${FILE}"
-
-cd "$DIR/.."
-BASEDIR=$( pwd )
-FILES=$BASEDIR/results/*/
-
-for f in $FILES 
+for f in $FILES
 do
   $CMD "$f"
 done

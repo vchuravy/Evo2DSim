@@ -13,13 +13,11 @@
 #$ -l h_vmem=10g
 #$ -l virtual_free=4g
 
+NAME="data"
+
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}")" && pwd )"
-cd "${DIR}/.."
-
-BASEDIR=$( pwd )
-
-JAVA_HOME="$HOME/java/current"
-JAVA_OPTS="-server"
-CMD="$BASEDIR/data/target/universal/stage/bin/evo2dsim-data"
+source "${DIR}/common.sh"
+CMD=$(getCMD $NAME)
+cd $ROOT
 
 $CMD -mem 4096 400 $1

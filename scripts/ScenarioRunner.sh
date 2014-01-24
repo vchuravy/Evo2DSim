@@ -1,23 +1,16 @@
 #! /bin/bash
-
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}")" && pwd )"
-cd ${DIR}
+source "${DIR}/common.sh"
 
 POOL_SIZE=500
 GENERATIONS=500
-FILE="Evo2DSim_cluster.sh"
 PROBABILITY=0.1
 
-DISTRIBUTION=$(lsb_release -is)
-declare -a DEV_DISTRIBUTIONS=("Arch")
+FILE="Evo2DSim_cluster.sh"
 
-if [[ " ${DEV_DISTRIBUTIONS[@]} " =~ " ${DISTRIBUTION} " ]]; then
-BASECMD="bash"
-else
-BASECMD="qsub"
-fi
+cd $ROOT
 
-CMD="${BASECMD} ${FILE} ${GENERATIONS} ${POOL_SIZE}"
+CMD="${BASECMD} ${SCRIPTDIR}/${FILE} ${GENERATIONS} ${POOL_SIZE}"
 
 declare -a ALGOS=("sus" "elite")
 
