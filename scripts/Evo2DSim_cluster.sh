@@ -21,7 +21,13 @@ BASEDIR=$( pwd )
 
 JAVA_HOME="$HOME/java/current"
 JAVA_OPTS="-server"
-CMD="$BASEDIR/core/target/universal/stage/bin/evo2dsim-core"
+
+CMDDIR="core/target/universal/stage/bin"
+if [ -d "$BASEDIR/$CMDDIR" ]; then
+  CMD="$BASEDIR/$CMDDIR/evo2dsim-core"
+else
+  CMD="/work/DoyaU/v-churavy/Evo2DSim/$CMDDIR/evo2dsim-core"
+fi
 
 # -mem 4096 -g 500 -c "0:basic;50:basicSimpleRandom;200:basicRandom;400:dynamicSimpleRandom"
 # -t => timeStep default=50
