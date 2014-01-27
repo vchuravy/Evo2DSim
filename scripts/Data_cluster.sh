@@ -14,8 +14,12 @@
 #$ -l virtual_free=4g
 
 NAME="data"
+DIR="${HOME}/work/Evo2DSim/scripts"
 
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}")" && pwd )"
+if [ ! -d ${DIR} ]; then
+  DIR="$( cd "$( dirname "${BASH_SOURCE[0]}")" && pwd )"
+fi
+
 source "${DIR}/common.sh"
 CMD=$(getCMD $NAME)
 cd $ROOT
