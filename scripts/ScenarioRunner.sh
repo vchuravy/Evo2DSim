@@ -16,7 +16,7 @@ declare -a ALGOS=("sus" "elite")
 
 declare -a GENOMES=("ByteGenome"  "NEATGenome" "STDGenome")
 
-declare -a STDGENOME=("true:1" "true:2" "true:3" "true:4" "true:5" "false:1" "false:2" "false:3" "false:4" "false:5")
+declare -a STDGENOME=("true:2" "true:3" "false:2" "false:3")
 
 declare -a ENVS=("0:basicRandom" "0:dynamicSimpleRandom" "0:basic;100:basicSimpleRandom;250:basicRandom" "0:ECECR" )
 
