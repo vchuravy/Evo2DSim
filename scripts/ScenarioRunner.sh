@@ -4,7 +4,7 @@ source "${DIR}/common.sh"
 
 POOL_SIZE=500
 GENERATIONS=500
-PROBABILITY=0.1
+PROBABILITY=0.05
 
 FILE="Evo2DSim_cluster.sh"
 
