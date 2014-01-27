@@ -29,6 +29,7 @@ import org.vastness.evo2dsim.core.agents.sbot.SBotController
 import org.vastness.evo2dsim.analyzer.App
 import org.vastness.evo2dsim.core.evolution.Evolution.Generation
 import org.vastness.evo2dsim.core.utils.InputHandler
+import org.vastness.evo2dsim.core.simulator.AgentID
 
 
 class MainWindow extends MainFrame with RenderManager {
@@ -83,6 +84,9 @@ class MainWindow extends MainFrame with RenderManager {
     contents += new MenuItem( Action("Agent View") {
       showAgentView()
     })
+    contents += new MenuItem( Action("Export Agent") {
+      exportAgent()
+    })
   }
   contents = new BorderPanel {
     import BorderPanel._
@@ -131,6 +135,25 @@ class MainWindow extends MainFrame with RenderManager {
       }
 
     }
+  }
+
+  def exportAgent() {
+    val agent = Dialog.showInput[Int](message = "Please choose Agent",
+      entries = e map { _.agents.map(_._1.id).toSeq } getOrElse Seq.empty[Int] , initial = 0) match {
+      case Some(a) => e flatMap { _.agentBySimpleID(a)}
+      case None => None
+    }
+    val dotFile = agent flatMap (_.controller.nn map(_.toDot))
+    val id = agent map (_.id)
+    (dotFile, id) match {
+      case (Some(content), Some(i)) => write(i, content, "dot")
+      case _ =>
+    }
+  }
+
+  private def write(id: AgentID, content: String, fileEnding: String): Unit = evalDir map { dir =>
+    val file = dir / s"${id.toString('-')}.$fileEnding"
+    file.write(content)
   }
 
   def toggleText() {
