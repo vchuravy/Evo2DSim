@@ -28,6 +28,21 @@ case class NeuronalNetwork(synapses: Set[Synapse], neurons: Set[Neuron]) extends
 
   def dataHeader = neurons.foldLeft(Seq.empty[String])(_ ++ _.dataHeader)
   def dataRow = neurons.foldLeft(Seq.empty[Any])(_ ++ _.dataRow)
+
+  def toDot: String = {
+    val header = "digraph NeuronalNetwork { \n"
+    val nodes = for(n <- neurons) yield {
+      s"${n.id} [label=\"${n.data}\"]; \n"
+    }
+    val connections = for(s <- synapses) yield {
+      val from = s.input.id
+      val to = s.output.id
+      s"$from -> $to [label= \"${s.weight}\"]; \n"
+    }
+    val end = " } \n"
+
+    header + nodes + connections + end
+  }
 }
 
 object NeuronalNetwork {
