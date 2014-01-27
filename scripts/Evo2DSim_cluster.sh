@@ -18,7 +18,7 @@ NAME="core"
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}")" && pwd )"
 source "${DIR}/common.sh"
-CMD=$(getCMD $NAME)
+CMD=$(getCMD ${NAME})
 cd $ROOT
 # -mem 4096 -g 500 -c "0:basic;50:basicSimpleRandom;200:basicRandom;400:dynamicSimpleRandom"
 # -t => timeStep default=50
