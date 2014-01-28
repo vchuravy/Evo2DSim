@@ -32,12 +32,12 @@ case class NeuronalNetwork(synapses: Set[Synapse], neurons: Set[Neuron]) extends
   def toDot: String = {
     val header = "digraph NeuronalNetwork { \n"
     val nodes = for(n <- neurons) yield {
-      s"${n.id} [label=\"${n.data}\"]; \n"
+      "%d [label=\"%s\"]; \n".format(n.id, n.data)
     }
     val connections = for(s <- synapses) yield {
       val from = s.input.id
       val to = s.output.id
-      s"$from -> $to [label= \"${s.weight}\"]; \n"
+      "%d -> %d [label=\"%f.2\"]; \n".format(from, to, s.weight)
     }
     val end = " } \n"
 
