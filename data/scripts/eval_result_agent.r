@@ -1,10 +1,10 @@
 #!/usr/bin/env Rscript
-# R-Script to plot the mean data of several csv scripts
-# first argument is tou output filename
+# R-script to extract the interesting activity data from a simulation run
 arguments <- commandArgs(trailingOnly=TRUE)
 fbase  <- arguments[1]
 
 outputDir <- paste0(fbase, "output")
+outputFile <- paste0(fbase, "SignalStrategy.csv")
 
 generations <- list.dirs(outputDir, recursive = FALSE, full.names = FALSE)
 
@@ -77,4 +77,4 @@ result <- lapply(generations, calcGA)
 result <- do.call(rbind, result)
 colnames(result) <- c("Generation", "Group", "SignalStrategy")
 result <- as.data.frame(result)
-write.table(result, file="SignalStrategy.csv", sep=", ", row.names=FALSE, quote = FALSE)
+write.table(result, file=outputFile, sep=", ", row.names=FALSE, quote = FALSE)
