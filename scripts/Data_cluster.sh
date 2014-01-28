@@ -25,3 +25,5 @@ CMD=$(getCMD $NAME)
 cd $ROOT
 
 $CMD -mem 4096 400 $1
+
+${ROOT}/data/scripts/eval_result_agent.r $1/
