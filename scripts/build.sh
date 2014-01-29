@@ -1,13 +1,25 @@
 #!/bin/bash
 
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}")" && pwd )"
-cd $DIR
+DIR="${HOME}/work/Evo2DSim/scripts"
 
-cd ..
+if [ ! -d ${DIR} ]; then
+  DIR="$( cd "$( dirname "${BASH_SOURCE[0]}")" && pwd )"
+fi
+
+source "${DIR}/common.sh"
+cd $ROOT
+
 git pull
 sbt clean compile
 rm core/target/scala-2.10/classes/org/vastness/evo2dsim/App*
-sbt compile stage 
+sbt compile stage
 
-cd core
-patch -p0 < java_version.patch
+# Patching files to run on cluster
+
+declare -a BINARIES=("core" "data")
+PATCHFILE="${ROOT}/patches/java_version.patch"
+
+for bin in ${BINARIES[@]}
+do
+patch $(getCMD $bin) $PATCHFILE
+done
