@@ -34,24 +34,33 @@ import org.vastness.evo2dsim.core.simulator.AgentID
 
 object App {
   def main(args : Array[String]): Unit = {
-    val startGeneration = try {
-      Some(args.head.toInt)
-    } catch {
-      case _ : java.lang.NumberFormatException => None
-    }
-    val f = startGeneration match {
-      case Some(i)  => createFuture(i, args.tail)
-      case None => createFuture(0, args)
-    }
+    val (from, to, files) = parse(args)
+    val f = createFuture(from, to, files)
     Await.ready(f, Duration.Inf)
   }
 
-  def createFuture(startGen: Int, args: Array[String]) = {
-    val f = Future sequence ( args map {
+  def parse(args: Array[String]) = {
+    var tail = args
+
+    def extractInt: Option[Int] = try {
+      val i = tail.head.toInt
+      tail = tail.tail
+      Some(i)
+    } catch {
+      case _ : java.lang.NumberFormatException => None
+    }
+
+    val start = extractInt
+    val end = extractInt
+    (start, end, tail)
+  }
+
+  def createFuture(from: Option[Int], to: Option[Int], files: Array[String]) = {
+    val f = Future sequence ( files map {
       s => future {
-        println(s)
-        val dir = Path.fromString(s)
-        if(dir.exists && dir.isDirectory) run(startGen, dir)
+        val dir = Path.fromString(s).toAbsolute
+        if(dir.exists && dir.isDirectory) run(from ,to, dir)
+        else println(s"Could not find $dir")
       }
     } ).toSeq
 
@@ -68,17 +77,28 @@ object App {
     f
   }
 
-  def run(startGen: Int, dir: Path): Unit = {
+  def run(from: Option[Int], to: Option[Int], dir: Path): Unit = {
     val in = new InputHandler(dir)
     val config = in.readEvolutionConfig match {
       case None => throw new Exception("Didn't find a config.")
       case Some(c) => c
     }
+
+    val endGen = to match {
+      case None => config.generations
+      case Some(end) => if(end <= config.generations) end else config.generations
+    }
+
+    val startGen = from match {
+      case None => 0
+      case Some(start) => if(start < endGen) start else 0
+    }
+
     if(config.recordingLevel.record(RecordLevel.Agents)) println("Output already created. Nothing to do here.")
     else {
       val recordingConfig = EvolutionConfig(
         config.timeStep,
-        config.generations,
+        endGen,
         config.evaluationSteps,
         config.evaluationsPerGeneration,
         config.poolSize,
@@ -96,7 +116,7 @@ object App {
 
     val blueTestConfig = EvolutionConfig(
       config.timeStep,
-      config.generations,
+      endGen,
       evaluationSteps = 10,
       config.evaluationsPerGeneration,
       config.poolSize,
@@ -133,7 +153,7 @@ object App {
 
     val redTestConfig = EvolutionConfig(
       config.timeStep,
-      config.generations,
+      endGen,
       evaluationSteps = 100,
       evaluationsPerGeneration = 10,
       config.poolSize,
