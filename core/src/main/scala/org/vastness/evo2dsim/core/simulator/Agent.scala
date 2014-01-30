@@ -43,6 +43,8 @@ abstract class Agent(val id: AgentID, pos: Vec2, vAngle: Float, val sim: Simulat
 
   def controller: Controller
 
+  def signalling: Boolean
+
   override def sprite = new CircleSprite(radius)(body.getPosition, color, text)
   override def position = body.getPosition
   def position_=(p: Vec2) = body.setTransform(p, 0) //Teleports agent.

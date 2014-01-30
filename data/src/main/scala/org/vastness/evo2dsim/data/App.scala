@@ -19,14 +19,11 @@ package org.vastness.evo2dsim.data
 
 import scalax.file.Path
 import scala.concurrent.{Await, Future, future}
-import org.vastness.evo2dsim.core.evolution.genomes.Genome
-import org.vastness.evo2dsim.core.environment.{Environment, EnvironmentBuilder}
-import org.vastness.evo2dsim.core.gui.EnvironmentManager
-import org.vastness.evo2dsim.core.data.{DirectRecorder, Recorder, RecordLevel}
+import org.vastness.evo2dsim.core.environment.Environment
+import org.vastness.evo2dsim.core.data.{DirectRecorder, RecordLevel}
 import scala.concurrent.ExecutionContext.Implicits.global
-import org.vastness.evo2dsim.core.utils.{OutputHandler, InputHandler}
+import org.vastness.evo2dsim.core.utils.{InputHandler}
 import org.vastness.evo2dsim.core.evolution.{EvolutionRunner, EvolutionConfig}
-import org.vastness.evo2dsim.core.evolution.Evolution.Generation
 import scala.concurrent.duration.Duration
 import org.jbox2d.common.Vec2
 import org.vastness.evo2dsim.core.environment.mixins.settings.BlueTestSettings
@@ -92,26 +89,6 @@ object App {
     val startGen = from match {
       case None => 0
       case Some(start) => if(start < endGen) start else 0
-    }
-
-    if(config.recordingLevel.record(RecordLevel.Agents)) println("Output already created. Nothing to do here.")
-    else {
-      val recordingConfig = EvolutionConfig(
-        config.timeStep,
-        endGen,
-        config.evaluationSteps,
-        config.evaluationsPerGeneration,
-        config.poolSize,
-        config.groupSize,
-        config.envConf,
-        evolutionAlgorithm = "", // Stuff breaks if you want to run evolution on this setting.
-        config.genomeName,
-        config.genomeSettings,
-        config.propability,
-        RecordLevel.Agents.id
-      )
-      def callback(env: Environment) = {}
-      runConfig(dir / "output", recordingConfig, startGen, in, callback)
     }
 
     val blueTestConfig = EvolutionConfig(
@@ -200,7 +177,7 @@ object App {
       val f = ( in.readGeneration(generation) map {
         genomes =>
           println(s"Loaded generation $generation")
-          EvolutionRunner.groupEvaluations[A](genomes, dir)(config.environment(generation))(config)(callback, wait = true)
+          EvolutionRunner.groupEvaluations[A](genomes, dir,generation)(config)(callback, wait = true)
       } ).getOrElse(future { Seq.empty })
       Await.ready(f, Duration.Inf) // Block so we don't run out of memory.
     }

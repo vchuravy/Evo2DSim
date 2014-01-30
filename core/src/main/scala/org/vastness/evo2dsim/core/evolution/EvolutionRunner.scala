@@ -31,7 +31,7 @@ import org.vastness.evo2dsim.core.evolution.genomes.{EvolutionManager, Genome}
 import org.vastness.evo2dsim.core.agents.sbot.SBotController
 import org.vastness.evo2dsim.core.evolution.Evolution.{Genomes, Generation}
 import org.vastness.evo2dsim.core.utils.OutputHandler
-import org.vastness.evo2dsim.core.data.{RecordLevel, Recorder, Recordable}
+import org.vastness.evo2dsim.core.data.{DirectRecorder, RecordLevel, Recorder, Recordable}
 import org.vastness.evo2dsim.core.simulator.AgentID
 
 class EvolutionRunner(c: EvolutionConfig) extends Recordable {
@@ -44,6 +44,8 @@ class EvolutionRunner(c: EvolutionConfig) extends Recordable {
   val envString = c.envSetup.sortBy(_._1.start).map(_._2.name).mkString("-")
   val dir = (Path("results") resolve s"${timeStamp}_${c.evolutionAlgorithm}_${envString}_${c.genomeName}_${c.propability}_${c.genomeSettings}").createDirectory()
   val output = new OutputHandler(dir, true)
+
+  val signalStrategy = new DirectRecorder(dir, "SignallingStrategy", Seq("Generation", "Group", "Iteration", "Strategy"))
 
   output.writeEvolutionConfig(c)
   println(s"Results are saved in: $dir")
@@ -73,13 +75,19 @@ class EvolutionRunner(c: EvolutionConfig) extends Recordable {
 
       EnvironmentManager.clean()
 
-      val envBuilder = c.environment(idx)
       assert(c.evaluationSteps > 0, "In Simulation mode evaluationSteps has to be bigger than zero.")
-      val fFitness =  EvolutionRunner.groupEvaluations(generation, dir / "output")(envBuilder)(c)(extractFitness)
+      val fResult =  EvolutionRunner.groupEvaluations(generation, dir / "output", idx)(c)(callback)
       val environmentSetupTime = System.nanoTime()
 
-      val fResult = fFitness map (_.flatten) map { values => evaluate(values, generation)}
-      val result = Await.result(fResult, Duration.Inf)
+      val fFitness = fResult map { r => r.flatMap(_._1) }
+      val fSignalStrategy = fResult map { r => r collect {case (_, (gen, g, i, Some(s))) => Seq(gen, g, i, s)}}
+
+      fSignalStrategy onSuccess {
+        case rows => signalStrategy.write(rows)
+      }
+
+      val fR = fFitness map { values => evaluate(values, generation)}
+      val result = Await.result(fR, Duration.Inf)
       val simulationFinishedTime = System.nanoTime()
 
       output.writeGeneration(idx, result)
@@ -111,9 +119,12 @@ class EvolutionRunner(c: EvolutionConfig) extends Recordable {
     generation
   }
 
-  private def extractFitness(env: Environment): Seq[(AgentID, Double)] = {
-    ( for((id, a) <- env.agents)
+  private def callback(env: Environment): (Seq[(AgentID, Double)], (Int, Int, Int, Option[Double])) = {
+    val f = ( for((id, a) <- env.agents)
       yield id -> a.fitness ).toSeq
+
+    val s = (env.generation, env.group, env.iteration, env.signallingStrategy)
+    (f, s)
   }
 
   private def evaluate(values: Seq[(AgentID, Double)], generation: Generation): Generation = {
@@ -162,8 +173,7 @@ class EvolutionRunner(c: EvolutionConfig) extends Recordable {
 
 object EvolutionRunner {
   def identityCallback(e: Environment) = e
-  def groupEvaluations[A](generation: Generation, dir: Path)
-                      (env: EnvironmentBuilder)
+  def groupEvaluations[A](generation: Generation, dir: Path, idx: Int)
                       (config: EvolutionConfig)
                       (callback: (Environment) => A, wait: Boolean = false): Future[Seq[A]] = {
     val groupsById = generation.groupBy{case (id, _) => id.group}
@@ -177,10 +187,17 @@ object EvolutionRunner {
       } else
         groupsById
 
+    val env = config.environment(idx)
+
     val fEnvs: Future[Seq[A]] = {
       val gF = ( for ((g, group) <- groups) yield {
         val eF = Future sequence ( for (i <- 0 until config.evaluationsPerGeneration) yield {
           val e = env(config.timeStep, config.evaluationSteps)
+
+          e.generation = idx
+          e.group = g
+          e.iteration = i
+
           e.initializeStatic()
           e.initializeAgents(group)
           EnvironmentManager.addEnvironment(e)

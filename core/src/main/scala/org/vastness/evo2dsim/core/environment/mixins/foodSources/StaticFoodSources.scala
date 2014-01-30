@@ -21,7 +21,11 @@ import org.vastness.evo2dsim.core.gui.Color
 import org.vastness.evo2dsim.core.simulator.food.StaticFoodSource
 
 trait StaticFoodSources extends FoodSources {
-  def foodSources = List(
-    new StaticFoodSource(color = Color.RED, max = 8, reward = 1, foodRadius, activationRange, smellRange),
-    new StaticFoodSource(color = Color.RED, max = 8, reward = -1, foodRadius, activationRange, smellRange))
+  private val food = new StaticFoodSource(color = Color.RED, max = 8, reward = 1, foodRadius, activationRange, smellRange)
+  private val poison =  new StaticFoodSource(color = Color.RED, max = 8, reward = -1, foodRadius, activationRange, smellRange)
+  def foodSources = List(food, poison)
+  override def signallingStrategy = {
+    val s = food.signalNear.toDouble / food.timeNear - poison.signalNear.toDouble / poison.timeNear // signal to time
+    Some(s / agents.size)
+  }
 }

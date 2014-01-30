@@ -38,6 +38,11 @@ abstract class Environment(val timeStep: Int, val steps: Int) {
   def halfSize: Float
   def spawnSize: Float
 
+  def signallingStrategy: Option[Double] = None
+  var generation: Int = 0
+  var group: Int = 0
+  var iteration = 0
+
   def newRandomPosition: Vec2 = {
     origin add new Vec2(randomFloat * spawnSize, randomFloat * spawnSize)
   }

@@ -35,6 +35,8 @@ class SBot(id: AgentID, pos: Vec2, angle: Float, sim: Simulator)
   override val controller = new SBotController
   controller.attachToAgent(this)
 
+  override def signalling = light.active
+
   override def color = light.color
 
   override def dataHeader = super.dataHeader ++ Seq("light")

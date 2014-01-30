@@ -25,4 +25,13 @@ class StaticFoodSource(color: Color,
                        radius: Float,
                        activationRange: Float,
                        smellRange: Float) extends FoodSource(color,max,radius, activationRange, smellRange) {
+
+  var timeNear: Int = 0
+  var signalNear: Int = 0
+
+  override def step() {
+    super.step()
+    timeNear += listeners.size
+    signalNear += listeners.count(_.signalling)
+  }
 }
