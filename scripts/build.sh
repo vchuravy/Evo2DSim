@@ -11,7 +11,7 @@ cd $ROOT
 
 git pull
 sbt clean compile
-rm core/target/scala-2.10/classes/org/vastness/evo2dsim/App*
+rm ${ROOT}/core/target/scala-2.10/classes/org/vastness/evo2dsim/App*
 sbt compile stage
 
 # Patching files to run on cluster
