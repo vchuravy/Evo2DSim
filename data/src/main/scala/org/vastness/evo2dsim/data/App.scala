@@ -31,56 +31,80 @@ import org.vastness.evo2dsim.core.simulator.AgentID
 
 object App {
   def main(args : Array[String]): Unit = {
-    val (from, to, files) = parse(args)
-    val f = createFuture(from, to, files)
-    Await.ready(f, Duration.Inf)
-  }
-
-  def parse(args: Array[String]) = {
-    var tail = args
-
-    def extractInt: Option[Int] = try {
-      val i = tail.head.toInt
-      tail = tail.tail
-      Some(i)
-    } catch {
-      case _ : java.lang.NumberFormatException => None
+    val parser = new scopt.OptionParser[DataConfig]("Evo2DSim-Data") {
+      cmd("blueTest")  action { (_,c) =>
+        c.copy(test = "blueTest") } text "Test affinity to blue light" children(
+          opt[Int]('f', "from") action { (x, c) =>
+            c.copy(from = Some(x)) } text "Generation to start from",
+          opt[Int]('t', "to")  action { (x, c) =>
+            c.copy(to = Some(x)) } text "Last Generation",
+          arg[String]("<file>...") required() unbounded() action { (x, c) =>
+            c.copy(files = c.files :+ x) } text "Directories to work on"
+      )
+      cmd("redTest") action { (_, c) =>
+        c.copy(test = "redTest") } text "Test information processing of red light" children(
+        opt[Int]('g', "generation") required() action { (x, c) =>
+          c.copy(from = Some(x)) } text "Generation",
+        opt[Int]('r', "group") required()  action { (x, c) =>
+          c.copy(to = Some(x)) } text "Group",
+        arg[String]("<file>...") required() maxOccurs 1  action { (x, c) =>
+          c.copy(files = c.files :+ x) } text "Directory to work on"
+      )
     }
-
-    val start = extractInt
-    val end = extractInt
-    (start, end, tail)
+    // parser.parse returns Option[C]
+    parser.parse(args, DataConfig()) map { config =>
+     val f =  config.test match {
+        case "blueTest" => blueTest(config)
+        case "redTest" => redTest(config)
+     }
+     Await.ready(f, Duration.Inf)
+     sys.exit()
+    } getOrElse {
+      sys.exit(1)
+    }
   }
 
-  def createFuture(from: Option[Int], to: Option[Int], files: Array[String]) = {
-    val f = Future sequence ( files map {
+  def redTest(c: DataConfig) : Future[Unit]  = ???
+
+  def blueTest(c: DataConfig) = {
+    val f = Future sequence ( c.files map {
       s => future {
         val dir = Path.fromString(s).toAbsolute
-        if(dir.exists && dir.isDirectory) run(from ,to, dir)
+        if(dir.exists && dir.isDirectory) runBlue(c.from ,c.to, dir)
         else println(s"Could not find $dir")
       }
     } ).toSeq
-
-    f onSuccess {
-      case result => sys.exit(0)
-    }
-
-    f onFailure {
-      case result =>
-        print(result)
-        sys.exit(1)
-    }
-
     f
   }
 
-  def run(from: Option[Int], to: Option[Int], dir: Path): Unit = {
+  def runRed(gen: Int, group: Int, dir: Path): Unit = {
     val in = new InputHandler(dir)
     val config = in.readEvolutionConfig match {
       case None => throw new Exception("Didn't find a config.")
       case Some(c) => c
     }
 
+    val redTestConfig = config.copy(
+      generations = gen,
+      evaluationSteps = 100,
+      evaluationsPerGeneration = 10,
+      groupSize = 1,
+      envConf = "0:RedTest",
+      evolutionAlgorithm = "", // Stuff breaks if you want to run evolution on this setting.
+      rLevel = RecordLevel.Everything.id
+    )
+
+    def redCallback(env: Environment) = {}
+    runConfig(dir / "redTest", redTestConfig, gen, in, redCallback)
+  }
+
+  def runBlue(from: Option[Int], to: Option[Int], dir: Path): Unit = {
+    val in = new InputHandler(dir)
+    val config = in.readEvolutionConfig match {
+      case None => throw new Exception("Didn't find a config.")
+      case Some(c) => c
+    }
+    
     val endGen = to match {
       case None => config.generations
       case Some(end) => if(end <= config.generations) end else config.generations
@@ -91,19 +115,13 @@ object App {
       case Some(start) => if(start < endGen) start else 0
     }
 
-    val blueTestConfig = EvolutionConfig(
-      config.timeStep,
-      endGen,
+    val blueTestConfig = config.copy(
+      generations = endGen,
       evaluationSteps = 10,
-      config.evaluationsPerGeneration,
-      config.poolSize,
       groupSize = 1,
       envConf = "0:BlueTest",
       evolutionAlgorithm = "", // Stuff breaks if you want to run evolution on this setting.
-      config.genomeName,
-      config.genomeSettings,
-      config.propability,
-      RecordLevel.Nothing.id
+      rLevel = RecordLevel.Nothing.id
     )
 
     def blueCallback(env: Environment): (AgentID, Float) = env match {
@@ -131,26 +149,6 @@ object App {
 
     val blueOutput = new DirectRecorder(dir, "blueTest", Seq("Generation", "Group", "BlueTest"))
     blueOutput.write(gResults map(d => Seq(d._1, d._2, d._3)))
-
-
-    val redTestConfig = EvolutionConfig(
-      config.timeStep,
-      endGen,
-      evaluationSteps = 100,
-      evaluationsPerGeneration = 10,
-      config.poolSize,
-      groupSize = 1,
-      envConf = "0:RedTest",
-      evolutionAlgorithm = "", // Stuff breaks if you want to run evolution on this setting.
-      config.genomeName,
-      config.genomeSettings,
-      config.propability,
-      RecordLevel.Everything.id
-    )
-
-    def redCallback(env: Environment) = {}
-    runConfig(dir / "redTest", redTestConfig, startGen, in, redCallback)
-
   }
 
   private def delta(origin: Vec2)(pos: Vec2) : Float = {
@@ -171,7 +169,25 @@ object App {
                    config: EvolutionConfig,
                    startGeneration: Int = 0,
                    in: InputHandler,
-                   callback: (Environment) => A ): Future[Seq[A]] = {
+                   callback: (Environment) => A): Future[Seq[A]] = {
+    if(dir.nonExistent) dir.createDirectory()
+    val fs = for{generation <- startGeneration until config.generations} yield {
+      val f = ( in.readGeneration(generation) map {
+        genomes =>
+          println(s"Loaded generation $generation")
+          EvolutionRunner.groupEvaluations[A](genomes, dir,generation)(config)(callback, wait = true)
+      } ).getOrElse(future { Seq.empty })
+      Await.ready(f, Duration.Inf) // Block so we don't run out of memory.
+    }
+    val f = Future sequence fs
+    f map (_.flatten)
+  }
+
+  def runConfigOnGroup[A](dir: Path,
+                   config: EvolutionConfig,
+                   startGeneration: Int = 0,
+                   in: InputHandler,
+                   callback: (Environment) => A): Future[Seq[A]] = {
     if(dir.nonExistent) dir.createDirectory()
     val fs = for{generation <- startGeneration until config.generations} yield {
       val f = ( in.readGeneration(generation) map {
@@ -185,3 +201,5 @@ object App {
     f map (_.flatten)
   }
 }
+
+case class DataConfig(test: String = "", from: Option[Int] = None, to: Option[Int] = None, files: Seq[String] = Seq.empty)

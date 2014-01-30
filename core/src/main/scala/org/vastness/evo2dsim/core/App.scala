@@ -24,7 +24,7 @@ import org.vastness.evo2dsim.core.evolution.{EvolutionConfig, EvolutionRunner}
  */
 object App {
   def main(args : Array[String]) {
-    val parser = new scopt.OptionParser[EvolutionConfig]("scopt") {
+    val parser = new scopt.OptionParser[EvolutionConfig]("Evo2DSim-Core") {
       head("Evo2DSim is a simple simulator for evolutionary environment.")
       opt[Int]('t', "timeStep") action { (x, c) =>
         c.copy(timeStep = x) } text "Time step in ms"

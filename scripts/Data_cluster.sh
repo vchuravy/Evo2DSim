@@ -24,4 +24,4 @@ source "${DIR}/common.sh"
 CMD=$(getCMD $NAME)
 cd $ROOT
 
-$CMD -mem 4096 $1 $2 $3
+$CMD -mem 4096 blueTest --from $1 --to $2 $3
