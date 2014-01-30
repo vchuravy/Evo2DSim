@@ -134,7 +134,11 @@ object App {
             val d = delta(e.origin) _
             if(e.agents.size != 1) throw new Exception("Only one Agent is supported!")
             val a = e.agents.head
-            (a._1, norm(d(e.agent_pos(a._1)) - d(a._2.position)))
+            val distStart = d(e.agent_pos(a._1))
+            val distEnd = d(a._2.position)
+            val difference = distStart - distEnd // Increase in distance negative, Reduced distance positive
+            val result = Math.signum(difference)
+            (a._1, result)
       }
 
     val blue = runConfig(dir / "blueTest", blueTestConfig, startGen, in, blueCallback)
@@ -143,7 +147,8 @@ object App {
     val gResults = ( results groupBy(_._1.generation) map {
       case (generation, t1) => t1 groupBy(_._1.group) map {
         case (group, t2) =>
-          (generation, group, t2.map(_._2).sum / t2.length)
+          val sum = t2.map(_._2).sum
+          (generation, group, sum / t2.length)
       }
     } ).flatten.toSeq
 
@@ -173,10 +178,6 @@ object App {
 
   private def delta(origin: Vec2)(pos: Vec2) : Float = {
     (pos sub origin).length()
-  }
-
-  private def norm(f: Float): Float = {
-    if(f == 0f) 0 else if(f < 0f) -1 else 1
   }
 
   /**
