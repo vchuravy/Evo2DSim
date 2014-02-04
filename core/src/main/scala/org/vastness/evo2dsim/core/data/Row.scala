@@ -17,9 +17,15 @@
 
 package org.vastness.evo2dsim.core.data
 
-import org.vastness.evo2dsim.core.data.Record.Record
+trait Row extends Product {
+  def toSeq = {
+    val data = this.productIterator
+    data.map(_.toString).toSeq
+  }
 
-trait Recordable {
-  def dataHeader: Seq[String]
-  def dataRow: Record
+  override def toString = this.toSeq.mkString(", ")
+}
+
+object Row {
+  case class Empty() extends Row
 }

@@ -20,6 +20,8 @@ package org.vastness.evo2dsim.core.simulator
 import org.vastness.evo2dsim.core.neuro._
 import org.vastness.evo2dsim.core.evolution.genomes._
 import org.vastness.evo2dsim.core.data.Recordable
+import org.vastness.evo2dsim.core.data.Record.Record
+import org.vastness.evo2dsim.core.data.Record
 
 abstract class Controller extends Recordable {
   var nn: Option[NeuronalNetwork] = None
@@ -52,5 +54,5 @@ abstract class Controller extends Recordable {
   def motorStep(): Unit
 
   def dataHeader: Seq[String] = nn map {_.dataHeader} getOrElse Seq.empty
-  def dataRow: Seq[Any] = nn map {_.dataRow} getOrElse Seq.empty
+  def dataRow: Record = nn map {_.dataRow} getOrElse Record.empty
 }

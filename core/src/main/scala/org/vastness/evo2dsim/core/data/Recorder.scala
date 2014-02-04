@@ -18,17 +18,18 @@
 package org.vastness.evo2dsim.core.data
 
 import scalax.file.Path
+import org.vastness.evo2dsim.core.data.Record.Record
 
 trait Recorder {
   def dir: Path
   def name: String
   def dataHeader: Seq[String]
-  def dataRow: () => Seq[Any]
+  def dataRecord: () => Record
 
   def step(): Unit
-  def write(data: Traversable[Seq[Any]]): Unit
+  def write(data: Seq[Record]): Unit
 
-  protected def seqToString(row: Seq[Any]) = if(row.isEmpty) "" else row.tail.foldLeft[String](row.head.toString)(_ + ", " + _)
+  protected def headerToString(row: Seq[String]) = row.mkString(", ")
 }
 
 object Recorder {

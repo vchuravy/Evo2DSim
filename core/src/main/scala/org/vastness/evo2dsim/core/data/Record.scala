@@ -17,9 +17,23 @@
 
 package org.vastness.evo2dsim.core.data
 
-import org.vastness.evo2dsim.core.data.Record.Record
+object Record {
+  type Record = Either[Row, Seq[String]]
 
-trait Recordable {
-  def dataHeader: Seq[String]
-  def dataRow: Record
+  def empty: Record = Record(Seq.empty)
+  def apply(s: Seq[String]): Record = Right(s)
+  def apply(r: Row): Record = Left(r)
+
+  def add(r1: Record, r2: Record) = Record(recordToSeq(r1) ++ recordToSeq(r2))
+  def append(r: Record, s: Seq[String]) = Record(recordToSeq(r) ++ s)
+
+  def recordToSeq(r: Record): Seq[String] = r match {
+    case Right(s) => s
+    case Left(row) => row.toSeq
+  }
+
+  def recordToString(r: Record) =  r match {
+    case Right(s) => s.mkString(", ")
+    case Left(rec) => rec.toString
+  }
 }

@@ -19,7 +19,7 @@ package org.vastness.evo2dsim.core.neuro
 
 import org.vastness.evo2dsim.core.evolution.genomes.NodeTag
 import spire.syntax.cfor._
-import org.vastness.evo2dsim.core.data.Recordable
+import org.vastness.evo2dsim.core.data._, Record._
 
 trait Neuron extends Product with Serializable with Recordable{
   def id: Int
@@ -29,7 +29,7 @@ trait Neuron extends Product with Serializable with Recordable{
   def tag: NodeTag
   def data: String
 
-  private var activity: NumberT = zero
+  protected var activity: NumberT = zero
   def output: NumberT = t_func(activity)
 
   protected def calcActivity: NumberT = sumInputs(inputSynapses) + bias
@@ -49,7 +49,9 @@ trait Neuron extends Product with Serializable with Recordable{
 
   override def toString = id.toString
   override def dataHeader = Seq(h("activity"), h("output"))
-  override def dataRow = Seq(activity, output)
+  override def dataRow = Record(NeuronRow(activity, output))
 
   protected def h(s: String) = s"${data}_$s"
 }
+
+case class NeuronRow(activity: NumberT, output: NumberT) extends Row

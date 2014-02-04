@@ -21,7 +21,9 @@ import org.jbox2d.common.Vec2
 import org.jbox2d.dynamics.{Body, BodyType, BodyDef}
 import org.jbox2d.collision.shapes.CircleShape
 import org.vastness.evo2dsim.core.gui.{Color, CircleSprite}
-import org.vastness.evo2dsim.core.data.Recordable
+import org.vastness.evo2dsim.core.data.{Record, Row, Recordable}
+import org.vastness.evo2dsim.core.data.Record.Record
+import org.vastness.evo2dsim.core.data.Record.Record
 
 abstract class Agent(val id: AgentID, pos: Vec2, vAngle: Float, val sim: Simulator, val radius: Float, mass: Float) extends Entity with Recordable{
   //Defines BodyDef
@@ -79,5 +81,7 @@ abstract class Agent(val id: AgentID, pos: Vec2, vAngle: Float, val sim: Simulat
   }
 
   def dataHeader: Seq[String] = Seq("posX", "posY", "angle", "fitness", "currentReward")
-  def dataRow: Seq[Any] = Seq(position.x, position.y, angle, fitness, currentReward)
+  def dataRow: Record = Record(AgentR(position.x, position.y, angle, fitness, currentReward))
+
+  case class AgentR(x: Float, y: Float, angle: Float, fitness: Double, currentReward: Double) extends Row
 }

@@ -18,6 +18,7 @@
 package org.vastness.evo2dsim.core.neuro
 
 import org.vastness.evo2dsim.core.evolution.genomes.{Node, NodeTag}
+import org.vastness.evo2dsim.core.data._, Record._
 
 case class SensorNeuron(id: Int, bias: NumberT, t_func: TransferFunction, data: String)(var s_func: () => NumberT = () => zero) extends Neuron {
   val tag = NodeTag.Sensor
@@ -36,7 +37,7 @@ case class SensorNeuron(id: Int, bias: NumberT, t_func: TransferFunction, data: 
   }
 
   override def dataHeader = super.dataHeader ++ Seq(h("input"))
-  override def dataRow = super.dataRow ++ Seq(lastSensoryInput)
+  override def dataRow =  append(super.dataRow, Seq(lastSensoryInput.toString))
 }
 
 object SensorNeuron {

@@ -26,12 +26,12 @@ import java.util.Calendar
 import scalax.file._
 
 import org.vastness.evo2dsim.core.gui.EnvironmentManager
-import org.vastness.evo2dsim.core.environment.{EnvironmentBuilder, Environment}
-import org.vastness.evo2dsim.core.evolution.genomes.{EvolutionManager, Genome}
+import org.vastness.evo2dsim.core.environment.Environment
+import org.vastness.evo2dsim.core.evolution.genomes.EvolutionManager
 import org.vastness.evo2dsim.core.agents.sbot.SBotController
 import org.vastness.evo2dsim.core.evolution.Evolution.{Genomes, Generation}
 import org.vastness.evo2dsim.core.utils.OutputHandler
-import org.vastness.evo2dsim.core.data.{DirectRecorder, RecordLevel, Recorder, Recordable}
+import org.vastness.evo2dsim.core.data._, Record._
 import org.vastness.evo2dsim.core.simulator.AgentID
 
 class EvolutionRunner(c: EvolutionConfig) extends Recordable {
@@ -51,16 +51,18 @@ class EvolutionRunner(c: EvolutionConfig) extends Recordable {
   println(s"Results are saved in: $dir")
 
   override def dataHeader = Seq("Generation", "Max", "Min", "Mean", "Variance", "GroupMax", "GroupMin", "GroupMean", "GroupVariance")
-  private var _dataRow = Seq.empty[Any]
+  private var _dataRow = Record.empty
   override def dataRow = _dataRow
 
   object Timer extends Recordable{
-    private var _dataRow = Seq.empty[Any]
-    def dataRow_=(d: Seq[Any]){
+    private var _dataRow = Record.empty
+    def dataRow_=(d: Record){
       _dataRow = d
     }
     override def dataRow = _dataRow
     override def dataHeader = Seq("Generation", "Total", "Sim", "Setup", "NextGen")
+
+    case class TRow(idx: Int, total: Long, sim: Long, setup: Long, nextGen: Long) extends Row
   }
 
   private def run(startGeneration: Generation): Generation = {
@@ -80,10 +82,10 @@ class EvolutionRunner(c: EvolutionConfig) extends Recordable {
       val environmentSetupTime = System.nanoTime()
 
       val fFitness = fResult map { r => r.flatMap(_._1) }
-      val fSignalStrategy = fResult map { r => r collect {case (_, (gen, g, i, Some(s))) => Seq(gen, g, i, s)}}
+      val fSignalStrategy = fResult map { r => r collect {case (_, (gen, g, i, Some(s))) => SigS(gen, g, i, s)}}
 
       fSignalStrategy onSuccess {
-        case rows => signalStrategy.write(rows)
+        case rows => signalStrategy.write(rows.map(Record.apply))
       }
 
       val fR = fFitness map { values => evaluate(values, generation)}
@@ -111,7 +113,7 @@ class EvolutionRunner(c: EvolutionConfig) extends Recordable {
       val timeNextGenSpent = timeSpent(simulationFinishedTime, generationFinishedTime)
 
       println(s"Generation $idx done")
-      Timer.dataRow = Seq(idx, timeTotalSpent, timeSimSpent, timeSetupSpent, timeNextGenSpent)
+      Timer.dataRow = Record(Timer.TRow(idx, timeTotalSpent, timeSimSpent, timeSetupSpent, timeNextGenSpent))
       outputTimer.step()
       if(idx < c.generations) println("Starting next generation.")
       else println("We are done here :)")
@@ -154,7 +156,7 @@ class EvolutionRunner(c: EvolutionConfig) extends Recordable {
     sys.exit()
   }
 
-  def collectStats(generation: Int, results: Seq[Double]): Seq[Any] = {
+  def collectStats(generation: Int, results: Seq[Double]): Record = {
     val max = results.max
     val min = results.min
     val mean = results.sum / results.size
@@ -167,7 +169,7 @@ class EvolutionRunner(c: EvolutionConfig) extends Recordable {
       else (groups.max, groups.min, groups.sum / groups.size)
 
     val gVar = if (groups.isEmpty) 0.0 else groups.foldLeft(0.0) {(acc, x) => acc + math.pow(x - gMean,2)} / groups.size
-    Seq(generation, max, min, mean, variance, gMax, gMin, gMean, gVar)
+    Record(SRow(generation, max, min, mean, variance, gMax, gMin, gMean, gVar))
   }
 }
 
@@ -217,3 +219,7 @@ object EvolutionRunner {
     fEnvs
   }
 }
+
+case class SigS(idx: Int, group: Int, iter: Int, strategy: Double) extends Row
+case class SRow(idx: Int, max: Double, min: Double, mean: Double, variance: Double, gMax: Double, gMin: Double, gMean: Double, gVar: Double) extends Row
+

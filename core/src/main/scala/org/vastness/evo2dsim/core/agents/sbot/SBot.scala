@@ -21,6 +21,7 @@ import org.jbox2d.common.Vec2
 import org.vastness.evo2dsim.core.simulator.{AgentID, Simulator, Agent}
 import org.vastness.evo2dsim.core.simulator.light.{LightCategory, LightSource}
 import org.vastness.evo2dsim.core.gui.Color
+import org.vastness.evo2dsim.core.data.Record
 
 /**
  * Implements an S-Bot agent similar to the enki simulator.
@@ -40,5 +41,5 @@ class SBot(id: AgentID, pos: Vec2, angle: Float, sim: Simulator)
   override def color = light.color
 
   override def dataHeader = super.dataHeader ++ Seq("light")
-  override def dataRow = super.dataRow ++ Seq(light.active)
+  override def dataRow = Record.append(super.dataRow, Seq(light.active.toString))
 }

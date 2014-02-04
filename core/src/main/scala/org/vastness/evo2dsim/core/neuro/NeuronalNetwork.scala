@@ -18,7 +18,7 @@
 package org.vastness.evo2dsim.core.neuro
 
 import org.vastness.evo2dsim.core.evolution.genomes.{NodeTag, Node, Genome}
-import org.vastness.evo2dsim.core.data.Recordable
+import org.vastness.evo2dsim.core.data.{Recordable, Record}
 
 case class NeuronalNetwork(synapses: Set[Synapse], neurons: Set[Neuron]) extends Recordable {
   def step() { //Order matters
@@ -27,7 +27,7 @@ case class NeuronalNetwork(synapses: Set[Synapse], neurons: Set[Neuron]) extends
   }
 
   def dataHeader = neurons.foldLeft(Seq.empty[String])(_ ++ _.dataHeader)
-  def dataRow = neurons.foldLeft(Seq.empty[Any])(_ ++ _.dataRow)
+  def dataRow = neurons.foldLeft(Record.empty)((acc, obj) => Record.add(acc, obj.dataRow))
 
   def toDot: String = {
     val header = "digraph NeuronalNetwork { \n"

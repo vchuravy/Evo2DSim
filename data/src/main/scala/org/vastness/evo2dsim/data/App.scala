@@ -20,7 +20,7 @@ package org.vastness.evo2dsim.data
 import scalax.file.Path
 import scala.concurrent.{Await, Future, future}
 import org.vastness.evo2dsim.core.environment.Environment
-import org.vastness.evo2dsim.core.data.{DirectRecorder, RecordLevel}
+import org.vastness.evo2dsim.core.data.{Row, Record, DirectRecorder, RecordLevel}
 import scala.concurrent.ExecutionContext.Implicits.global
 import org.vastness.evo2dsim.core.utils.{InputHandler}
 import org.vastness.evo2dsim.core.evolution.{EvolutionRunner, EvolutionConfig}
@@ -139,16 +139,17 @@ object App {
     val blue = runConfig(dir / "blueTest", blueTestConfig, startGen, in, blueCallback)
     val results = Await.result(blue, Duration.Inf)
 
+    case class BlueRow(generation: Int, group: Int, result: Float) extends Row
     val gResults = ( results groupBy(_._1.generation) map {
       case (generation, t1) => t1 groupBy(_._1.group) map {
         case (group, t2) =>
           val sum = t2.map(_._2).sum
-          (generation, group, sum / t2.length)
+          Record(BlueRow(generation, group, sum / t2.length))
       }
     } ).flatten.toSeq
 
     val blueOutput = new DirectRecorder(dir, "blueTest", Seq("Generation", "Group", "BlueTest"))
-    blueOutput.write(gResults map(d => Seq(d._1, d._2, d._3)))
+    blueOutput.write(gResults)
   }
 
   private def delta(origin: Vec2)(pos: Vec2) : Float = {
