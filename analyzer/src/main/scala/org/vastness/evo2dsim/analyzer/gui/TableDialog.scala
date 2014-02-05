@@ -35,11 +35,14 @@
 package org.vastness.evo2dsim.analyzer.gui
 
 import scala.swing._
+import java.awt.event.{MouseEvent, MouseAdapter}
 
 class TableDialog(owner: Window, val table: Table) extends Dialog(owner) {
   private var result = Dialog.Result.Closed
 
   setLocationRelativeTo(owner)
+
+  table.peer.setAutoCreateRowSorter(true)
 
   val ok = new Button(Action("Ok") {
     result = Dialog.Result.Ok
@@ -78,5 +81,15 @@ class TableDialog(owner: Window, val table: Table) extends Dialog(owner) {
     val selected = table.selection.rows
     // if (selected.tail.nonEmpty) println("Warning: Discarded values from selection")
     selected.headOption.getOrElse(0)
+  }
+}
+
+object TableDialog {
+  protected[analyzer] def sortAfterColumnNumeric(column: Int)(a1: Array[String], a2: Array[String]): Boolean = {
+    require(a1.size > column && a2.size > column, s"Both arrays need to have a $column column")
+    def parse(s: String) = java.lang.Double.parseDouble(s)
+    val e1 = parse(a1(column))
+    val e2 = parse(a2(column))
+    e1.compareTo(e2) < 0
   }
 }
