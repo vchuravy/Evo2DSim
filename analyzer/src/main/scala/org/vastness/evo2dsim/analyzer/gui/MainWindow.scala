@@ -185,8 +185,16 @@ class MainWindow extends MainFrame with RenderManager {
     val in = statsFile.inputStream()
     val csv: Traversable[Array[String]] = in.lines().map (_ split ',')
     val columnNames = csv.head.toIndexedSeq
-    val columns = csv.tail.toArray.sortBy(_(3)).reverse
+    val columns = csv.tail.toArray.sortWith(sortAfterColumnNumeric(3)).reverse
     (columnNames, columns)
+  }
+
+  protected def sortAfterColumnNumeric(column: Int)(a1: Array[String], a2: Array[String]): Boolean = {
+    require(a1.size > column && a2.size > column, s"Both arrays need to have a $column column")
+    def parse(s: String) = java.lang.Double.parseDouble(s)
+    val e1 = parse(a1(column))
+    val e2 = parse(a2(column))
+    e1.compareTo(e2) < 0
   }
 
   def showStats(dir: Path): Int = {
