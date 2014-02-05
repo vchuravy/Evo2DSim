@@ -15,17 +15,28 @@
  * along with Evo2DSim.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.vastness.evo2dsim.core.environment.mixins.foodSources
+package org.vastness.evo2dsim.core.simulator.food
 
 import org.vastness.evo2dsim.core.gui.Color
-import org.vastness.evo2dsim.core.simulator.food.StaticFoodSource
 
-trait StaticFoodSources extends FoodSources {
-  protected val food = new StaticFoodSource(color = Color.RED, max = 8, reward = 1, foodRadius, activationRange, smellRange)
-  protected val poison =  new StaticFoodSource(color = Color.RED, max = 8, reward = -1, foodRadius, activationRange, smellRange)
-  def foodSources = List(food, poison)
-  override def signallingStrategy = {
-    val s = food.signalNear.toDouble / food.timeNear - poison.signalNear.toDouble / poison.timeNear // signal to time
-    Some(s / agents.size)
+class BlinkingStaticFoodSource(color: Color,
+                               max: Int,
+                               reward: Double,
+                               radius: Float,
+                               activationRange: Float,
+                               smellRange: Float,
+                               blinkingRate: Int) extends StaticFoodSource(color, max, reward, radius, activationRange, smellRange) {
+
+  require(blinkingRate > 0)
+
+  private var counter = 0
+  override def step() {
+    super.step()
+    counter += 1
+
+    if(counter % blinkingRate == 0) {
+      light map (_.switch())
+    }
   }
+
 }

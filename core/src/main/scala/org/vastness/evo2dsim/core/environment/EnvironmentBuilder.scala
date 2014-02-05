@@ -52,6 +52,11 @@ object EnvironmentBuilder extends Enum[EnvironmentBuilder] {
     def apply(t: Int, s:Int) = new DefaultStatic(t, s) with RandomFoodPos
   }
 
+  case object BasicRandomBlinking extends EnvironmentBuilder {
+    val name = "basicRandomBlinking"
+    def apply(t: Int, s: Int) = new Default(t, s) with BlinkingStaticFoodSources with RandomFoodPos
+  }
+
   case object Dynamic extends EnvironmentBuilder {
     val name = "dynamic"
     def apply(t: Int, s: Int) = new DefaultDynamic(t,s)  with SimpleFoodPos

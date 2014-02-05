@@ -17,15 +17,11 @@
 
 package org.vastness.evo2dsim.core.environment.mixins.foodSources
 
+import org.vastness.evo2dsim.core.simulator.food.{BlinkingStaticFoodSource, StaticFoodSource}
 import org.vastness.evo2dsim.core.gui.Color
-import org.vastness.evo2dsim.core.simulator.food.StaticFoodSource
 
-trait StaticFoodSources extends FoodSources {
-  protected val food = new StaticFoodSource(color = Color.RED, max = 8, reward = 1, foodRadius, activationRange, smellRange)
-  protected val poison =  new StaticFoodSource(color = Color.RED, max = 8, reward = -1, foodRadius, activationRange, smellRange)
-  def foodSources = List(food, poison)
-  override def signallingStrategy = {
-    val s = food.signalNear.toDouble / food.timeNear - poison.signalNear.toDouble / poison.timeNear // signal to time
-    Some(s / agents.size)
-  }
+trait BlinkingStaticFoodSources extends StaticFoodSources {
+  def blinkingRate = 20
+  protected override val food = new BlinkingStaticFoodSource(color = Color.RED, max = 8, reward = 1, foodRadius, activationRange, smellRange, blinkingRate)
+  protected override val poison =  new BlinkingStaticFoodSource(color = Color.RED, max = 8, reward = -1, foodRadius, activationRange, smellRange, blinkingRate)
 }
