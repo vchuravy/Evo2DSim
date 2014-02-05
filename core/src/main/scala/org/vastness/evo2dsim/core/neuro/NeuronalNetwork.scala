@@ -30,16 +30,27 @@ case class NeuronalNetwork(synapses: Set[Synapse], neurons: Set[Neuron]) extends
   def dataRow = neurons.foldLeft(Record.empty)((acc, obj) => Record.add(acc, obj.dataRow))
 
   def toDot: String = {
-    val header = Seq("digraph NeuronalNetwork {")
+    def layout(n: Neuron): String = n.tag match {
+      case NodeTag.Motor => "shape=\"doublecircle\""
+      case NodeTag.Sensor => "shape=\"doublecircle\""
+      case NodeTag.Hidden => "shape=\"circle\""
+    }
+    val header = Seq("digraph NeuronalNetwork {", "\t ranksep=1.5;")
     val nodes = for(n <- neurons.toSeq) yield {
-      "\t %d [label=\"%s\"];".format(n.id, n.data)
+      "\t %d [label=\"%s\", %s];".format(n.id, n.data, layout(n))
     }
     val connections = for(s <- synapses.toSeq) yield {
       val from = s.input.id
       val to = s.output.id
       "\t %d -> %d [label=\"%f.2\"];".format(from, to, s.weight)
     }
-    val end = Seq(" }")
+
+    def extractIds(tag: NodeTag): String = neurons.filter(_.tag == tag).map(_.id).mkString(" ")
+    val source: String = s"\t {rank=source; ${extractIds(NodeTag.Sensor)};}"
+    val hidden: String = s"\t {rank=same; ${extractIds(NodeTag.Hidden)};}"
+    val sink: String   = s"\t {rank=sink; ${extractIds(NodeTag.Motor)};}"
+
+    val end = Seq(source, hidden, sink, " }")
 
     (header ++ nodes ++ connections ++ end).mkString("\n")
   }
