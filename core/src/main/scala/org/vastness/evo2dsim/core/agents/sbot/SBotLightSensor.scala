@@ -152,7 +152,7 @@ class SBotLightSensor(segments: Int, bias: Double) extends LinearMapping {
     @inline def fillStripT(c: Color) = fillStrip(visionStripT(c)) _
 
     for(light: LightSource <- sBot.sim.lightManager.lightSources){
-      if (light.active && sBot.light != light && light.radius > 0){
+      if (light.active && sBot.light != light && light.radius > 0 && visionStrip.isDefinedAt(light.color)){
         val radius = light.radius
         val lightPosition = sBot.body.getLocalPoint(light.position)
         val distance = lightPosition.normalize() - radius // Subtract the light radius, because the SBots have the light strip around their body
