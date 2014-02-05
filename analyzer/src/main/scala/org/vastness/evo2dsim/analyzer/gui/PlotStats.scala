@@ -23,6 +23,8 @@ import scala.concurrent._
 import ExecutionContext.Implicits.global
 import scala.util.{Failure, Success}
 import java.net.URL
+import java.io.File
+import org.apache.commons.io.FileUtils
 
 
 class PlotStats(val base: Path){
@@ -30,16 +32,13 @@ class PlotStats(val base: Path){
   var stats: ImagePanel = new ImagePanel
 
   val gplFile = base resolve "Evo2DSim.gpl"
-  loadGPLFile()
+  if(gplFile.nonExistent) loadGPLFile()
 
   private def loadGPLFile() {
-    val resource = getClass.getClassLoader.getResource("Evo2DSim.gpl") match {
-      case null => None
-      case u: URL => Path(u.toURI)
-    }
-    resource match {
-      case Some(path) => path.copyTo(gplFile, replaceExisting = true)
-      case None => println("Could not resolve resource")
+    val dest: File = new File(gplFile.path);
+    getClass.getClassLoader.getResource("Evo2DSim.gpl") match {
+      case null => println("Could not resolve resource")
+      case url: URL => FileUtils.copyURLToFile(url, dest)
     }
   }
 
