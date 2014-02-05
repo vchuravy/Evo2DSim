@@ -44,8 +44,8 @@ class STDEvolutionManager( val probability: Double,
 
     val inputNodes = nodes.filter(_.tag == NodeTag.Sensor)
     val outputNodes = nodes.filter(_.tag == NodeTag.Motor)
-    val hiddenNodes = ( for(i <- 1 until numberOfHiddenNeurons) yield {
-      STDNode(NodeTag.Hidden, id + i, random, standardTransferFunction, s"Hidden${id + i}")
+    val hiddenNodes = ( for(i <- 1 to numberOfHiddenNeurons) yield {
+      STDNode(NodeTag.Hidden, id + i, random, standardTransferFunction, s"Hidden$i")
     } ).toSet
     val directConnections =
       connect(inputNodes, hiddenNodes) ++ connect(hiddenNodes, outputNodes)
