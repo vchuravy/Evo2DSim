@@ -30,18 +30,18 @@ case class NeuronalNetwork(synapses: Set[Synapse], neurons: Set[Neuron]) extends
   def dataRow = neurons.foldLeft(Record.empty)((acc, obj) => Record.add(acc, obj.dataRow))
 
   def toDot: String = {
-    val header = "digraph NeuronalNetwork { \n"
-    val nodes = for(n <- neurons) yield {
-      "%d [label=\"%s\"]; \n".format(n.id, n.data)
+    val header = Seq("digraph NeuronalNetwork {")
+    val nodes = for(n <- neurons.toSeq) yield {
+      "\t %d [label=\"%s\"];".format(n.id, n.data)
     }
-    val connections = for(s <- synapses) yield {
+    val connections = for(s <- synapses.toSeq) yield {
       val from = s.input.id
       val to = s.output.id
-      "%d -> %d [label=\"%f.2\"]; \n".format(from, to, s.weight)
+      "\t %d -> %d [label=\"%f.2\"];".format(from, to, s.weight)
     }
-    val end = " } \n"
+    val end = Seq(" }")
 
-    header + nodes + connections + end
+    (header ++ nodes ++ connections ++ end).mkString("\n")
   }
 }
 
