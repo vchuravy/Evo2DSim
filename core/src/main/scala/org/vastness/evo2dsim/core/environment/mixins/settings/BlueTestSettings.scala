@@ -42,7 +42,7 @@ trait BlueTestSettings extends DefaultSettings {
 
   override def initializeAgents(genomes: Generation) = {
     super.initializeAgents(genomes)
-    agent_pos = agents map { case (id, a) => id -> a.position}
+    agent_pos = agents map { case (id, a) => id -> a.position.clone()}
     agents
   }
 }
