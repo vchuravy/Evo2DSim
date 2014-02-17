@@ -42,6 +42,8 @@ class MainWindow extends MainFrame with RenderManager {
   var evalDir: Option[Path] = None
   var group: Int = 0
   var generation: Option[Generation] = None
+  var steps: Int = 0
+  var groupSize: Int = 10
 
   def lm: Option[LightManager] = e.map(_.sim.lightManager)
 
@@ -86,6 +88,12 @@ class MainWindow extends MainFrame with RenderManager {
     })
     contents += new MenuItem( Action("Export Agent") {
       exportAgent()
+    })
+    contents += new MenuItem( Action("Set steps") {
+      setSteps()
+    })
+    contents += new MenuItem( Action("Set groupSize") {
+      setGroupSize()
     })
   }
   contents = new BorderPanel {
@@ -133,7 +141,20 @@ class MainWindow extends MainFrame with RenderManager {
         val dialog = new ComponentDialog(this, cv, this)
         dialog.showDialog()
       }
+    }
+  }
 
+  def setSteps() {
+    steps = Dialog.showInput[String](message = "Select how many steps, 0 = infinity", initial = steps.toString) match {
+      case Some(s) => Integer.parseInt(s)
+      case None => steps
+    }
+  }
+
+  def setGroupSize() {
+    groupSize = Dialog.showInput[String](message = "Set GroupSize, defaul = 10", initial = groupSize.toString) match {
+      case Some(s) => Integer.parseInt(s)
+      case None => groupSize
     }
   }
 
@@ -207,7 +228,7 @@ class MainWindow extends MainFrame with RenderManager {
   }
 
   def showGroups: Int = {
-    val (columnNames, rowData) = loadGen(10)
+    val (columnNames, rowData) = loadGen(groupSize)
     val table = new Table(mapToAny(rowData) , columnNames.toSeq)
     val tD = new TableDialog(this, table)
     tD.showTableDialog()
@@ -225,9 +246,10 @@ class MainWindow extends MainFrame with RenderManager {
       case None => Set.empty[LightCategory]
     }
 
-    val e = envBuilder(timeStep, 0)
+    val e = envBuilder(timeStep, steps)
     e.initializeStatic()
-    val g = generation.getOrElse(Map.empty).grouped(10).toIndexedSeq(group).toMap
+    var g = generation.getOrElse(Map.empty).groupBy(_._1.group)(group)
+    if(g.size != groupSize) g = g.take(groupSize)
     e.initializeAgents(g)
     EnvironmentManager.addEnvironment(e)
     e.sim.lightManager.disabledCategories = disabledLightSourceCategories

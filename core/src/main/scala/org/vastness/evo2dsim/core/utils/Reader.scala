@@ -23,11 +23,10 @@ import scalax.file.Path
 import de.schlichtherle.truezip.file.{TFileInputStream, TFile}
 
 trait Reader {
-
-  def compressed_?(baseDir: Path, dir: String) = (baseDir / (dir + ".tar.xz")).exists
+  def compressed_?(baseDir: Path, dir: String, fileName: String) = (baseDir / dir / fileName).nonExistent
 
   def read(baseDir: Path, dir: String, fileName: String): Option[String] =
-    if(compressed_?(baseDir, dir)) readCompressed(baseDir, dir, fileName) else readDirect(baseDir, dir, fileName)
+    if(compressed_?(baseDir, dir, fileName)) readCompressed(baseDir, dir, fileName) else readDirect(baseDir, dir, fileName)
 
 
   private def readDirect(baseDir: Path, dir: String, fileName: String): Option[String] = {
@@ -35,15 +34,27 @@ trait Reader {
     if(file.exists) {
       val input: Input = file.inputStream()
       Some(input.string)
-    } else None
+    } else {
+      println(s"Did not find file: $file")
+      None
+    }
   }
 
   private def readCompressed(baseDir: Path, dir: String, fileName: String): Option[String] = {
-    val entry = new TFile((baseDir / (dir + ".tar.xz") / fileName).path)
-    if(entry.exists) {
-      val input: Input = new InputStreamResource(new TFileInputStream(entry))
-      Some(input.string)
-    } else None
+    val archive = new TFile((baseDir / (dir + ".tar.xz")).path)
+    if(archive.exists) {
+      val entry =  new TFile(archive, fileName)
+      if(entry.exists) {
+        val input: Input = new InputStreamResource(new TFileInputStream(entry))
+        Some(input.string)
+      } else {
+        println(s"Did not find entry: $entry")
+        None
+      }
+    } else {
+      println(s"Could not find Archive: $archive")
+      None
+    }
   }
 
 }

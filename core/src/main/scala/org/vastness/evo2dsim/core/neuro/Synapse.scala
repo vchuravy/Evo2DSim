@@ -19,6 +19,11 @@ package org.vastness.evo2dsim.core.neuro
 
 case class Synapse(input: Neuron, output: Neuron, weight: NumberT){
   var value: NumberT = input.output * weight
+
+  def reset() {
+    value = zero
+  }
+
   def step() {
     value = input.output * weight
   }

@@ -51,6 +51,8 @@ abstract class Controller extends Recordable {
     nn map (_.step())
   }
 
+  def reset() = nn map (_.reset())
+
   def motorStep(): Unit
 
   def dataHeader: Seq[String] = nn map {_.dataHeader} getOrElse Seq.empty

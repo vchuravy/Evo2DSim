@@ -30,11 +30,11 @@ trait FixedAgentTestSettings extends DefaultSettings with OneVarTest[Float] {
 
   def offSet: Float = foodRadius + 0.06f + varRange(varIdx).toFloat
 
-  override def varRange = Range.Double.inclusive(0.1, 1, 0.1)
+  override def varRange = Range.Double(0.0, 2, 0.01)
   override def spawnSize  = 0.0f
 
   // Positions agents at a fixed position with a fixed angle.
-  override def newRandomPosition: Vec2 = normVec mul offSet
+  override def newRandomPosition: Vec2 = origin add (normVec mul offSet)
   override def newRandomAngle = 0f
 
   override def foodOffset: Float = 0f
@@ -45,6 +45,7 @@ trait FixedAgentTestSettings extends DefaultSettings with OneVarTest[Float] {
   override def varUpdate() {
     agents foreach { case (_, a) =>
       a.position = newRandomPosition
+      a.controller.reset()
     }
   }
 }

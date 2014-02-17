@@ -64,7 +64,16 @@ object App {
     }
   }
 
-  def redTest(c: DataConfig) : Future[Unit]  = ???
+  def redTest(c: DataConfig) = {
+    val f = Future sequence ( c.files map {
+      s => future {
+        val dir = Path.fromString(s).toAbsolute
+        if(dir.exists && dir.isDirectory) runRed(c.from.get ,c.to.get, dir)
+        else println(s"Could not find $dir")
+      }
+    } ).toSeq
+    f
+  }
 
   def blueTest(c: DataConfig) = {
     val f = Future sequence ( c.files map {
@@ -78,6 +87,7 @@ object App {
   }
 
   def runRed(gen: Int, group: Int, dir: Path): Unit = {
+    println(dir)
     val in = new InputHandler(dir)
     val config = in.readEvolutionConfig match {
       case None => throw new Exception("Didn't find a config.")
@@ -85,9 +95,9 @@ object App {
     }
 
     val redTestConfig = config.copy(
-      generations = gen,
-      evaluationSteps = 100,
-      evaluationsPerGeneration = 10,
+      generations = gen + 1,
+      evaluationSteps = 2000,
+      evaluationsPerGeneration = 1,
       groupSize = 1,
       envConf = "0:RedTest",
       evolutionAlgorithm = "", // Stuff breaks if you want to run evolution on this setting.
@@ -95,10 +105,11 @@ object App {
     )
 
     def redCallback(env: Environment) = {}
-    runConfig(dir / "redTest", redTestConfig, gen, in, redCallback)
+    runConfigOnGroup(dir / "redTest", redTestConfig, gen, group, in, redCallback)
   }
 
   def runBlue(from: Option[Int], to: Option[Int], dir: Path): Unit = {
+    println(dir)
     val in = new InputHandler(dir)
     val config = in.readEvolutionConfig match {
       case None => throw new Exception("Didn't find a config.")
@@ -172,10 +183,9 @@ object App {
                    in: InputHandler,
                    callback: (Environment) => A): Future[Seq[A]] = {
     if(dir.nonExistent) dir.createDirectory()
-    val fs = for{generation <- startGeneration until config.generations} yield {
+    val fs = for(generation <- startGeneration until config.generations) yield {
       val f = ( in.readGeneration(generation) map {
         genomes =>
-          println(s"Loaded generation $generation")
           EvolutionRunner.groupEvaluations[A](genomes, dir,generation)(config)(callback, wait = true)
       } ).getOrElse(future { Seq.empty })
       Await.ready(f, Duration.Inf) // Block so we don't run out of memory.
@@ -187,14 +197,18 @@ object App {
   def runConfigOnGroup[A](dir: Path,
                    config: EvolutionConfig,
                    startGeneration: Int = 0,
+                   group: Int,
                    in: InputHandler,
                    callback: (Environment) => A): Future[Seq[A]] = {
     if(dir.nonExistent) dir.createDirectory()
+    println(s"Looking at $startGeneration $group with $config")
     val fs = for{generation <- startGeneration until config.generations} yield {
+      println(s"Searching for $generation")
       val f = ( in.readGeneration(generation) map {
         genomes =>
+          val groupGenomes = genomes.filter(_._1.group == group)
           println(s"Loaded generation $generation")
-          EvolutionRunner.groupEvaluations[A](genomes, dir,generation)(config)(callback, wait = true)
+          EvolutionRunner.groupEvaluations[A](groupGenomes, dir,generation)(config)(callback, wait = true)
       } ).getOrElse(future { Seq.empty })
       Await.ready(f, Duration.Inf) // Block so we don't run out of memory.
     }

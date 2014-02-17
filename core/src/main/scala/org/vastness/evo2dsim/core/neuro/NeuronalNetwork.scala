@@ -29,6 +29,11 @@ case class NeuronalNetwork(synapses: Set[Synapse], neurons: Set[Neuron]) extends
   def dataHeader = neurons.foldLeft(Seq.empty[String])(_ ++ _.dataHeader)
   def dataRow = neurons.foldLeft(Record.empty)((acc, obj) => Record.add(acc, obj.dataRow))
 
+  def reset() {
+    neurons map (_.reset())
+    synapses map (_.reset())
+  }
+
   def toDot: String = {
     def layout(n: Neuron): String = n.tag match {
       case NodeTag.Motor => "shape=\"doublecircle\""

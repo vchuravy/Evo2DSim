@@ -42,6 +42,9 @@ trait Neuron extends Product with Serializable with Recordable{
     sum
   }
 
+  def reset() {
+    activity = zero
+  }
 
   def step() {
     activity = calcActivity
