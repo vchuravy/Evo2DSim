@@ -12,10 +12,11 @@ libraryDependencies ++= Seq(
   "de.schlichtherle.truezip" %	"truezip-kernel" % truezipVersion,
   "de.schlichtherle.truezip" %	"truezip-file" % truezipVersion,
   "de.schlichtherle.truezip" %  "truezip-driver-tar" % truezipVersion,
-  "com.github.scala-incubator.io" %% "scala-io-file" % "0.4.3",
+  // "com.github.scala-incubator.io" %% "scala-io-file" % "0.4.3-1",
+  "com.madgag" %% "scala-io-file" % "0.4.2",
   "io.spray" %% "spray-json" % "1.2.6",
   "org.scalaz" %% "scalaz-core" % "7.1.0-M7",
-  "org.spire-math" %% "spire" % "0.7.4"
+  "org.spire-math" %% "spire" % "0.7.5"
 )
 
 packageArchetype.java_application
