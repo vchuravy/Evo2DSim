@@ -8,7 +8,7 @@ import scala.reflect.macros.Context
  * http://stackoverflow.com/questions/20089920/custom-scala-enum-most-elegant-version-searched
  */
 trait Enum[T] {
-  def values: Set[T] = macro Enum.caseObjectsSetImpl[T]
+  def values: Set[_ <: T] = macro Enum.caseObjectsSetImpl[T]
 }
 
 object Enum {
