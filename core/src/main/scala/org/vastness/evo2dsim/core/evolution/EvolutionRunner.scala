@@ -206,7 +206,7 @@ object EvolutionRunner {
           if(config.recordingLevel.record(RecordLevel.Nothing)) {
             e.startRecording(config.recordingLevel, i, dir)
           }
-          future {
+          Future {
             e.run()
           }
           e.p.future map callback

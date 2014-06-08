@@ -18,7 +18,7 @@
 package org.vastness.evo2dsim.data
 
 import scalax.file.Path
-import scala.concurrent.{Await, Future, future}
+import scala.concurrent.{Await, Future}
 import org.vastness.evo2dsim.core.environment.Environment
 import org.vastness.evo2dsim.core.data.{Row, Record, DirectRecorder, RecordLevel}
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -66,7 +66,7 @@ object App {
 
   def redTest(c: DataConfig) = {
     val f = Future sequence ( c.files map {
-      s => future {
+      s => Future {
         val dir = Path.fromString(s).toAbsolute
         if(dir.exists && dir.isDirectory) runRed(c.from.get ,c.to.get, dir)
         else println(s"Could not find $dir")
@@ -77,7 +77,7 @@ object App {
 
   def blueTest(c: DataConfig) = {
     val f = Future sequence ( c.files map {
-      s => future {
+      s => Future {
         val dir = Path.fromString(s).toAbsolute
         if(dir.exists && dir.isDirectory) runBlue(c.from ,c.to, dir)
         else println(s"Could not find $dir")
@@ -187,7 +187,7 @@ object App {
       val f = ( in.readGeneration(generation) map {
         genomes =>
           EvolutionRunner.groupEvaluations[A](genomes, dir,generation)(config)(callback, wait = true)
-      } ).getOrElse(future { Seq.empty })
+      } ).getOrElse(Future { Seq.empty })
       Await.ready(f, Duration.Inf) // Block so we don't run out of memory.
     }
     val f = Future sequence fs
@@ -209,7 +209,7 @@ object App {
           val groupGenomes = genomes.filter(_._1.group == group)
           println(s"Loaded generation $generation")
           EvolutionRunner.groupEvaluations[A](groupGenomes, dir,generation)(config)(callback, wait = true)
-      } ).getOrElse(future { Seq.empty })
+      } ).getOrElse(Future { Seq.empty })
       Await.ready(f, Duration.Inf) // Block so we don't run out of memory.
     }
     val f = Future sequence fs
