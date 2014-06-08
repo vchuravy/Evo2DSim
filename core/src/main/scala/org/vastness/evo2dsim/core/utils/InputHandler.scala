@@ -46,9 +46,9 @@ class InputHandler(dir: Path) extends Reader {
     val cFile = dir / configFileName
     if(cFile.exists) {
       val input: Input = cFile.inputStream()
-      Some(input.string.asJson.convertTo[EvolutionConfig])
+      Some(input.string.parseJson.convertTo[EvolutionConfig])
     } else None
   }
 
-  private def string2Generation(in: String): Generation = in.asJson.convertTo[Generation]
+  private def string2Generation(in: String): Generation = in.parseJson.convertTo[Generation]
 }

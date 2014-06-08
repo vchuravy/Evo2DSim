@@ -127,6 +127,7 @@ object MyJsonProtocol extends DefaultJsonProtocol {
     def write(a: AgentID) = JsString(a.toString)
     def read(v: JsValue) = v match {
       case JsString(value) => AgentID.fromString(value)
+      case _ => deserializationError("Got: " + v + " expected String")
     }
   }
 
