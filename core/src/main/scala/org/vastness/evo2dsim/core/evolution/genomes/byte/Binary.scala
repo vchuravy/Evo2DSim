@@ -60,4 +60,11 @@ trait Binary {
     Integer.bitCount(x << 24)
   }
 
+  /**
+   * Mutates
+   */
+
+  def mutate(x : Byte, p: Double): Byte = {
+    (x ^ xor(p = p)).toByte
+  }
 }

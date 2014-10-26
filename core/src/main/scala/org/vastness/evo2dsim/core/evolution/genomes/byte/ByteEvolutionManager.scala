@@ -20,7 +20,7 @@ package org.vastness.evo2dsim.core.evolution.genomes.byte
 import org.vastness.evo2dsim.core.evolution.genomes.{Genome, EvolutionManager}
 import org.vastness.evo2dsim.core.neuro.{Neuron, TransferFunction}
 
-class ByteEvolutionManager( val probability: Double = 0.1,
+class ByteEvolutionManager( val probability: Double = 0.01,
                             val standardTransferFunction: TransferFunction = TransferFunction.THANH)
                             extends EvolutionManager {
 

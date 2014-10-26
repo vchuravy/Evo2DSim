@@ -20,7 +20,7 @@ package org.vastness.evo2dsim.core.evolution.genomes.standard
 import org.vastness.evo2dsim.core.neuro._
 import org.vastness.evo2dsim.core.evolution.genomes.{NodeTag, Genome, EvolutionManager}
 
-class STDEvolutionManager( val probability: Double,
+class STDEvolutionManager( val probability: Double = 0.08,
                            val standardTransferFunction: TransferFunction,
                            val recurrent: Boolean,
                            val numberOfHiddenNeurons: Int)

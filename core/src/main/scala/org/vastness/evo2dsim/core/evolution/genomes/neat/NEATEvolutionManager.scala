@@ -20,7 +20,7 @@ package org.vastness.evo2dsim.core.evolution.genomes.neat
 import org.vastness.evo2dsim.core.neuro.{Neuron, TransferFunction}
 import org.vastness.evo2dsim.core.evolution.genomes.{Genome, EvolutionManager}
 
-class NEATEvolutionManager( val probability: Double,
+class NEATEvolutionManager( val probability: Double = 0.08,
                             val standardTransferFunction: TransferFunction)
                             extends EvolutionManager {
 

@@ -76,12 +76,12 @@ case class NEATGenome(nodes: Set[NEATNode] = Set.empty,
 
   private def mutateConnections(p: Double): Set[SelfConnection] =
     connections map { c =>
-      if(Random.nextDouble <= p) c.mutate else c
+      if(Random.nextDouble <= p) c.mutate(0.0) else c
     }
 
   private def mutateNodes(p: Double) =
     nodes map { n =>
-      if(Random.nextDouble() <= p) n.mutate else n
+      if(Random.nextDouble() <= p) n.mutate(0.0) else n
     }
 
   override def crossover(other: NEATGenome): NEATGenome = {

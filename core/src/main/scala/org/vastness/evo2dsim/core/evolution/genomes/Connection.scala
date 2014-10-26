@@ -21,7 +21,7 @@ import org.vastness.evo2dsim.core.neuro.NumberT
 
 
 trait Connection extends Product with Serializable {
-  def mutate: Connection
+  def mutate(p: Double): Connection
   def from: Node
   def to: Node
   def weight: NumberT

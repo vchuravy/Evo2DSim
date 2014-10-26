@@ -32,15 +32,9 @@ case class ByteGenome(nodes: Set[ByteNode], connections: Set[ByteConnection], em
 
   def mutate: ByteGenome = ByteGenome(mutateNodes(p), mutateConnections(p), em)
 
-  private def mutateConnections(p: Double): Set[SelfConnection] =
-    connections map { c =>
-      if(Random.nextDouble <= p) c.mutate else c
-    }
+  private def mutateConnections(p: Double): Set[SelfConnection] = connections map (_.mutate(p))
 
-  private def mutateNodes(p: Double) =
-    nodes map { n =>
-      if(Random.nextDouble() <= p) n.mutate else n
-    }
+  private def mutateNodes(p: Double) = nodes map (_.mutate(p))
 
   def crossover(other: ByteGenome): ByteGenome = this //TODO
 

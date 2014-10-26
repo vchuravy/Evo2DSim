@@ -22,6 +22,6 @@ import org.vastness.evo2dsim.core.evolution.genomes.{Node, NodeTag}
 
 case class NEATNode(tag: NodeTag, id: Int, bias: NumberT, transferFunction: TransferFunction, data: String) extends Node {
   type Self = NEATNode
-  def mutate = NEATNode(tag, id, bias + (2*random - 1), transferFunction, data)
+  def mutate(p: Double) = NEATNode(tag, id, bias + (2*random - 1), transferFunction, data)
 }
 

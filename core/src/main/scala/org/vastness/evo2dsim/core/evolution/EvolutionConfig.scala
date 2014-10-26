@@ -31,7 +31,7 @@ case class EvolutionConfig(
                   evolutionAlgorithm: String = "sus",
                   genomeName: String = "NEATGenome",
                   genomeSettings: String = "",
-                  propability: Double = 0.1,
+                  propability: Double = 0.1, // should be 0.01 or 0.08
                   rLevel: Int = RecordLevel.Nothing.id) {
 
   require(poolSize % groupSize == 0, s"$poolSize % $groupSize != 0)")

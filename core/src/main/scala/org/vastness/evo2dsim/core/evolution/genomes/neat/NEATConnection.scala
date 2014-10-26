@@ -25,5 +25,5 @@ case class NEATConnection(from: NEATNode, to: NEATNode, weight: NumberT, enabled
   def enable  = NEATConnection(from, to ,weight, true, innovationNumber)
   def toggle  = if(enabled) enable else disable
 
-  def mutate  = NEATConnection(from, to, weight + (2*random - 1), enabled, innovationNumber)
+  def mutate(p: Double)  = NEATConnection(from, to, weight + (2*random - 1), enabled, innovationNumber)
 }
