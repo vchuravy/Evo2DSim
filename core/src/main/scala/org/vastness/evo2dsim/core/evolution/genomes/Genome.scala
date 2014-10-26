@@ -30,4 +30,18 @@ trait Genome {
 
   def nodes: Set[SelfNode]
   def connections: Set[SelfConnection]
+
+  def distance(other: Genome): Double
+
+  def connectionMap: Map[(Int, Int), SelfConnection] = connections.map(c => ((c.from.id, c.to.id), c)).toMap
+  def nodesMap: Map[Int, SelfNode] = nodes.map(n => (n.id, n)).toMap
+
+  /**
+   * zips over two maps. !expects the same keys to be available
+   */
+  def zipper[A, B](a: Map[A, B], b: Map[A,B]): Iterable[(B, B)] = {
+    for (key <- a.keys ++ b.keys)
+      yield (a(key), b(key))
+  }
+
 }

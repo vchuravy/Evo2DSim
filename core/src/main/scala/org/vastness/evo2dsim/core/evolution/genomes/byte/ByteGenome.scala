@@ -21,7 +21,7 @@ import org.vastness.evo2dsim.core.evolution.genomes.{NodeTag, Genome}
 import scala.util.Random
 import org.vastness.evo2dsim.core.neuro.Neuron
 
-case class ByteGenome(nodes: Set[ByteNode], connections: Set[ByteConnection], em: ByteEvolutionManager) extends Genome {
+case class ByteGenome(nodes: Set[ByteNode], connections: Set[ByteConnection], em: ByteEvolutionManager) extends Genome with Binary {
   type Self = ByteGenome
   type SelfNode = ByteNode
   type SelfConnection = ByteConnection
@@ -43,6 +43,23 @@ case class ByteGenome(nodes: Set[ByteNode], connections: Set[ByteConnection], em
     }
 
   def crossover(other: ByteGenome): ByteGenome = this //TODO
+
+  def hamming(x: Byte, y: Byte): Int = popcount((x ^ y).toByte)
+
+  def distance(other: Genome): Double = other match {
+    case other: Self => {
+      val nodesDistances = zipper(nodesMap, other.nodesMap) map {
+        case (a, b) => hamming(a.v_bias, b.v_bias)
+      }
+
+      val connDistances = zipper(connectionMap, other.connectionMap) map {
+        case (a, b) => hamming(a.v_weight, b.v_weight)
+      }
+
+      return nodesDistances.sum + connDistances.sum
+    }
+    case _ => ???
+  }
 }
 
 object ByteGenome {

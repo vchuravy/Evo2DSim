@@ -49,4 +49,15 @@ trait Binary {
       (acc, _) =>  if (Random.nextDouble <= p) acc + "1" else acc + "0"
     ), 2).toByte
 
+
+  /**
+   * Counts the number on bits set to one in a Byte
+   * shift by 24 so that the upper 8 bits of a 32 byte Integer contain the Byte and the rest bytes are zero
+   * @param x
+   * @return
+   */
+  def popcount(x: Byte): Int = {
+    Integer.bitCount(x << 24)
+  }
+
 }

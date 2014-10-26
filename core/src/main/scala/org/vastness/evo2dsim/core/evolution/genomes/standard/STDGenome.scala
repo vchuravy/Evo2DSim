@@ -42,4 +42,24 @@ case class STDGenome(nodes: Set[STDNode] = Set.empty,
     nodes map { n =>
       if(Random.nextDouble() <= p) n.mutate else n
     }
+
+  /**
+   * Implements euclidean distance
+   * @param other
+   * @return
+   */
+  def distance(other: Genome): Double = other match {
+    case other: Self => {
+      val nodesDistances = zipper(nodesMap, other.nodesMap) map {
+      case (a, b) => math.pow(a.bias - b.bias, 2)
+      }
+
+      val connDistances = zipper(connectionMap, other.connectionMap) map {
+      case (a, b) => math.pow(a.weight - b.weight, 2)
+      }
+
+      return math.sqrt(nodesDistances.sum + connDistances.sum)
+    }
+    case _ => ???
+  }
 }

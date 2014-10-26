@@ -104,6 +104,11 @@ case class NEATGenome(nodes: Set[NEATNode] = Set.empty,
     }).toSet
     new NEATGenome(new_nodes, new_connections, nm)
   }
+
+  def distance(other: Genome): Double = other match{
+    case other: Self => 0.0 //TODO implement a sensible distance measure.
+    case _ => ???
+  }
 }
 object NEATGenome {
   def basicRandomGenome(neurons: Set[_ <:Neuron], em: NEATEvolutionManager): NEATGenome = {
