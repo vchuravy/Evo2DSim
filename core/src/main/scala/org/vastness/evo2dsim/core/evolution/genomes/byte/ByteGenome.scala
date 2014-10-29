@@ -34,7 +34,10 @@ case class ByteGenome(nodes: Set[ByteNode], connections: Set[ByteConnection], em
 
   private def mutateConnections(p: Double): Set[SelfConnection] = connections map (_.mutate(p))
 
-  private def mutateNodes(p: Double) = nodes map (_.mutate(p))
+  private def mutateNodes(p: Double) = em.bias_evolution match {
+    case true => nodes map (_.mutate(p))
+    case false => nodes
+  }
 
   def crossover(other: ByteGenome): ByteGenome = this //TODO
 

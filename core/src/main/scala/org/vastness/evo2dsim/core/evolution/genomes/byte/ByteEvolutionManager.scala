@@ -21,9 +21,17 @@ import org.vastness.evo2dsim.core.evolution.genomes.{Genome, EvolutionManager}
 import org.vastness.evo2dsim.core.neuro.{Neuron, TransferFunction}
 
 class ByteEvolutionManager( val probability: Double = 0.01,
-                            val standardTransferFunction: TransferFunction = TransferFunction.THANH)
+                            val standardTransferFunction: TransferFunction = TransferFunction.THANH,
+                            val bias_evolution: Boolean)
                             extends EvolutionManager {
 
   var blueprint: Set[Neuron] = Set.empty
   def getBasicRandomGenome: Genome = ByteGenome.basicRandomGenome(blueprint, this)
+}
+
+object ByteEvolutionManager {
+  def apply(propability: Double, t_func: TransferFunction, settings: String) = {
+    val bias_evolution = settings.toBoolean
+    new ByteEvolutionManager(propability, t_func, bias_evolution)
+  }
 }

@@ -16,9 +16,11 @@ CMD="${BASECMD} ${SCRIPTDIR}/${FILE} ${GENERATIONS} ${POOL_SIZE}"
 
 declare -a ALGOS=("sus" "elite")
 
-declare -a GENOMES=("ByteGenome"  "NEATGenome" "STDGenome")
+declare -a GENOMES=("ByteGenome" "STDGenome")
 
 declare -a STDGENOME=("true:2" "true:3" "false:2" "false:3")
+
+declare -a BYTEGENOME=("true" "false")
 
 declare -a ENVS=("0:basicRandom" "0:basic;50:basicSimpleRandom;150:basicRandom" "0:ECECR" )
 
@@ -35,8 +37,10 @@ do
                     ${CMD} "${env}" "${algo}" "${genome}" "${STDPROBABILITY}" "-x ${setting}"
                 done
              elif [ ${genome} == "ByteGenome" ]; then
-                 ${CMD} "${env}" "${algo}" "${genome}" "${BYTEPROBABILITY}"
-
+                for setting in ${BYTEGENOME[@]}
+                do
+                    ${CMD} "${env}" "${algo}" "${genome}" "${BYTEPROBABILITY}" "-x ${setting}"
+                done
              else
                  ${CMD} "${env}" "${algo}" "${genome}" "${PROBABILITY}"
              fi

@@ -32,7 +32,7 @@ trait EvolutionManager {
 
 object EvolutionManager {
   def apply(genomeName: String, propability: Double, genomeSettings: String, t_func: TransferFunction = TransferFunction.THANH): EvolutionManager = genomeName match {
-      case "ByteGenome" => new ByteEvolutionManager(propability, t_func)
+      case "ByteGenome" => ByteEvolutionManager(propability, t_func, genomeSettings)
       case "NEATGenome" => new NEATEvolutionManager(propability, t_func)
       case "STDGenome"  => STDEvolutionManager(propability, t_func, genomeSettings)
     }

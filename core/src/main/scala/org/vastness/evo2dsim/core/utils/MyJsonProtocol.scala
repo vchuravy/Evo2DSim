@@ -73,16 +73,17 @@ object MyJsonProtocol extends DefaultJsonProtocol {
       "nodes" -> bG.nodes.toJson,
       "connections" -> bG.connections.toJson,
       "stdTFunc" -> bG.em.standardTransferFunction.toJson,
-      "p" -> JsNumber(bG.em.probability)
+      "p" -> JsNumber(bG.em.probability),
+      "biasEvolution" -> JsBoolean(bG.em.bias_evolution)
     )
 
     def read(value: JsValue) =
-      value.asJsObject.getFields("nodes", "connections", "stdTFunc", "p") match {
-        case Seq(nodes, connections, stdTFunc, JsNumber(p)) =>
+      value.asJsObject.getFields("nodes", "connections", "stdTFunc", "p", "biasEvolution") match {
+        case Seq(nodes, connections, stdTFunc, JsNumber(p), JsBoolean(biasE)) =>
           val n = nodes.convertTo[Set[ByteNode]]
           val c = connections.convertTo[Set[ByteConnection]]
           val sTF = stdTFunc.convertTo[TransferFunction]
-          val em = new ByteEvolutionManager(p.toDouble, sTF)
+          val em = new ByteEvolutionManager(p.toDouble, sTF, biasE)
           ByteGenome(n,c,em)
         case _ => deserializationError("Got: " + value + " expected ByteGenome")
       }
