@@ -34,14 +34,10 @@ case class STDGenome(nodes: Set[STDNode] = Set.empty,
   def mutate = STDGenome(mutateNodes(em.probability), mutateConnections(em.probability), em)
 
   private def mutateConnections(p: Double): Set[SelfConnection] =
-    connections map { c =>
-      if(Random.nextDouble <= p) c.mutate(0.0) else c
-    }
+    connections map { _.mutate(em.randSource.sample()) }
 
   private def mutateNodes(p: Double) =
-    nodes map { n =>
-      if(Random.nextDouble() <= p) n.mutate(0.0) else n
-    }
+    nodes map { _.mutate(em.randSource.sample()) }
 
   /**
    * Implements euclidean distance

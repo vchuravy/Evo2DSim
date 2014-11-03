@@ -17,8 +17,10 @@
 
 package org.vastness.evo2dsim.core.evolution.genomes.standard
 
+import com.sun.scenario.effect.GaussianShadow
 import org.vastness.evo2dsim.core.neuro._
 import org.vastness.evo2dsim.core.evolution.genomes.{NodeTag, Genome, EvolutionManager}
+import breeze.stats.distributions.{Rand, Gaussian}
 
 class STDEvolutionManager( val probability: Double = 0.08,
                            val standardTransferFunction: TransferFunction,
@@ -28,12 +30,14 @@ class STDEvolutionManager( val probability: Double = 0.08,
 
   var blueprint: Set[Neuron] = Set.empty
 
+  var randSource: Rand[NumberT] = Gaussian(0.0, probability)
+
   def getBasicRandomGenome: Genome = {
     // Define Helper Function
     def connect(froms: Set[STDNode], tos: Set[STDNode]): Set[STDConnection] =
       for(from <- froms;
           to   <- tos)
-      yield STDConnection(from, to, random)
+      yield STDConnection(from, to, randSource.sample())
 
 
     var id = -1
@@ -45,7 +49,7 @@ class STDEvolutionManager( val probability: Double = 0.08,
     val inputNodes = nodes.filter(_.tag == NodeTag.Sensor)
     val outputNodes = nodes.filter(_.tag == NodeTag.Motor)
     val hiddenNodes = ( for(i <- 1 to numberOfHiddenNeurons) yield {
-      STDNode(NodeTag.Hidden, id + i, random, standardTransferFunction, s"Hidden$i")
+      STDNode(NodeTag.Hidden, id + i, randSource.sample(), standardTransferFunction, s"Hidden$i")
     } ).toSet
     val directConnections =
       connect(inputNodes, hiddenNodes) ++ connect(hiddenNodes, outputNodes)

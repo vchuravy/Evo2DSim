@@ -22,5 +22,5 @@ import org.vastness.evo2dsim.core.neuro._
 
 
 case class STDConnection(from: STDNode, to: STDNode, weight: NumberT) extends Connection {
-  def mutate(p: Double) = STDConnection(from, to, weight + (2*random - 1))
+  def mutate(delta: Double) = STDConnection(from, to, weight + delta)
 }
