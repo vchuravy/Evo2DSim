@@ -17,7 +17,6 @@
 
 package org.vastness.evo2dsim.core.evolution.genomes.standard
 
-import com.sun.scenario.effect.GaussianShadow
 import org.vastness.evo2dsim.core.neuro._
 import org.vastness.evo2dsim.core.evolution.genomes.{NodeTag, Genome, EvolutionManager}
 import breeze.stats.distributions.{Rand, Gaussian}
