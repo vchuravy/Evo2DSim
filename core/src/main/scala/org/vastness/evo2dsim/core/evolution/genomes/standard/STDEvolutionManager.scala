@@ -21,7 +21,7 @@ import org.vastness.evo2dsim.core.neuro._
 import org.vastness.evo2dsim.core.evolution.genomes.{NodeTag, Genome, EvolutionManager}
 import breeze.stats.distributions.{Rand, Gaussian}
 
-class STDEvolutionManager( val probability: Double = 0.08,
+class STDEvolutionManager( val sigma: Double = 0.08,
                            val standardTransferFunction: TransferFunction,
                            val recurrent: Boolean,
                            val numberOfHiddenNeurons: Int)
@@ -29,7 +29,9 @@ class STDEvolutionManager( val probability: Double = 0.08,
 
   var blueprint: Set[Neuron] = Set.empty
 
-  var randSource: Rand[NumberT] = Gaussian(0.0, probability)
+  var randSource: Rand[NumberT] = Gaussian(0.0, sigma)
+
+  val probability: Double = 1.0
 
   def getBasicRandomGenome: Genome = {
     // Define Helper Function
@@ -66,9 +68,9 @@ class STDEvolutionManager( val probability: Double = 0.08,
 }
 
 object STDEvolutionManager {
-  def apply(propability: Double, t_func: TransferFunction, settings: String) = {
+  def apply(sigma: Double, t_func: TransferFunction, settings: String) = {
     val (r, n) = parse(settings)
-    new STDEvolutionManager(propability, t_func, r, n)
+    new STDEvolutionManager(sigma, t_func, r, n)
   }
 
   def parse(settings: String): (Boolean, Int) = settings.split(":").toList match {
