@@ -49,20 +49,27 @@ class STDEvolutionManager( val sigma: Double = 0.08,
 
     val inputNodes = nodes.filter(_.tag == NodeTag.Sensor)
     val outputNodes = nodes.filter(_.tag == NodeTag.Motor)
-    val hiddenNodes = ( for(i <- 1 to numberOfHiddenNeurons) yield {
-      STDNode(NodeTag.Hidden, id + i, randSource.sample(), standardTransferFunction, s"Hidden$i")
-    } ).toSet
-    val directConnections =
-      connect(inputNodes, hiddenNodes) ++ connect(hiddenNodes, outputNodes)
-    val recurrentConnections =
-      if(recurrent) {
-        connect(outputNodes, hiddenNodes) ++ connect(hiddenNodes, inputNodes) ++ connect(hiddenNodes, hiddenNodes)
-      }
-      else Set.empty[STDConnection]
 
-    val connections = directConnections ++ recurrentConnections
-    val newNodes = nodes ++ hiddenNodes
-    STDGenome(newNodes, connections, this)
+
+    if(numberOfHiddenNeurons > 0) {
+      val hiddenNodes = (for (i <- 1 to numberOfHiddenNeurons) yield {
+        STDNode(NodeTag.Hidden, id + i, randSource.sample(), standardTransferFunction, s"Hidden$i")
+      }).toSet
+      val directConnections =
+        connect(inputNodes, hiddenNodes) ++ connect(hiddenNodes, outputNodes)
+      val recurrentConnections =
+        if (recurrent) {
+          connect(outputNodes, hiddenNodes) ++ connect(hiddenNodes, inputNodes) ++ connect(hiddenNodes, hiddenNodes)
+        }
+        else Set.empty[STDConnection]
+
+      val connections = directConnections ++ recurrentConnections
+      val newNodes = nodes ++ hiddenNodes
+      return STDGenome(newNodes, connections, this)
+    } else {
+      if(recurrent) println("Warning: creating ff-network without recurrence")
+      return STDGenome(nodes, connect(inputNodes, outputNodes), this)
+    }
   }
 
 }
