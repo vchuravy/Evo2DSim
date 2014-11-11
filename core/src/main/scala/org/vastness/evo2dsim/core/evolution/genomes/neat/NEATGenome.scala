@@ -40,7 +40,7 @@ case class NEATGenome(nodes: Set[NEATNode] = Set.empty,
       val possibleConnections = Random shuffle findUnconnectedNodes
       if(possibleConnections.size > 0) {
       val c = possibleConnections.head match {
-        case (from, to) => NEATConnection(from, to, random, true, nm.nextInnovationNumber(from, to))
+        case (from, to) => NEATConnection(from.id, to.id, random, true, nm.nextInnovationNumber(from, to))
       }
       NEATGenome(nodes, connections + c, nm)
       } else this
@@ -55,8 +55,8 @@ case class NEATGenome(nodes: Set[NEATNode] = Set.empty,
         newConnections -= c
         newConnections += c.disable
         val node = NEATNode(NodeTag.Hidden, nm.nextNeuronID(c.innovationNumber), random, nm.standardTransferFunction, "")
-        newConnections += NEATConnection(c.from, node, one, true, nm.nextInnovationNumber(c.from, node))
-        newConnections += NEATConnection(node, c.to, c.weight, true, nm.nextInnovationNumber(node, c.to))
+        newConnections += NEATConnection(c.from, node.id, one, true, nm.nextInnovationNumber(findNode(c.from).get, node))
+        newConnections += NEATConnection(node.id, c.to, c.weight, true, nm.nextInnovationNumber(node, findNode(c.to).get))
         newNodes += node
       }
       NEATGenome(newNodes, newConnections, nm)
@@ -66,8 +66,8 @@ case class NEATGenome(nodes: Set[NEATNode] = Set.empty,
 
   private def findUnconnectedNodes = (
     for(from <- nodes) yield {
-      val connectedNodes = connections filter (_.from == from) map (_.to)
-      val unconnectedNodes = nodes filterNot {n => connectedNodes contains n}
+      val connectedNodes = connections filter (_.from == from.id) map (_.to)
+      val unconnectedNodes = nodes filterNot {n => connectedNodes.contains(n.id)}
       for (to <- unconnectedNodes) yield from -> to
     }
   ).flatten
@@ -124,7 +124,7 @@ object NEATGenome {
       for(from <- inputNodes;
           to   <- outputNodes) yield {
         idC += 1
-        NEATConnection(from, to, Random.nextDouble(), true, idC)
+        NEATConnection(from.id, to.id, Random.nextDouble(), true, idC)
       }
     NEATGenome(nodes, connections, em)
   }

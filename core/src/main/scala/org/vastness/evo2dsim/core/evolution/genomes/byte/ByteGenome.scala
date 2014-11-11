@@ -73,7 +73,7 @@ object ByteGenome {
       for(from <- inputNodes;
           to   <- outputNodes) yield {
         idC += 1
-        ByteConnection(from, to, bMapper.mapToByte(Random.nextDouble()))
+        ByteConnection(from.id, to.id, bMapper.mapToByte(Random.nextDouble()))
       }
     ByteGenome(nodes, connections, em)
   }

@@ -33,8 +33,10 @@ trait Genome {
 
   def distance(other: Genome): Double
 
-  def connectionMap: Map[(Int, Int), SelfConnection] = connections.map(c => ((c.from.id, c.to.id), c)).toMap
+  def connectionMap: Map[(Int, Int), SelfConnection] = connections.map(c => ((c.from, c.to), c)).toMap
   def nodesMap: Map[Int, SelfNode] = nodes.map(n => (n.id, n)).toMap
+
+  def findNode(id: Int): Option[SelfNode] = nodes.find(_.id == id)
 
   /**
    * zips over two maps. !expects the same keys to be available

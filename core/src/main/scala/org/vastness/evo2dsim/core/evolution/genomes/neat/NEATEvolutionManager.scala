@@ -59,7 +59,11 @@ class NEATEvolutionManager( val probability: Double = 0.08,
 
   def init(n: NEATGenome) = {
     innovationNumberMap = ( for(c <- n.connections) yield {
-      (c.from, c.to) -> c.innovationNumber
+      (n.findNode(c.from), n.findNode(c.to)) match{
+        case(Some(from), Some(to)) => (from, to) -> c.innovationNumber
+        case _ => throw new Exception("Can't find node")
+      }
+
     } ).toMap
 
     innovationNumber_ = n.connections.map(_.innovationNumber).max

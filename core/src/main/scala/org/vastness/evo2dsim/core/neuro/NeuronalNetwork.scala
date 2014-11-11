@@ -76,12 +76,14 @@ object NeuronalNetwork {
     val hiddenNeurons = for(n <- taggedNodes.getOrElse(NodeTag.Hidden, Set.empty)) yield HiddenNeuron(n)
     val neurons: Set[Neuron] = hiddenNeurons ++ sensorNeurons ++ motorNeurons
 
-    def findNeuron(node: Node) = neurons.find(_.id == node.id) match {
+    def findNeuron(node: Node) = findNeuronById(node.id)
+
+    def findNeuronById(id: Int) = neurons.find(_.id == id) match {
       case Some(n) => n
-      case None => throw new Exception(s"Could not find neuron from node: $node")
+      case None => throw new Exception(s"Could not find neuron from node: $id")
     }
 
-    val synapses = for(c <- genome.connections) yield new Synapse(findNeuron(c.from), findNeuron(c.to), c.weight)
+    val synapses = for(c <- genome.connections) yield new Synapse(findNeuronById(c.from), findNeuronById(c.to), c.weight)
     val inSynapses = synapses.groupBy(_.output.id)
     neurons foreach {n => n.inputSynapses = n.inputSynapses ++ inSynapses.getOrElse(n.id, Set.empty).toVector}
     NeuronalNetwork(synapses, neurons)

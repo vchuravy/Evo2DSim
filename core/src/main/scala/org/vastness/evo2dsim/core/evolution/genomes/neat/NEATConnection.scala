@@ -20,7 +20,7 @@ package org.vastness.evo2dsim.core.evolution.genomes.neat
 import org.vastness.evo2dsim.core.neuro._
 import org.vastness.evo2dsim.core.evolution.genomes.Connection
 
-case class NEATConnection(from: NEATNode, to: NEATNode, weight: NumberT, enabled: Boolean, innovationNumber: Int) extends Connection {
+case class NEATConnection(from: Int, to: Int, weight: NumberT, enabled: Boolean, innovationNumber: Int) extends Connection {
   def disable = NEATConnection(from, to, weight, false, innovationNumber)
   def enable  = NEATConnection(from, to ,weight, true, innovationNumber)
   def toggle  = if(enabled) enable else disable

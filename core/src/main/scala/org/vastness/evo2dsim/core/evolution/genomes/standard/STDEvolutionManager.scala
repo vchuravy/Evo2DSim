@@ -38,7 +38,7 @@ class STDEvolutionManager( val sigma: Double = 0.08,
     def connect(froms: Set[STDNode], tos: Set[STDNode]): Set[STDConnection] =
       for(from <- froms;
           to   <- tos)
-      yield STDConnection(from, to, randSource.sample())
+      yield STDConnection(from.id, to.id, randSource.sample())
 
 
     var id = -1

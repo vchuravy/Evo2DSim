@@ -71,7 +71,7 @@ class SUSEvolution (val config: EvolutionConfig)
       case _ => (y: Double) => y // If we only have positive fitness values return the identity function
     }
 
-    val total = results.values.foldLeft(0.0)( _ + abs_rel(_))
+    val total = results.values.foldLeft(0.0)((acc, x) => acc + abs_rel(x))
     def f_norm(x: Double) = abs_rel(x) / total
 
     val norm_results = results map {
