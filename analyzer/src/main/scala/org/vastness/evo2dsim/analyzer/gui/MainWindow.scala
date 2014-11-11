@@ -17,6 +17,7 @@
 
 package org.vastness.evo2dsim.analyzer.gui
 
+import org.vastness.evo2dsim.core.data.RecordLevel
 import org.vastness.evo2dsim.core.gui._
 
 import scala.swing._
@@ -44,6 +45,9 @@ class MainWindow extends MainFrame with RenderManager {
   var generation: Option[Generation] = None
   var steps: Int = 0
   var groupSize: Int = 10
+  var recordingLevel: RecordLevel = RecordLevel.Nothing
+  var recordingDir: Option[File] = None
+  var reloadIteration: Int = 0
 
   def lm: Option[LightManager] = e.map(_.sim.lightManager)
 
@@ -94,6 +98,19 @@ class MainWindow extends MainFrame with RenderManager {
     })
     contents += new MenuItem( Action("Set groupSize") {
       setGroupSize()
+    })
+    contents += new MenuItem( Action("Recording Level") {
+      setRecording()
+    })
+
+    contents += new MenuItem( Action("Set recording dir") {
+      val fc = new FileChooser(recordingDir.getOrElse(new File(".")))
+      fc.fileSelectionMode = FileChooser.SelectionMode.DirectoriesOnly
+
+      recordingDir = fc.showOpenDialog(this) match {
+        case FileChooser.Result.Approve if fc.selectedFile.exists() => Some(fc.selectedFile)
+        case _ => recordingDir
+      }
     })
   }
   contents = new BorderPanel {
@@ -152,9 +169,25 @@ class MainWindow extends MainFrame with RenderManager {
   }
 
   def setGroupSize() {
-    groupSize = Dialog.showInput[String](message = "Set GroupSize, defaul = 10", initial = groupSize.toString) match {
+    groupSize = Dialog.showInput[String](message = "Set GroupSize, default = 10", initial = groupSize.toString) match {
       case Some(s) => Integer.parseInt(s)
       case None => groupSize
+    }
+  }
+
+  def setRecording() {
+    recordingLevel = Dialog.showInput[RecordLevel](
+      message = "Set recording , default = 3 (nothing), 2 (Agents), 1 (Controllers), 0 (Everything)",
+      initial = recordingLevel,
+      entries = RecordLevel.values.toSeq) match {
+        case Some(rl) => rl
+        case None => recordingLevel
+    }
+
+    e map {env =>
+      recordingDir map { dir =>
+        env.startRecording(recordingLevel, reloadIteration, Path(dir))
+      }
     }
   }
 
@@ -253,7 +286,14 @@ class MainWindow extends MainFrame with RenderManager {
     e.initializeAgents(g)
     EnvironmentManager.addEnvironment(e)
     e.sim.lightManager.disabledCategories = disabledLightSourceCategories
+
+    recordingDir map { dir =>
+       e.startRecording(recordingLevel, reloadIteration, Path(dir))
+    }
+
     this.e = Some(e)
+
+    reloadIteration += 1
     // future {
     //   e.run()
     // }

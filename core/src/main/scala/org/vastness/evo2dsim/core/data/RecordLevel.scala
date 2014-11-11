@@ -22,6 +22,7 @@ import org.vastness.evo2dsim.macros.utils.Enum
 sealed trait RecordLevel {
   def id: Int
   def record(other: RecordLevel): Boolean = other.id >= id
+  override def toString: String = "Level: %s".format(id)
 }
 
 object RecordLevel extends Enum[RecordLevel] {
