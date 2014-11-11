@@ -17,9 +17,9 @@
 
 package org.vastness.evo2dsim.core.gui
 
+import java.awt.RenderingHints
 import scala.swing.{Graphics2D, Component}
 import org.vastness.evo2dsim.core.simulator.Entity
-import java.awt.RenderingHints
 
 class Surface extends Component {
   def draw(g2: Graphics2D) {
@@ -28,6 +28,19 @@ class Surface extends Component {
         e.sprite.draw(g2)
         if(EnvironmentManager.showData) e.sprite.drawText(g2)
     }
+
+    drawText(g2)
+  }
+
+  def drawText(g2: Graphics2D) =  {
+    EnvironmentManager.visible match {
+      case None =>
+      case Some(env) =>
+        g2.setColor(Color.BLACK.underlying)
+        val text ="Time steps: %s".format(env.stepCounter)
+        g2.drawString(text, 0, this.bounds.y - g2.getFontMetrics.getHeight)
+    }
+
   }
 
   override def paintComponent(g: Graphics2D) {

@@ -25,9 +25,14 @@ object EnvironmentManager {
   var showData = true
   private var environments = ListBuffer.empty[Environment]
 
-  def visibleEntities = environments match {
-    case xs: ListBuffer[Environment] if xs.nonEmpty => xs.head.sim.entities
-    case xs: ListBuffer[Environment] if xs.isEmpty => List.empty[Entity]
+  def visible: Option[Environment] = environments match {
+    case xs: ListBuffer[Environment] if xs.nonEmpty => Some(xs.head)
+    case xs: ListBuffer[Environment] if xs.isEmpty => None
+  }
+
+  def visibleEntities = visible match {
+    case Some(env) => env.sim.entities
+    case None => List.empty[Entity]
   }
 
   def addEnvironment(e: Environment){
