@@ -133,5 +133,5 @@ object MyJsonProtocol extends DefaultJsonProtocol {
     }
   }
 
-  implicit val basicConfigFormat: RootJsonFormat[BasicConfig] = jsonFormat7(BasicConfig)
+  implicit val basicConfigFormat: RootJsonFormat[BasicConfig] = jsonFormat8(BasicConfig)
 }

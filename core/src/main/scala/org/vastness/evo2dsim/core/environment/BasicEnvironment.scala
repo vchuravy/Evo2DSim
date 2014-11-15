@@ -100,7 +100,7 @@ abstract class BasicEnvironment(timeStep:Int, steps:Int) extends Environment(tim
     super.startRecording(rl, iteration, baseDir)
 
     val agentID = agents.head._1
-    val bc = BasicConfig((origin.x, origin.y), halfSize, spawnSize, foodRadius, foodOffset, foodPos.map(v => (v.x, v.y)), foodSources.map(_.reward))
+    val bc = BasicConfig((origin.x, origin.y), halfSize, spawnSize, foodRadius, smellRange, foodOffset, foodPos.map(v => (v.x, v.y)), foodSources.map(_.reward))
 
     val dir: Path = baseDir / (s"${agentID.generation}/${agentID.group}/${iteration}", '/')
     val file = dir / "config.json"
@@ -112,6 +112,7 @@ case class BasicConfig(origin: (Float, Float),
                        halfSize: Float,
                        spawnSize: Float,
                        foodRadius: Float,
+                       smellRadius: Float,
                        foodOffset: Float,
                        foodPos: Seq[(Float, Float)],
                        foodQuality: Seq[Double])
