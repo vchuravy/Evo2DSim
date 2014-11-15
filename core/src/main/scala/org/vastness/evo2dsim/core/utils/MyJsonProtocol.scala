@@ -17,6 +17,7 @@
 
 package org.vastness.evo2dsim.core.utils
 
+import org.vastness.evo2dsim.core.environment.BasicConfig
 import spray.json._
 import org.vastness.evo2dsim.core.neuro.TransferFunction
 import org.vastness.evo2dsim.core.evolution.genomes.{NodeTag, Genome}
@@ -132,4 +133,5 @@ object MyJsonProtocol extends DefaultJsonProtocol {
     }
   }
 
+  implicit val basicConfigFormat: RootJsonFormat[BasicConfig] = jsonFormat7(BasicConfig)
 }

@@ -18,12 +18,16 @@
 package org.vastness.evo2dsim.core.environment
 
 import org.jbox2d.common.Vec2
+import org.vastness.evo2dsim.core.data.RecordLevel
 import org.vastness.evo2dsim.core.simulator.{Simulator, Agent}
 import scala.collection.Map
 import org.vastness.evo2dsim.core.simulator.food.FoodSource
 import scala.annotation.tailrec
 import org.vastness.evo2dsim.core.evolution.genomes.Genome
 import org.vastness.evo2dsim.core.evolution.Evolution.Generation
+import scalax.file.Path
+import spray.json._
+import org.vastness.evo2dsim.core.utils.MyJsonProtocol._
 
 /**
  * @see Environment
@@ -91,4 +95,23 @@ abstract class BasicEnvironment(timeStep:Int, steps:Int) extends Environment(tim
       (id, addWithGenome(sim.addAgent(pos, angle, sim.Agents.SBot, id), genome))
       ).toMap
   }
+
+  override def startRecording(rl: RecordLevel, iteration: Int, baseDir: Path) = {
+    super.startRecording(rl, iteration, baseDir)
+
+    val agentID = agents.head._1
+    val bc = BasicConfig((origin.x, origin.y), halfSize, spawnSize, foodRadius, foodOffset, foodPos.map(v => (v.x, v.y)), foodSources.map(_.reward))
+
+    val dir: Path = baseDir / (s"${agentID.generation}/${agentID.group}/${iteration}", '/')
+    val file = dir / "config.json"
+    file.write(bc.toJson.prettyPrint)
+  }
 }
+
+case class BasicConfig(origin: (Float, Float),
+                       halfSize: Float,
+                       spawnSize: Float,
+                       foodRadius: Float,
+                       foodOffset: Float,
+                       foodPos: Seq[(Float, Float)],
+                       foodQuality: Seq[Double])
