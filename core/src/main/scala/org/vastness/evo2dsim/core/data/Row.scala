@@ -14,13 +14,15 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Evo2DSim.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 package org.vastness.evo2dsim.core.data
 
 trait Row extends Product {
   def toSeq = {
     val data = this.productIterator
-    data.map(_.toString).toSeq
+    data.map{
+      case d: Double => BigDecimal(d).underlying.toPlainString
+      case x => x.toString
+    }.toSeq
   }
 
   override def toString = this.toSeq.mkString(", ")
