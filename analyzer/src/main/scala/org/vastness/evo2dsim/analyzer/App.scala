@@ -19,6 +19,9 @@ package org.vastness.evo2dsim.analyzer
 
 import java.util.Timer
 import java.io.File
+import org.vastness.evo2dsim.core.environment.EnvironmentBuilder
+
+import scalax.file.Path
 import org.vastness.evo2dsim.analyzer.gui.MainWindow
 import scala.swing.SwingApplication
 
@@ -98,13 +101,29 @@ object App extends SwingApplication {
       head("Evo2DSim is a simple simulator for evolutionary environment.")
       opt[Int]('t', "timeStep") action { (x, c) =>
         c.copy(timeStep = x) } text "Time step in ms"
+      opt[Int]('g', "generation") action { (x, c) =>
+        c.copy(generation = x) } text "Generation"
+      opt[Int]('n', "group") action { (x, c) =>
+        c.copy(group = x) } text "Group"
       opt[File]('p', "path") action { (x, c) =>
         c.copy(path = x) } text "Evaluation directory"
+      opt[String]('r', "simRun") action { (x, c) =>
+        c.copy(simRun = x) } text "Simulation run directory"
+      opt[String]('e', "Environment") action { (x, c) =>
+        c.copy(env = x) } text "Environment"
     }
 
     parser.parse(args, Config()) map { config =>
       top.dataDir = Some(config.path)
+      top.evalDir = top.dataDir map (d => Path(d).resolve(config.simRun))
       top.timeStep = config.timeStep
+      top.generation = top.evalDir.flatMap(dir => top loadGeneration(dir, config.generation))
+      top.group = config.group
+
+      top.envBuilder = EnvironmentBuilder.values.find(_.name == config.env) match {
+        case Some(eBuilder) => eBuilder
+        case _ => top.envBuilder
+      }
 
       renderLoop() // starting render loop
       simLoop()
@@ -117,5 +136,5 @@ object App extends SwingApplication {
     }
   }
 
-  case class Config(timeStep: Int = 50, path: File = new File("."))
+  case class Config(timeStep: Int = 50, path: File = new File("."), generation: Int = 0, group: Int = 0, simRun:String = "", env: String = "")
 }
