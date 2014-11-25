@@ -9,7 +9,7 @@ fi
 source "${DIR}/common.sh"
 cd $ROOT
 
-git pull
+git pull --ff-only
 sbt clean compile
 rm ${ROOT}/core/target/scala-2.10/classes/org/vastness/evo2dsim/App*
 sbt compile stage
