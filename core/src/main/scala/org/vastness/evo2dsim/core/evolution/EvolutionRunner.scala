@@ -50,7 +50,7 @@ class EvolutionRunner(c: EvolutionConfig) extends Recordable {
   output.writeEvolutionConfig(c)
   println(s"Results are saved in: $dir")
 
-  override def dataHeader = Seq("Generation", "Max", "Min", "Mean", "Variance", "GroupMax", "GroupMin", "GroupMean", "GroupVariance")
+  override def dataHeader = Seq("Generation", "Max", "Min", "Mean", "Variance", "GroupMax", "GroupMin", "GroupMean", "GroupVariance", "Diversity")
   private var _dataRow = Record.empty
   override def dataRow = _dataRow
 
@@ -96,7 +96,7 @@ class EvolutionRunner(c: EvolutionConfig) extends Recordable {
 
       idx +=1
 
-      _dataRow = collectStats(idx, result.map(_._2._1).toSeq)
+      _dataRow = collectStats(idx, result)
       outputStats.step()
 
       if(idx < c.generations) generation = evo.nextGeneration(idx, result)
@@ -156,7 +156,9 @@ class EvolutionRunner(c: EvolutionConfig) extends Recordable {
     sys.exit()
   }
 
-  def collectStats(generation: Int, results: Seq[Double]): Record = {
+  def collectStats(generation: Int, data: Generation): Record = {
+    val results = data.map(_._2._1).toSeq
+
     val max = results.max
     val min = results.min
     val mean = results.sum / results.size
@@ -169,8 +171,17 @@ class EvolutionRunner(c: EvolutionConfig) extends Recordable {
       else (groups.max, groups.min, groups.sum / groups.size)
 
     val gVar = if (groups.isEmpty) 0.0 else groups.foldLeft(0.0) {(acc, x) => acc + math.pow(x - gMean,2)} / groups.size
-    Record(SRow(generation, max, min, mean, variance, gMax, gMin, gMean, gVar))
+    Record(SRow(generation, max, min, mean, variance, gMax, gMin, gMean, gVar, diversity(data)))
   }
+
+  private def diversity(generation: Generation): Double = {
+    val genomes = generation map (_._2._2)
+    val distances =
+      for(g1 <- genomes; g2 <- genomes)
+        yield g1.distance(g2)
+    distances.sum
+  }
+
 }
 
 object EvolutionRunner {
@@ -221,5 +232,5 @@ object EvolutionRunner {
 }
 
 case class SigS(idx: Int, group: Int, iter: Int, strategy: Double) extends Row
-case class SRow(idx: Int, max: Double, min: Double, mean: Double, variance: Double, gMax: Double, gMin: Double, gMean: Double, gVar: Double) extends Row
+case class SRow(idx: Int, max: Double, min: Double, mean: Double, variance: Double, gMax: Double, gMin: Double, gMean: Double, gVar: Double, diversity: Double) extends Row
 

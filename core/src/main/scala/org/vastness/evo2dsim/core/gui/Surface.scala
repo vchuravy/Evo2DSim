@@ -17,16 +17,31 @@
 
 package org.vastness.evo2dsim.core.gui
 
+import java.awt.RenderingHints
 import scala.swing.{Graphics2D, Component}
 import org.vastness.evo2dsim.core.simulator.Entity
-import java.awt.RenderingHints
 
 class Surface extends Component {
+  val offset = 5.0f
   def draw(g2: Graphics2D) {
     g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
     for(e: Entity <- EnvironmentManager.visibleEntities){
         e.sprite.draw(g2)
         if(EnvironmentManager.showData) e.sprite.drawText(g2)
+        e.sprite match {
+          case world: WorldBoundarySprite => {
+            val x = world.e._1.head - 3.0f - offset // 3 = drawStroke
+            val y = world.e._2.head - 3.0f - offset
+            EnvironmentManager.visible match {
+              case None =>
+              case Some(env) =>
+                g2.setColor(Color.BLACK.underlying)
+                val text ="Time steps: %s".format(env.stepCounter)
+                g2.drawString(text, x, y - g2.getFontMetrics.getHeight)
+            }
+          }
+          case _ =>
+        }
     }
   }
 

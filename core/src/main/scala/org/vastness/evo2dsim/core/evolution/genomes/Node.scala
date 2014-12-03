@@ -21,7 +21,7 @@ import org.vastness.evo2dsim.core.neuro.{NumberT, TransferFunction}
 
 trait Node {
   type Self <: Node
-  def mutate: Self
+  def mutate(p: Double): Self
   def tag: NodeTag
   def id: Int
   def bias: NumberT

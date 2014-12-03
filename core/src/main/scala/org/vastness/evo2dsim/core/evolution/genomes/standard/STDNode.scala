@@ -22,5 +22,5 @@ import org.vastness.evo2dsim.core.neuro._
 
 case class STDNode(tag: NodeTag, id: Int, bias: NumberT, transferFunction: TransferFunction, data: String) extends Node {
   type Self = STDNode
-  def mutate = STDNode(tag, id, bias + (2*random - 1), transferFunction, data)
+  def mutate(delta: Double) = STDNode(tag, id, bias + delta, transferFunction, data)
 }

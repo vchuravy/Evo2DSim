@@ -22,6 +22,6 @@ import org.vastness.evo2dsim.core.neuro._
 
 case class ByteNode(tag: NodeTag, id: Int, v_bias: Byte, transferFunction: TransferFunction, data: String) extends Node with Binary {
   type Self = ByteNode
-  def mutate: ByteNode = this //TODO
+  def mutate(p: Double): ByteNode = copy(v_bias = mutate(v_bias, p))
   def bias = mapToDouble(v_bias)
 }

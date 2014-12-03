@@ -25,7 +25,11 @@ trait StaticFoodSources extends FoodSources {
   protected val poison =  new StaticFoodSource(color = Color.RED, max = 8, reward = -1, foodRadius, activationRange, smellRange)
   def foodSources = List(food, poison)
   override def signallingStrategy = {
-    val s = food.signalNear.toDouble / food.timeNear - poison.signalNear.toDouble / poison.timeNear // signal to time
+    // Calculate signal to time ratio. Both can be NaN iff timeNear == 0.0
+    val foodSignal = if(food.timeNear == 0) 0.0 else food.signalNear.toDouble / food.timeNear
+    val poisonSignal = if(poison.timeNear == 0) 0.0 else poison.signalNear.toDouble / poison.timeNear
+    
+    val s = foodSignal - poisonSignal
     Some(s / agents.size)
   }
 }

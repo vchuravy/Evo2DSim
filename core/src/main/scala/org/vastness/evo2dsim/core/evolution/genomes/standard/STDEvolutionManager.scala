@@ -19,8 +19,9 @@ package org.vastness.evo2dsim.core.evolution.genomes.standard
 
 import org.vastness.evo2dsim.core.neuro._
 import org.vastness.evo2dsim.core.evolution.genomes.{NodeTag, Genome, EvolutionManager}
+import breeze.stats.distributions.{Rand, Gaussian}
 
-class STDEvolutionManager( val probability: Double,
+class STDEvolutionManager( val sigma: Double = 0.08,
                            val standardTransferFunction: TransferFunction,
                            val recurrent: Boolean,
                            val numberOfHiddenNeurons: Int)
@@ -28,12 +29,16 @@ class STDEvolutionManager( val probability: Double,
 
   var blueprint: Set[Neuron] = Set.empty
 
+  var randSource: Rand[NumberT] = Gaussian(0.0, sigma)
+
+  val probability: Double = 1.0
+
   def getBasicRandomGenome: Genome = {
     // Define Helper Function
     def connect(froms: Set[STDNode], tos: Set[STDNode]): Set[STDConnection] =
       for(from <- froms;
           to   <- tos)
-      yield STDConnection(from, to, random)
+      yield STDConnection(from.id, to.id, randSource.sample())
 
 
     var id = -1
@@ -44,28 +49,35 @@ class STDEvolutionManager( val probability: Double,
 
     val inputNodes = nodes.filter(_.tag == NodeTag.Sensor)
     val outputNodes = nodes.filter(_.tag == NodeTag.Motor)
-    val hiddenNodes = ( for(i <- 1 to numberOfHiddenNeurons) yield {
-      STDNode(NodeTag.Hidden, id + i, random, standardTransferFunction, s"Hidden$i")
-    } ).toSet
-    val directConnections =
-      connect(inputNodes, hiddenNodes) ++ connect(hiddenNodes, outputNodes)
-    val recurrentConnections =
-      if(recurrent) {
-        connect(outputNodes, hiddenNodes) ++ connect(hiddenNodes, inputNodes) ++ connect(hiddenNodes, hiddenNodes)
-      }
-      else Set.empty[STDConnection]
 
-    val connections = directConnections ++ recurrentConnections
-    val newNodes = nodes ++ hiddenNodes
-    STDGenome(newNodes, connections, this)
+
+    if(numberOfHiddenNeurons > 0) {
+      val hiddenNodes = (for (i <- 1 to numberOfHiddenNeurons) yield {
+        STDNode(NodeTag.Hidden, id + i, randSource.sample(), standardTransferFunction, s"Hidden$i")
+      }).toSet
+      val directConnections =
+        connect(inputNodes, hiddenNodes) ++ connect(hiddenNodes, outputNodes)
+      val recurrentConnections =
+        if (recurrent) {
+          connect(outputNodes, hiddenNodes) ++ connect(hiddenNodes, inputNodes) ++ connect(hiddenNodes, hiddenNodes)
+        }
+        else Set.empty[STDConnection]
+
+      val connections = directConnections ++ recurrentConnections
+      val newNodes = nodes ++ hiddenNodes
+      return STDGenome(newNodes, connections, this)
+    } else {
+      if(recurrent) println("Warning: creating ff-network without recurrence")
+      return STDGenome(nodes, connect(inputNodes, outputNodes), this)
+    }
   }
 
 }
 
 object STDEvolutionManager {
-  def apply(propability: Double, t_func: TransferFunction, settings: String) = {
+  def apply(sigma: Double, t_func: TransferFunction, settings: String) = {
     val (r, n) = parse(settings)
-    new STDEvolutionManager(propability, t_func, r, n)
+    new STDEvolutionManager(sigma, t_func, r, n)
   }
 
   def parse(settings: String): (Boolean, Int) = settings.split(":").toList match {

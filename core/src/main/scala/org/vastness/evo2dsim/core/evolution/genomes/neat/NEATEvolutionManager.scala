@@ -20,7 +20,7 @@ package org.vastness.evo2dsim.core.evolution.genomes.neat
 import org.vastness.evo2dsim.core.neuro.{Neuron, TransferFunction}
 import org.vastness.evo2dsim.core.evolution.genomes.{Genome, EvolutionManager}
 
-class NEATEvolutionManager( val probability: Double,
+class NEATEvolutionManager( val probability: Double = 0.08,
                             val standardTransferFunction: TransferFunction)
                             extends EvolutionManager {
 
@@ -59,7 +59,11 @@ class NEATEvolutionManager( val probability: Double,
 
   def init(n: NEATGenome) = {
     innovationNumberMap = ( for(c <- n.connections) yield {
-      (c.from, c.to) -> c.innovationNumber
+      (n.findNode(c.from), n.findNode(c.to)) match{
+        case(Some(from), Some(to)) => (from, to) -> c.innovationNumber
+        case _ => throw new Exception("Can't find node")
+      }
+
     } ).toMap
 
     innovationNumber_ = n.connections.map(_.innovationNumber).max

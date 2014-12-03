@@ -31,15 +31,34 @@ case class STDGenome(nodes: Set[STDNode] = Set.empty,
   type SelfConnection = STDConnection
 
   def crossover(other: STDGenome) = this // TODO: Add a proper crossover
-  def mutate = STDGenome(mutateNodes(em.probability), mutateConnections(em.probability), em)
+  def mutate = {
+    val probability = 1.0 / ( nodes.size + connections.size) // 1/l
+    STDGenome(mutateNodes(probability), mutateConnections(probability), em)
+  }
 
   private def mutateConnections(p: Double): Set[SelfConnection] =
-    connections map { c =>
-      if(Random.nextDouble <= p) c.mutate else c
-    }
+    connections map {c => if(Random.nextDouble <= p) c.mutate(em.randSource.sample()) else c }
 
   private def mutateNodes(p: Double) =
-    nodes map { n =>
-      if(Random.nextDouble() <= p) n.mutate else n
+    nodes map {n => if(Random.nextDouble <= p) n.mutate(em.randSource.sample()) else n }
+
+  /**
+   * Implements euclidean distance
+   * @param other
+   * @return
+   */
+  def distance(other: Genome): Double = other match {
+    case other: Self => {
+      val nodesDistances = zipper(nodesMap, other.nodesMap) map {
+      case (a, b) => math.pow(a.bias - b.bias, 2)
+      }
+
+      val connDistances = zipper(connectionMap, other.connectionMap) map {
+      case (a, b) => math.pow(a.weight - b.weight, 2)
+      }
+
+      return math.sqrt(nodesDistances.sum + connDistances.sum)
     }
+    case _ => ???
+  }
 }

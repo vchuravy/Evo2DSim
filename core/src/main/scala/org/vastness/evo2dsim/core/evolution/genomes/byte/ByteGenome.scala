@@ -21,7 +21,7 @@ import org.vastness.evo2dsim.core.evolution.genomes.{NodeTag, Genome}
 import scala.util.Random
 import org.vastness.evo2dsim.core.neuro.Neuron
 
-case class ByteGenome(nodes: Set[ByteNode], connections: Set[ByteConnection], em: ByteEvolutionManager) extends Genome {
+case class ByteGenome(nodes: Set[ByteNode], connections: Set[ByteConnection], em: ByteEvolutionManager) extends Genome with Binary {
   type Self = ByteGenome
   type SelfNode = ByteNode
   type SelfConnection = ByteConnection
@@ -32,17 +32,31 @@ case class ByteGenome(nodes: Set[ByteNode], connections: Set[ByteConnection], em
 
   def mutate: ByteGenome = ByteGenome(mutateNodes(p), mutateConnections(p), em)
 
-  private def mutateConnections(p: Double): Set[SelfConnection] =
-    connections map { c =>
-      if(Random.nextDouble <= p) c.mutate else c
-    }
+  private def mutateConnections(p: Double): Set[SelfConnection] = connections map (_.mutate(p))
 
-  private def mutateNodes(p: Double) =
-    nodes map { n =>
-      if(Random.nextDouble() <= p) n.mutate else n
-    }
+  private def mutateNodes(p: Double) = em.bias_evolution match {
+    case true => nodes map (_.mutate(p))
+    case false => nodes
+  }
 
   def crossover(other: ByteGenome): ByteGenome = this //TODO
+
+  def hamming(x: Byte, y: Byte): Int = popcount((x ^ y).toByte)
+
+  def distance(other: Genome): Double = other match {
+    case other: Self => {
+      val nodesDistances = zipper(nodesMap, other.nodesMap) map {
+        case (a, b) => hamming(a.v_bias, b.v_bias)
+      }
+
+      val connDistances = zipper(connectionMap, other.connectionMap) map {
+        case (a, b) => hamming(a.v_weight, b.v_weight)
+      }
+
+      return nodesDistances.sum + connDistances.sum
+    }
+    case _ => ???
+  }
 }
 
 object ByteGenome {
@@ -59,7 +73,7 @@ object ByteGenome {
       for(from <- inputNodes;
           to   <- outputNodes) yield {
         idC += 1
-        ByteConnection(from, to, bMapper.mapToByte(Random.nextDouble()))
+        ByteConnection(from.id, to.id, bMapper.mapToByte(Random.nextDouble()))
       }
     ByteGenome(nodes, connections, em)
   }
