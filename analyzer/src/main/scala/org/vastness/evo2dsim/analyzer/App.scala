@@ -93,6 +93,11 @@ object App extends SwingApplication {
       {
         simTimer.cancel()
       }
+
+      if(!top.e.map(_.running).getOrElse(true) && top.e.map(e => e.stepCounter == e.steps).getOrElse(false)) {
+        top.initEnvironment()
+        simLoop()
+      }
     }
   }
 
@@ -136,5 +141,5 @@ object App extends SwingApplication {
     }
   }
 
-  case class Config(timeStep: Int = 50, path: File = new File("."), generation: Int = 0, group: Int = 0, simRun:String = "", env: String = "")
+  case class Config(timeStep: Int = 50, path: File = new File("."), generation: Int = 0, group: Int = 0, simRun:String = ".", env: String = "")
 }
